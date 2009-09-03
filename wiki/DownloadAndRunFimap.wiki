@@ -7,8 +7,10 @@ You will need Python 2.6.
 
 = Details =
 
+== Downloading official release ==
+Goto the [http://code.google.com/p/fimap/downloads/list Download page].
+
 == Downloading SVN snapshot ==
-This is currently the only method to download fimap.
 Follow this steps:
   # If you haven't installed subversion yet, do it now:
     {{{sudo apt-get install subversion # debian\ubuntu way}}}
