@@ -110,7 +110,7 @@ if __name__ == "__main__":
     config["p_mode"] = 0 # 0=single ; 1=mass
     config["p_list"] = None
     config["p_verbose"] = 2
-    config["p_useragent"] = "fimap/v%s" %__version__
+    config["p_useragent"] = "fimap.googlecode.com/v%s" %__version__
     config["p_pages"] = 10
     config["p_query"] = None
     config["p_exploit_filter"] = ""

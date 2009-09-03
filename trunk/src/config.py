@@ -119,7 +119,7 @@ settings["filesrmt"] = (
                           ),
                           (
                                 # ... .htm
-                                "www.kah-bonn.de/index.htm?presse/winterthur.htm",
+                                "http://www.kah-bonn.de/index.htm?presse/winterthur.htm",
                                 "Das Programm der Kunst- und Ausstellungshalle basiert",
                                 "rR" # (read)-flag and (R)emoteInjection-Flag
                           )
