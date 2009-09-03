@@ -1,0 +1,50 @@
+#summary fimaps commandline options
+
+= Introduction =
+
+Here you can see the actual commandline options.
+
+
+= Details =
+
+{{{
+fimap v.01 by Iman Karim - Automatic LFI/RFI scanner and exploiter.
+Usage: ./fimap [options]
+## Operating Modes:
+   -s , --single                 Mode to scan a single URL for FI errors.
+                                 Needs URL (-u). This mode is the default.
+   -m , --mass                   Mode for mass scanning. Will check every URL
+                                 from a given list (-l) for FI errors.
+   -g , --google                 Mode to use Google to aquire URLs.
+                                 Needs a query (-q) as google search query.
+## Variables:
+   -u , --url=URL                The URL you want to test.
+                                 Needed in single mode (-s).
+   -l , --list                   The URL-List you want to test.
+                                 Needed in mass mode (-m).
+   -q , --query=QUERY            The Google Search QUERY.
+                                 Example: 'inurl:include.php'
+                                 Needed in Google Mode (-g)
+   -p , --pages=COUNT            Define the COUNT of pages to search (-g).
+                                 Default is 10.
+## Attack Kit:
+   -x , --exploit                Starts an interactive session where you can
+                                 select an target and do some action.
+## Disguise Kit:
+   -A , --user-agent=UA          The User-Agent which should be sent.
+## Other:
+   -v , --verbose=LEVEL          Verbose level you want to receive.
+                                 LEVEL=3 -> Debug
+                                 LEVEL=2 -> Info(Default)
+                                 LEVEL=1 -> Messages
+                                 LEVEL=0 -> High-Level
+        --credits                Shows some credits.
+   -h , --help                   Shows this cruft.
+## Examples:
+  1. Scan a single URL for FI errors:
+     ./fimap.py -u 'http://localhost/test.php?file=bang&id=23'
+  2. Scan a list of URLS for FI errors:
+     ./fimap.py -m -l '/tmp/urllist.txt'
+  3. Scan Google search results for FI errors:
+     ./fimap.py -g -q 'inurl:include.php'
+}}}
