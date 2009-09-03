@@ -18,36 +18,35 @@ I hope it gives you a good image how it works :)
 
     * fimap'ing it:
       {{{
-imax@DevelB0x:~$ fimap -u "http://localhost/vulnerable.php?inc=index"
+imax@DevelB0x:~$ fimap -u "http://localhost/vulnerable.php?inc=index.php"
 fimap v.01 by Iman Karim - Automatic LFI/RFI scanner and exploiter.
-SingleScan is testing URL: 'http://localhost/vulnerable.php?inc=index'
-[OUT] Parsing URL 'http://localhost/vulnerable.php?inc=index'...
+SingleScan is testing URL: 'http://localhost/vulnerable.php?inc=index.php'
+[OUT] Parsing URL 'http://localhost/vulnerable.php?inc=index.php'...
 [INFO] Fiddling around with URL...
-[OUT] Possible file inclusion found! -> 'http://localhost/vulnerable.php?inc=ZXYz9wI1' with Parameter 'inc'.
-[OUT] Identifing Vulnerability 'http://localhost/vulnerable.php?inc=index' with Key 'inc'...
+[OUT] Possible file inclusion found! -> 'http://localhost/vulnerable.php?inc=283wnWJP' with Parameter 'inc'.
+[OUT] Identifing Vulnerability 'http://localhost/vulnerable.php?inc=index.php' with Key 'inc'...
 [INFO] Scriptpath received: '/var/www'
-[INFO] Trying NULL-Byte Poisoning to get rid of the suffix...
-[INFO] NULL-Byte Poisoning successfull!
 [INFO] Testing file '/etc/passwd'...
 [INFO] Testing file '/proc/self/environ'...
 [INFO] Testing file 'php://input'...
 [INFO] Testing file 'http://www.phpbb.de/index.php'...
 [INFO] Testing file 'http://www.uni-bonn.de/Frauengeschichte/index.html'...
-[INFO] Testing file 'www.kah-bonn.de/index.htm?presse/winterthur.htm'...
-########################################################################################################################################
-#[1] Possible File Injection                                                                                                           #
-########################################################################################################################################
-#  [URL]      http://localhost/vulnerable.php?inc=index                                                                                #
-#  [PARAM]    inc                                                                                                                      #
-#  [PATH]     /var/www                                                                                                                 #
-#  [TYPE]     Absolute with appendix '.php' + Remote injection                                                                         #
-#  [NULLBYTE] Works. :)                                                                                                                #
-#  [READABLE FILES]                                                                                                                    #
-#                   [0] /etc/passwd -> /etc/passwd%00                                                                                  #
-#                   [1] php://input -> php://input%00                                                                                  #
-#                   [2] http://www.phpbb.de/index.php -> http://www.phpbb.de/index.php%00                                              #
-#                   [3] http://www.uni-bonn.de/Frauengeschichte/index.html -> http://www.uni-bonn.de/Frauengeschichte/index.html%00    #
-########################################################################################################################################
+[INFO] Testing file 'http://www.kah-bonn.de/index.htm?presse/winterthur.htm'...
+###################################################################################
+#[1] Possible File Injection                                                      #
+###################################################################################
+#  [URL]      http://localhost/vulnerable.php?inc=index.php                       #
+#  [PARAM]    inc                                                                 #
+#  [PATH]     /var/www                                                            #
+#  [TYPE]     Absolute Clean + Remote injection                                   #
+#  [NULLBYTE] No Need. It's clean.                                                #
+#  [READABLE FILES]                                                               #
+#                   [0] /etc/passwd                                               #
+#                   [1] php://input                                               #
+#                   [2] http://www.phpbb.de/index.php                             #
+#                   [3] http://www.uni-bonn.de/Frauengeschichte/index.html        #
+#                   [4] http://www.kah-bonn.de/index.htm?presse/winterthur.htm    #
+###################################################################################
 
       }}}
 
