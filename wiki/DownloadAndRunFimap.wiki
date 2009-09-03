@@ -1,0 +1,23 @@
+#summary Installing and running fimap
+
+= Introduction =
+
+Ways to get fimap running.
+You will need Python 2.6.
+
+= Details =
+
+== Downloading SVN snapshot ==
+This is currently the only method to download fimap.
+Follow this steps:
+  # If you haven't installed subversion yet, do it now:
+    * sudo apt-get install subversion # debian\ubuntu way
+  # Goto your directory you want to download it.
+    * cd ~
+  # # Checkout the code:
+    * svn checkout http://fimap.googlecode.com/svn/trunk/ fimap
+  # Change to the fimap directory and make it executable.
+    * cd fimap/src
+    * chmod +x fimap.py
+  # Run fimap.
+    *./fimap.py
