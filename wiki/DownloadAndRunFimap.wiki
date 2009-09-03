@@ -20,7 +20,7 @@ Follow this steps:
     {{{cd fimap/src}}}
     {{{chmod +x fimap.py}}}
   # Run fimap.
-    {{{./fimap.py}}}
+    {{{./fimap.py -h}}}
 
 == Configuring ==
 There are some settings you can define in the config.py file.
