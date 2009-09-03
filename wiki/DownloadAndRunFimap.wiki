@@ -11,16 +11,16 @@ You will need Python 2.6.
 This is currently the only method to download fimap.
 Follow this steps:
   # If you haven't installed subversion yet, do it now:
-    * sudo apt-get install subversion # debian\ubuntu way
+    {{{sudo apt-get install subversion # debian\ubuntu way}}}
   # Goto your directory you want to download it.
-    * cd ~
-  # # Checkout the code:
-    * svn checkout http://fimap.googlecode.com/svn/trunk/ fimap
+    {{{cd ~}}}
+  # Checkout the code:
+    {{{svn checkout http://fimap.googlecode.com/svn/trunk/ fimap}}}
   # Change to the fimap directory and make it executable.
-    * cd fimap/src
-    * chmod +x fimap.py
+    {{{cd fimap/src}}}
+    {{{chmod +x fimap.py}}}
   # Run fimap.
-    *./fimap.py
+    {{{./fimap.py}}}
 
 == Configuring ==
 There are some settings you can define in the config.py file.
