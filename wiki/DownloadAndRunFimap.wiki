@@ -24,4 +24,5 @@ Follow this steps:
 
 == Configuring ==
 There are some settings you can define in the config.py file.
-Define the ftp or local settings to take full advantage of RFI exploits.
+Define the ftp-to-http or local-to-http settings to take full advantage of RFI exploits.
+More details about it you will find in the config.py file.
