@@ -17,8 +17,10 @@ Follow this steps:
   # Checkout the code:
     {{{svn checkout http://fimap.googlecode.com/svn/trunk/ fimap}}}
   # Change to the fimap directory and make it executable.
-    {{{cd fimap/src}}}
-    {{{chmod +x fimap.py}}}
+{{{
+cd fimap/src
+chmod +x fimap.py
+}}}
   # Run fimap.
     {{{./fimap.py -h}}}
 
