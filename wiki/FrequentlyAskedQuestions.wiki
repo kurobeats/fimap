@@ -1,0 +1,12 @@
+#summary Frequently Asked Questions
+
+= Introduction =
+
+Frequently Asked Questions.
+
+
+= Details =
+
+== If I start fimap I get an error: [WARN] open() got an unexpected keyword argument 'timeout' ==
+Solutions:
+  * Please make sure you use Python 2.6. Afaik the timeout argument is not supported in Python 2.5. 
