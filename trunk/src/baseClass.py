@@ -92,16 +92,19 @@ class baseClass (object):
 
     def doGetRequest(self, URL, TimeOut=10):
         try:
-            opener = urllib2.build_opener()
-            opener.addheaders = [('User-agent', self.globalSettings().getUserAgent())]
-            f = opener.open(URL, timeout=TimeOut) # TIMEOUT
-            return(f.read())
-        except TypeError, err:
             try:
-                # Python 2.5 compatiblity
-                socket.setdefaulttimeout(TimeOut)
-                f = opener.open(URL)
+                opener = urllib2.build_opener()
+                opener.addheaders = [('User-agent', self.globalSettings().getUserAgent())]
+                f = opener.open(URL, timeout=TimeOut) # TIMEOUT
                 return(f.read())
+            except TypeError, err:
+                try:
+                    # Python 2.5 compatiblity
+                    socket.setdefaulttimeout(TimeOut)
+                    f = opener.open(URL)
+                    return(f.read())
+                except Exception, err:
+                    raise
             except:
                 raise
 
