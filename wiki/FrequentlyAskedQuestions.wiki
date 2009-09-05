@@ -1,13 +1,9 @@
 #summary Frequently Asked Questions
 
-= Introduction =
-
-Frequently Asked Questions.
-
-
-= Details =
+= FAQ =
 
 == If I start fimap I get an error: (WARN) open() got an unexpected keyword argument 'timeout' ==
-Solutions:
+=== Solutions ===
   * Please make sure you use Python 2.6. Afaik the timeout argument is not supported in Python 2.5.
-  * Use the SVN snapshot. The timeout bug is fixed there and it should work with python 2.5 too.
+  * Download alpha .02 from the download page.
+  * Use the SVN snapshot.
