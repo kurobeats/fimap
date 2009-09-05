@@ -161,7 +161,7 @@ class codeinjector(baseClass):
         if (mode.find("R") != -1 and mode.find("x") != -1):
             if settings["dynamic_rfi"]["mode"] in ("ftp", "local"):
                 self._log("Testing code thru RFI...", self.globSet.LOG_INFO)
-                if self.executeRFI(url, appendix, "<? echo 0xDEADBEEF; ?>").find("3735928559") != -1:
+                if self.executeRFI(url, appendix, settings["php_info"][0]).find(settings["php_info"][1]) != -1:
                     for item in settings["php_exec"]:
                         name, payload = item
                         self._log("Testing execution thru '%s'..."%(name), self.globSet.LOG_ALWAYS)
