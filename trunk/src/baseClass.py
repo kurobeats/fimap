@@ -95,8 +95,16 @@ class baseClass (object):
             opener = urllib2.build_opener()
             opener.addheaders = [('User-agent', self.globalSettings().getUserAgent())]
             f = opener.open(URL, timeout=TimeOut) # TIMEOUT
-
             return(f.read())
+        except TypeError, err:
+            try:
+                # Python 2.5 compatiblity
+                socket.setdefaulttimeout(TimeOut)
+                f = opener.open(URL)
+                return(f.read())
+            except:
+                raise
+
         except Exception, err:
             self._log("Failed to do request to (%s)" %(URL), self.globSet.LOG_WARN)
             self._log(err, self.globSet.LOG_WARN)
