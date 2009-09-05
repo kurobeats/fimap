@@ -52,7 +52,7 @@ def show_help(AndQuit=False):
     print "## Variables:"
     print "   -u , --url=URL                The URL you want to test."
     print "                                 Needed in single mode (-s)."
-    print "   -l , --list                   The URL-List you want to test."
+    print "   -l , --list=LIST              The URL-LIST you want to test."
     print "                                 Needed in mass mode (-m)."
     print "   -q , --query=QUERY            The Google Search QUERY."
     print "                                 Example: 'inurl:include.php'"
