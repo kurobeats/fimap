@@ -42,7 +42,7 @@ class massScan:
         for l in f:
             if idx >= 0:
                 l = l.strip()
-                if (l.startswith("http://")):
+                if (l.startswith("http://"), l.startswith("https://")):
                     print "[%d][MASS_SCAN] Scanning: '%s'..." %(idx,l)
                     single = singleScan(self.config["p_verbose"])
                     single.setConfig(self.config, l)
