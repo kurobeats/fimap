@@ -36,6 +36,19 @@ class report:
         self.ServerPath = None
         self.ServerScript = None
         self.RemoteInjectable = False
+        self.isLinux = True
+
+    def setWindows(self):
+        self.isLinux = False
+
+    def isWindows(self):
+        return(not self.isLinux)
+
+    def setLinux(self):
+        self.isLinux = True
+
+    def isLinux(self):
+        return(self.isLinux)
 
     def setVulnKeyVal(self, val):
         self.VulnKeyVal = val
