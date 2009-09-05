@@ -114,12 +114,20 @@ class targetScanner (baseClass.baseClass):
         else:
             script = code[s.start(): s.end()]
             script = script[script.find("<b>")+3: script.find("</b>")]
-            scriptpath = os.path.dirname(script)
+            if (script != None and script[1] == ":"): # Windows detection quick hack
+                scriptpath = script[:script.rfind("\\")]
+                r.setWindows()
+            else:
+                scriptpath = os.path.dirname(script)
             self._log("Scriptpath received: '%s'" %(scriptpath), self.globSet.LOG_INFO)
             r.setServerPath(scriptpath)
             r.setServerScript(script)
 
-        
+
+        if (r.isWindows()):
+            self._log("Windows servers are currently not supported. Skipping it...", self.globSet.LOG_WARN)
+            return(None)
+
 
         errmsg = code[m.start(): m.end()]
         errmsg = errmsg[errmsg.find("'")+1:errmsg.rfind("'")]
