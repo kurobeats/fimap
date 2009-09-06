@@ -218,17 +218,17 @@ class targetScanner (baseClass.baseClass):
                 fl = up = None
                 if (rfi_mode == "ftp"):
                     fl = settings["dynamic_rfi"]["ftp"]["ftp_path"] + rep.getAppendix()
-                    up = self.FTPuploadFile("<? echo 0xDEADBEEF; ?>", rep.getAppendix())
+                    up = self.FTPuploadFile(settings["php_info"][0], rep.getAppendix())
                 elif(rfi_mode == "local"):
                     fl = settings["dynamic_rfi"]["local"]["local_path"] + rep.getAppendix()
                     up = {}
                     up["local"] = fl
                     up["http"] = settings["dynamic_rfi"]["local"]["http_map"] + rep.getAppendix()
                     f = open(up["local"], "w")
-                    f.write("<? echo 0xDEADBEEF; ?>")
+                    f.write(settings["php_info"][0])
                     f.close()
 
-                if (self.readFile(rep, up["http"], "3735928559", True)):
+                if (self.readFile(rep, up["http"], settings["php_info"][1], True)):
                     ret.append(up["http"])
                     rep.setRemoteInjectable(True)
                     self.addXMLLog(rep, "rxR", up["http"])
