@@ -121,7 +121,7 @@ class baseClass (object):
             response = urllib2.urlopen(req)
             return(response.read())
         except Exception, err:
-            self._log("Failed to do request to (%s)" %(URL), self.globSet.LOG_WARN)
+            self._log("Failed to do request to (%s)" %(url), self.globSet.LOG_WARN)
             self._log(err, self.globSet.LOG_WARN)
             return(None)
 
