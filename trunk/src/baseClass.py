@@ -252,3 +252,29 @@ class baseClass (object):
         ftp = FTP(host, user, pw)
         ftp.delete(file)
         ftp.quit()
+
+    def relpath(self, path, start=os.curdir, sep="/"):
+        # Relpath implementation directly ripped and modified from Python 2.6 source.
+        if not path:
+            raise ValueError("no path specified")
+        start_list = os.path.abspath(start).split(sep)
+        path_list = os.path.abspath(path).split(sep)
+        # Work out how much of the filepath is shared by start and path.
+        i = len(self.commonprefix([start_list, path_list]))
+        rel_list = [".."] * (len(start_list)-i) + path_list[i:]
+        if not rel_list:
+            return os.curdir
+        return os.path.join(*rel_list)
+
+
+
+    def commonprefix(self, m):
+        "Given a list of pathnames, returns the longest common leading component"
+        # Ripped from Python 2.6 source.
+        if not m: return ''
+        s1 = min(m)
+        s2 = max(m)
+        for i, c in enumerate(s1):
+            if c != s2[i]:
+                return s1[:i]
+        return s1
