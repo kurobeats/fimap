@@ -20,7 +20,7 @@ Usage: ./fimap [options]
 ## Variables:
    -u , --url=URL                The URL you want to test.
                                  Needed in single mode (-s).
-   -l , --list                   The URL-List you want to test.
+   -l , --list=LIST              The URL-List you want to test.
                                  Needed in mass mode (-m).
    -q , --query=QUERY            The Google Search QUERY.
                                  Example: 'inurl:include.php'
