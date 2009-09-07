@@ -2,7 +2,24 @@
 
 = FAQ =
 
-== If I start fimap I get an error: (WARN) open() got an unexpected keyword argument 'timeout' ==
+== What's a clean\dirty inclusion? ==
+=== Clean inclusion ===
+A clean inclusion doesn't have any appendix.
+For example the PHP code: 
+{{{
+<? include($_GET["inc"]); ?>
+}}}
+will produce a clean inclusion bug.
+
+=== Dirty inclusion ===
+A dirty inclusion have a forced appendix.
+For example the PHP code: 
+{{{
+<? include($_GET["inc"] . ".php"); ?> 
+}}}
+will produce a dirty inclusion bug.
+
+== If I start fimap I get an error: `[`WARN`]` open() got an unexpected keyword argument 'timeout' ==
 === Solutions ===
   * Please make sure you use Python 2.6. Afaik the timeout argument is not supported in Python 2.5.
   * Download alpha >= v.03 from the download page.
