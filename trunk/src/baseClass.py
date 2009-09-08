@@ -133,7 +133,7 @@ class baseClass (object):
         self.__logfile.write("%s\n" %(txt))
 
     def drawBox(self, header, textarray):
-        maxLen = self.__getLongestLine(textarray) + 5
+        maxLen = self.__getLongestLine(textarray, header) + 5
         headspacelen = (maxLen/2 - len(header)/2)
         print "#"* (maxLen+1)
         self.__printBoxLine(header, maxLen)
@@ -148,8 +148,8 @@ class baseClass (object):
         suffix = " " * (maxlen - len(txt)-1)
         print "#" + txt + suffix + "#"
 
-    def __getLongestLine(self, textarray):
-        maxLen = 0
+    def __getLongestLine(self, textarray, header):
+        maxLen = len(header)
         for ln in textarray:
             if (len(ln) > maxLen):
                 maxLen = len(ln)

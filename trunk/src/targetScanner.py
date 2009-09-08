@@ -86,12 +86,16 @@ class targetScanner (baseClass.baseClass):
                 m = RE_SUCCESS_MSG.search(code)
                 if (m != None):
                     self._log("Possible local file disclose found! -> '%s' with Parameter '%s'. (IDENTIFY DISABLED IN THIS VERSION)"%(tmpurl, k), self.globSet.LOG_ALWAYS)
+                    #self.identifyReadFile(URL, Params, VulnParam)
                     self._writeToLog("READ ; %s ; %s"%(tmpurl, k))
         return(ret)
 
 
-    def identifyVuln(self, URL, Params, VulnParam):
-        self._log("Identifing Vulnerability '%s' with Key '%s'..."%(URL, VulnParam), self.globSet.LOG_ALWAYS)
+
+    def identifyVuln(self, URL, Params, VulnParam, identifyMode="inc"):
+        # identify Mode can be set to 'inc' for inclusion check or to 'read' for read file check.
+
+        self._log("Identifing Vulnerability '%s' with Param '%s'..."%(URL, VulnParam), self.globSet.LOG_ALWAYS)
         tmpurl = URL
         rndStr = self.getRandomStr()
         tmpurl = tmpurl.replace("%s=%s"%(VulnParam,Params[VulnParam]), "%s=%s"%(VulnParam, rndStr))

