@@ -153,8 +153,6 @@ settings["payloads"]["sys"] = {}
 settings["payloads"]["php"] = {}
 
 # Reverse Shell Code - I have enlighted it.
-# __IP__ will be replaced with the IP.
-# __PORT__ will be replaced with the port.
 # Orginal credit goes to:
 # php-reverse-shell - A Reverse Shell implementation in PHP
 # Copyright (C) 2007 pentestmonkey@pentestmonkey.net
