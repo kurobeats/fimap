@@ -164,9 +164,9 @@ class targetScanner (baseClass.baseClass):
                 tmpurl = tmpurl.replace("%s=%s"%(VulnParam,Params[VulnParam]), "%s=%s%%00"%(VulnParam, rndStr))
                 code = self.doGetRequest(tmpurl)
                 if (code == None):
-                    self._log("NULL-Byte testing failed.", self.globSet.LOG_ERROR)
-                    return(None)
-                if (code.find("%s\\0%s"%(rndStr, sur)) != -1 or code.find("%s%s"%(rndStr, sur)) != -1):
+                    self._log("NULL-Byte testing failed.", self.globSet.LOG_WARN)
+                    r.setNullBytePossible(False)
+                elif (code.find("%s\\0%s"%(rndStr, sur)) != -1 or code.find("%s%s"%(rndStr, sur)) != -1):
                     self._log("NULL-Byte Poisoning not possible.", self.globSet.LOG_INFO)
                     r.setNullBytePossible(False)
                 else:
