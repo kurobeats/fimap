@@ -193,8 +193,8 @@ settings["payloads"]["php"]["Spawn reverse shell"] = (
 #                      |||    ||||||||||
 #                      vvv    vvvvvvvvvv
 #settings["payloads"]["php"]["Write File"] = (
-#                                                (("Filepath to write: ", "__FILE__"),    # Question Number One which its Placeholder for its answer.
-#                                                ("File content: ", "__CONTENT__")),       # Question Number Two which its Placeholder for its answer.
+#                                                (("Filepath to write: ", "__FILE__"),    # Question Number One with its Placeholder for its answer.
+#                                                ("File content: ", "__CONTENT__")),       # Question Number Two with its Placeholder for its answer.
 #                                                "<? $f=fopen(\"__FILE__\", \"w\"); fwrite($f, \"__CONTENT__\"); fclose($f); ?>"  # The PHP Code itself.
 #                                             )
 
