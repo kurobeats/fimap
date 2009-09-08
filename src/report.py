@@ -118,12 +118,12 @@ class report:
         if (self.getPrefix() == None):
             return("Not checked.")
         elif (self.isAbsoluteInjection()):
-            if (self.getSurfix() == ""):
+            if (self.getAppendix() == ""):
                 ret = "Absolute Clean"
             else:
                 ret = "Absolute with appendix '%s'" %(self.getAppendix())
         elif (self.isRelativeInjection()):
-            if (self.getSurfix() == ""):
+            if (self.getAppendix() == ""):
                 ret = "Relative Clean"
             else:
                 ret = "Relative with appendix '%s'" %(self.getAppendix())

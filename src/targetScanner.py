@@ -136,7 +136,6 @@ class targetScanner (baseClass.baseClass):
         errmsg = code[m.start(): m.end()]
         errmsg = errmsg[errmsg.find("'")+1:errmsg.rfind("'")]
         
-        
         if (errmsg == rndStr):
             r.setPrefix("")
             r.setSurfix("")
@@ -158,7 +157,7 @@ class targetScanner (baseClass.baseClass):
             if (pre == "."): pre = ""
             r.setPrefix(pre)
             r.setSurfix(sur)
-            
+
             if (sur != ""):
                 self._log("Trying NULL-Byte Poisoning to get rid of the suffix...", self.globSet.LOG_INFO)
                 tmpurl = URL
