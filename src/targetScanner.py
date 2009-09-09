@@ -19,7 +19,6 @@
 #
 
 from config import settings
-import incinfo
 import baseClass
 from report import report
 import re,os
@@ -75,7 +74,6 @@ class targetScanner (baseClass.baseClass):
                 m = RE_SUCCESS_MSG.search(code)
                 if (m != None):
                     self._log("Possible file inclusion found! -> '%s' with Parameter '%s'." %(tmpurl, k), self.globSet.LOG_ALWAYS)
-                    info = incinfo.incinfo(self.Target_URL, self.params, k)
                     self._writeToLog("POSSIBLE ; %s ; %s"%(self.Target_URL, k))
                     rep = self.identifyVuln(self.Target_URL, self.params, k)
                     if (rep != None):
