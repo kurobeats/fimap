@@ -23,6 +23,7 @@
 
 
 from codeinjector import codeinjector
+from crawler import crawler
 import getopt
 from googleScan import googleScan
 from massScan import massScan
@@ -49,6 +50,9 @@ def show_help(AndQuit=False):
     print "                                 from a given list (-l) for FI errors."
     print "   -g , --google                 Mode to use Google to aquire URLs."
     print "                                 Needs a query (-q) as google search query."
+    print "   -H , --harvest                Mode to harvest a URL recursivly for new URLs."
+    print "                                 Needs a root url (-u) to start crawling there."
+    print "                                 Also needs (-w) to write a URL list for mass mode."
     print "## Variables:"
     print "   -u , --url=URL                The URL you want to test."
     print "                                 Needed in single mode (-s)."
@@ -59,6 +63,8 @@ def show_help(AndQuit=False):
     print "                                 Needed in Google Mode (-g)"
     print "   -p , --pages=COUNT            Define the COUNT of pages to search (-g)."
     print "                                 Default is 10."
+    print "   -w , --write=LIST             The LIST which will be written if you have choosen"
+    print "                                 harvest mode (-H). This file will be opened in APPEND mode."
     print "## Attack Kit:"
     print "   -x , --exploit                Starts an interactive session where you can"
     print "                                 select an target and do some action."
@@ -107,13 +113,14 @@ def list_results(lst = os.path.join(os.environ.get('HOME'), "fimap_result.xml"))
 
 if __name__ == "__main__":
     config["p_url"] = None
-    config["p_mode"] = 0 # 0=single ; 1=mass
+    config["p_mode"] = 0 # 0=single ; 1=mass ; 2=google ; 3=crawl
     config["p_list"] = None
     config["p_verbose"] = 2
     config["p_useragent"] = "fimap.googlecode.com/v%s" %__version__
     config["p_pages"] = 10
     config["p_query"] = None
     config["p_exploit_filter"] = ""
+    config["p_write"] = None
 
     print head
 
@@ -121,7 +128,7 @@ if __name__ == "__main__":
         show_help(True)
 
     try:
-        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sx", ['url=', "mass", "single", "list=", "verbose=", "help", "user-agent=", "query=", "google", "pages=", "credits", "exploit"])
+        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:", ['url=', "mass", "single", "list=", "verbose=", "help", "user-agent=", "query=", "google", "pages=", "credits", "exploit" , "harvest", "write="])
 
         startExploiter = False
 
@@ -134,6 +141,8 @@ if __name__ == "__main__":
                 config["p_mode"] = 1
             if (k in ("-g", "--google")):
                 config["p_mode"] = 2
+            if (k in ("-H", "--harvest")):
+                config["p_mode"] = 3
             if (k in ("-l", "--list")):
                 config["p_list"] = v
             if (k in ("-q", "--query")):
@@ -144,6 +153,8 @@ if __name__ == "__main__":
                 config["p_pages"] = int(v)
             if (k in ("-A", "--user-agent")):
                 config["p_useragent"] = v
+            if (k in ("-w", "--write")):
+                config["p_write"] = v
             if (k in ("-h", "--help")):
                 show_help(True)
             if (k in("--credits")):
@@ -172,6 +183,13 @@ if __name__ == "__main__":
     if (config["p_query"] == None and config["p_mode"] == 2):
         print "Google Query required. (-q)"
         sys.exit(1)
+    if (config["p_url"] == None and config["p_mode"] == 3):
+        print "Start URL required for harvesting. (-u)"
+        sys.exit(1)
+    if (config["p_write"] == None and config["p_mode"] == 3):
+        print "Output file to write the URLs to is needed in Harvest Mode. (-w)"
+        sys.exit(1)
+        
     if (config["p_mode"] == 0):
         single = singleScan(config["p_verbose"])
         single.setConfig(config, config["p_url"])
@@ -189,3 +207,8 @@ if __name__ == "__main__":
         print "GoogleScanner is searching for Query: '%s'" %config["p_query"]
         g = googleScan(config)
         g.startGoogleScan()
+
+    elif(config["p_mode"] == 3):
+        print "Crawler is harvesting URLs from start URL: '%s' and writing results to: '%s'" %(config["p_url"], config["p_write"])
+        c = crawler(config)
+        c.crawl()
