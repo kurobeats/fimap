@@ -1,10 +1,7 @@
-import os.path
-from xgoogle.BeautifulSoup import BeautifulSoup
-import os, urllib2
 #
 # This file is part of fimap.
 #
-# Copyright(c) 2009 Iman Karim.
+# Copyright(c) 2009 Iman Karim(ikarim2s@smail.inf.fh-brs.de).
 # http://fimap.googlecode.com
 #
 # This file may be licensed under the terms of of the
@@ -21,8 +18,11 @@ import os, urllib2
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
+import os.path
+from xgoogle.BeautifulSoup import BeautifulSoup
+import os, urllib2
 
-__author__="imax"
+__author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$09.09.2009 21:52:30$"
 
 class crawler():
