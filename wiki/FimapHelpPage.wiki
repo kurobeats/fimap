@@ -8,25 +8,32 @@ Here you can see the actual commandline options.
 = Details =
 
 {{{
-fimap v.01 by Iman Karim - Automatic LFI/RFI scanner and exploiter.
-Usage: ./fimap [options]
-## Operating Modes:
+fimap v.04_svn by Iman Karim - Automatic LFI/RFI scanner and exploiter.
+Usage: ./fimap [options]                                               
+## Operating Modes:                                                    
    -s , --single                 Mode to scan a single URL for FI errors.
                                  Needs URL (-u). This mode is the default.
    -m , --mass                   Mode for mass scanning. Will check every URL
                                  from a given list (-l) for FI errors.
    -g , --google                 Mode to use Google to aquire URLs.
                                  Needs a query (-q) as google search query.
+   -H , --harvest                Mode to harvest a URL recursivly for new URLs.
+                                 Needs a root url (-u) to start crawling there.
+                                 Also needs (-w) to write a URL list for mass mode.
 ## Variables:
    -u , --url=URL                The URL you want to test.
                                  Needed in single mode (-s).
-   -l , --list=LIST              The URL-List you want to test.
+   -l , --list=LIST              The URL-LIST you want to test.
                                  Needed in mass mode (-m).
    -q , --query=QUERY            The Google Search QUERY.
                                  Example: 'inurl:include.php'
                                  Needed in Google Mode (-g)
    -p , --pages=COUNT            Define the COUNT of pages to search (-g).
                                  Default is 10.
+   -w , --write=LIST             The LIST which will be written if you have choosen
+                                 harvest mode (-H). This file will be opened in APPEND mode.
+   -d , --depth=CRAWLDEPTH       The CRAWLDEPTH (recurse level) you want to crawl your target site
+                                 in harvest mode (-H). Default is 1.
 ## Attack Kit:
    -x , --exploit                Starts an interactive session where you can
                                  select an target and do some action.
@@ -47,4 +54,7 @@ Usage: ./fimap [options]
      ./fimap.py -m -l '/tmp/urllist.txt'
   3. Scan Google search results for FI errors:
      ./fimap.py -g -q 'inurl:include.php'
+  4. Harvest all links of a webpage with recurse level of 3 and
+     write the URLs to /tmp/urllist
+     ./fimap.py -H -u 'http://localhost' -d 3 -w /tmp/urllist
 }}}
