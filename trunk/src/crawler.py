@@ -56,7 +56,7 @@ class crawler():
 
     def crawl_url(self, url, level=0):
         code = self.__simpleGetRequest(url)
-        domain = "http://" + self.getDomain(url)
+        domain = self.getDomain(url, True)
 
         if (code != None):
             soup = None
@@ -130,14 +130,17 @@ class crawler():
             print err
             return(None)
 
-    def getDomain(self, url=None):
+    def getDomain(self, url=None, keepPrefix=False):
         if url==None:
             url = self.URL
 
         domain = url[url.find("//")+2:]
+        prefix = url[:url.find("//")+2]
         if (not domain.endswith("/")):
             domain = domain + "/"
         domain = domain[:domain.find("/")]
+        if (keepPrefix):
+            domain = prefix + domain
         return(domain)
 
     def __encodeURL(self, url):
