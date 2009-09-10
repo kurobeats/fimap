@@ -65,6 +65,8 @@ def show_help(AndQuit=False):
     print "                                 Default is 10."
     print "   -w , --write=LIST             The LIST which will be written if you have choosen"
     print "                                 harvest mode (-H). This file will be opened in APPEND mode."
+    print "   -d , --depth=CRAWLDEPTH       The CRAWLDEPTH (recurse level) you want to crawl your target site"
+    print "                                 in harvest mode (-H). Default is 1."
     print "## Attack Kit:"
     print "   -x , --exploit                Starts an interactive session where you can"
     print "                                 select an target and do some action."
@@ -121,6 +123,7 @@ if __name__ == "__main__":
     config["p_query"] = None
     config["p_exploit_filter"] = ""
     config["p_write"] = None
+    config["p_depth"] = 1
 
     print head
 
@@ -128,7 +131,7 @@ if __name__ == "__main__":
         show_help(True)
 
     try:
-        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:", ['url=', "mass", "single", "list=", "verbose=", "help", "user-agent=", "query=", "google", "pages=", "credits", "exploit" , "harvest", "write="])
+        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:", ['url=', "mass", "single", "list=", "verbose=", "help", "user-agent=", "query=", "google", "pages=", "credits", "exploit" , "harvest", "write=", "depth="])
 
         startExploiter = False
 
@@ -155,6 +158,8 @@ if __name__ == "__main__":
                 config["p_useragent"] = v
             if (k in ("-w", "--write")):
                 config["p_write"] = v
+            if (k in ("-d", "--depth")):
+                config["p_depth"] = int(v)
             if (k in ("-h", "--help")):
                 show_help(True)
             if (k in("--credits")):
@@ -209,6 +214,6 @@ if __name__ == "__main__":
         g.startGoogleScan()
 
     elif(config["p_mode"] == 3):
-        print "Crawler is harvesting URLs from start URL: '%s' and writing results to: '%s'" %(config["p_url"], config["p_write"])
+        print "Crawler is harvesting URLs from start URL: '%s' with depth: %d and writing results to: '%s'" %(config["p_url"], config["p_depth"], config["p_write"])
         c = crawler(config)
         c.crawl()
