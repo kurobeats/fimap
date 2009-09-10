@@ -197,26 +197,30 @@ if __name__ == "__main__":
     if (config["p_write"] == None and config["p_mode"] == 3):
         print "Output file to write the URLs to is needed in Harvest Mode. (-w)"
         sys.exit(1)
-        
-    if (config["p_mode"] == 0):
-        single = singleScan(config["p_verbose"])
-        single.setConfig(config, config["p_url"])
-        single.scan()
 
-    elif(config["p_mode"] == 1):
-        if (not os.path.exists(config["p_list"])):
-            print "Your defined URL-List doesn't exist: %s" %config["p_list"]
-            sys.exit(1)
-        print "MassScanner is loading URLs from file: '%s'" %config["p_list"]
-        m = massScan(config)
-        m.startMassScan()
 
-    elif(config["p_mode"] == 2):
-        print "GoogleScanner is searching for Query: '%s'" %config["p_query"]
-        g = googleScan(config)
-        g.startGoogleScan()
+    try:
+        if (config["p_mode"] == 0):
+            single = singleScan(config["p_verbose"])
+            single.setConfig(config, config["p_url"])
+            single.scan()
 
-    elif(config["p_mode"] == 3):
-        print "Crawler is harvesting URLs from start URL: '%s' with depth: %d and writing results to: '%s'" %(config["p_url"], config["p_depth"], config["p_write"])
-        c = crawler(config)
-        c.crawl()
+        elif(config["p_mode"] == 1):
+            if (not os.path.exists(config["p_list"])):
+                print "Your defined URL-List doesn't exist: %s" %config["p_list"]
+                sys.exit(1)
+            print "MassScanner is loading URLs from file: '%s'" %config["p_list"]
+            m = massScan(config)
+            m.startMassScan()
+
+        elif(config["p_mode"] == 2):
+            print "GoogleScanner is searching for Query: '%s'" %config["p_query"]
+            g = googleScan(config)
+            g.startGoogleScan()
+
+        elif(config["p_mode"] == 3):
+            print "Crawler is harvesting URLs from start URL: '%s' with depth: %d and writing results to: '%s'" %(config["p_url"], config["p_depth"], config["p_write"])
+            c = crawler(config)
+            c.crawl()
+    except KeyboardInterrupt:
+        print "\n\nYou have terminated me :("
