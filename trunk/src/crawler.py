@@ -20,7 +20,7 @@
 
 import os.path
 from xgoogle.BeautifulSoup import BeautifulSoup
-import os, urllib2
+import os, urllib2, urllib
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$09.09.2009 21:52:30$"
@@ -44,16 +44,17 @@ class crawler():
 
         
         while(len(self.urlpool)-idx > 0):
-            url = self.urlpool[idx]
+            url , level = self.urlpool[idx]
+            url = self.__encodeURL(url)
+            print "[Done: %d | Todo: %d | Depth: %d] Going for next URL: '%s'..." %(idx, len(self.urlpool) - idx, level, url)
             outfile.write(url + "\n")
-            print "[Done: %d | Todo: %d] Going for next URL: '%s'..." %(idx, len(self.urlpool) - idx, url)
-            self.crawl_url(url)
+            self.crawl_url(url, level)
             idx = idx +1
 
         print "Harvesting done."
         outfile.close()
 
-    def crawl_url(self, url):
+    def crawl_url(self, url, level=0):
         code = self.__simpleGetRequest(url)
         domain = "http://" + self.getDomain(url)
 
@@ -74,15 +75,18 @@ class crawler():
                     except KeyError, err:
                         pass
 
-                    if new_url != None and not new_url.startswith("#"):
+                    if new_url != None and not new_url.startswith("#") and not new_url.startswith("javascript:"):
                         if(new_url.startswith("http://") or new_url.startswith("https://")):
                             if (new_url.lower().startswith(domain.lower())):
                                 isCool = True
                         else:
-                            new_url = os.path.join(url, new_url)
+                            if (new_url.startswith("/")):
+                                new_url = os.path.join(domain, new_url[1:])
+                            else:
+                                new_url = os.path.join(os.path.dirname(url), new_url)
                             isCool = True
 
-                        if (isCool and new_url in self.urlpool):
+                        if (isCool and self.isURLinPool(new_url)):
                             isCool = False
 
                         if (isCool):
@@ -92,9 +96,16 @@ class crawler():
 
                             for suffix in self.goodTypes:
                                 if (tmpUrl.endswith(suffix)):
-                                    self.urlpool.append(new_url)
-                                    break
+                                    if (level+1 <= self.config["p_depth"]):
+                                        self.urlpool.append((new_url, level+1))
+                                        break
 
+
+    def isURLinPool(self, url):
+        for u, l in self.urlpool:
+            if u.lower() == url.lower():
+                return True
+        return False
 
     def __simpleGetRequest(self, URL, TimeOut=10):
         try:
@@ -126,3 +137,13 @@ class crawler():
         domain = url[url.find("//")+2:]
         domain = domain[:domain.find("/")]
         return(domain)
+
+    def __encodeURL(self, url):
+        ret = ""
+        for c in url.encode("utf-8"):
+            if c.isalnum() or c in ("=", "?", "&", ":", "/", ".", ",", "_", "-", "+", "#"):
+                ret = ret + c
+            else:
+                ret = ret + "%" + (hex(ord(c))[2:])
+
+        return(ret)
