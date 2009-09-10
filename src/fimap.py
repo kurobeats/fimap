@@ -84,11 +84,14 @@ def show_help(AndQuit=False):
     print "   -h , --help                   Shows this cruft."
     print "## Examples:"
     print "  1. Scan a single URL for FI errors:"
-    print "     ./fimap.py -u 'http://localhost/test.php?file=bang&id=23'"
+    print "        ./fimap.py -u 'http://localhost/test.php?file=bang&id=23'"
     print "  2. Scan a list of URLS for FI errors:"
-    print "     ./fimap.py -m -l '/tmp/urllist.txt'"
+    print "        ./fimap.py -m -l '/tmp/urllist.txt'"
     print "  3. Scan Google search results for FI errors:"
-    print "     ./fimap.py -g -q 'inurl:include.php'"
+    print "        ./fimap.py -g -q 'inurl:include.php'"
+    print "  4. Harvest all links of a webpage with recurse level of 3 and"
+    print "     write the URLs to /tmp/urllist"
+    print "        ./fimap.py -H -u 'http://localhost' -d 3 -w /tmp/urllist"
     if (AndQuit):
         sys.exit(0)
 
