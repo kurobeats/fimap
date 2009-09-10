@@ -135,6 +135,8 @@ class crawler():
             url = self.URL
 
         domain = url[url.find("//")+2:]
+        if (not domain.endswith("/")):
+            domain = domain + "/"
         domain = domain[:domain.find("/")]
         return(domain)
 
