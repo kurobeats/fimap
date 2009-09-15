@@ -35,7 +35,7 @@ import sys,os
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$30.08.2009 19:57:21$"
-__version__ = "04_svn"
+__version__ = "05_svn"
 
 config = {}
 
