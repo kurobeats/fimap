@@ -62,5 +62,5 @@ class globalSettings():
         return(self.UserAgent)
 
     def _log(self, txt, LVL):
-        if (5-self.getLogLevel() < LVL):
+        if (4-self.getLogLevel() < LVL):
             print "[%s] %s" %(self.log_lvl[LVL], txt)

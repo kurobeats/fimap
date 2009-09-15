@@ -141,6 +141,7 @@ if __name__ == "__main__":
     config["p_exploit_filter"] = ""
     config["p_write"] = None
     config["p_depth"] = 1
+    config["p_maxtries"] = 5
 
     print head
 
