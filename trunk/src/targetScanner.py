@@ -119,6 +119,9 @@ class targetScanner (baseClass.baseClass):
             if (script != None and script[1] == ":"): # Windows detection quick hack
                 scriptpath = script[:script.rfind("\\")]
                 r.setWindows()
+            elif (script != None and script.startswith("\\\\")):
+                scriptpath = script[:script.rfind("\\")]
+                r.setWindows()
             else:
                 scriptpath = os.path.dirname(script)
             self._log("Scriptpath received: '%s'" %(scriptpath), self.globSet.LOG_INFO)

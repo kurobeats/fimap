@@ -81,6 +81,7 @@ def show_help(AndQuit=False):
     print "                                 LEVEL=1 -> Messages"
     print "                                 LEVEL=0 -> High-Level"
     print "        --credits                Shows some credits."
+    print "        --greetings              Some greetings ;)"
     print "   -h , --help                   Shows this cruft."
     print "## Examples:"
     print "  1. Scan a single URL for FI errors:"
@@ -99,10 +100,23 @@ def show_credits():
     print "## Credits:"
     print "## Developer: Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
     print "#"
+    print "## Project Home: http://fimap.googlecode.com"
+    print "#"
     print "## Additional Thanks to:"
     print "   - Peteris Krumins (peter@catonmat.net) for xgoogle python module."
+    print "   - Pentestmonkey from www.pentestmonkey.net for php-reverse-shell."
+    print "   - Crummy from www.crummy.com for BeautifulSoup."
     sys.exit(0)
 
+
+def show_greetings():
+    print "## Greetings:"
+    print " - Rita, because you are the best girl on earth."
+    print "## Circle of awesome people:"
+    print " - Exorzist"
+    print " - Invisible"
+    print " - Ruun"
+    sys.exit(0)
 
 def list_results(lst = os.path.join(os.environ.get('HOME'), "fimap_result.xml")):
     if (not os.path.exists(lst)):
@@ -134,7 +148,7 @@ if __name__ == "__main__":
         show_help(True)
 
     try:
-        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:", ['url=', "mass", "single", "list=", "verbose=", "help", "user-agent=", "query=", "google", "pages=", "credits", "exploit" , "harvest", "write=", "depth="])
+        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:", ['url=', "mass", "single", "list=", "verbose=", "help", "user-agent=", "query=", "google", "pages=", "credits", "exploit" , "harvest", "write=", "depth=", "greetings"])
 
         startExploiter = False
 
@@ -167,6 +181,8 @@ if __name__ == "__main__":
                 show_help(True)
             if (k in("--credits")):
                 show_credits()
+            if (k in ("--greetings")):
+                show_greetings()
             if (k in("-x", "--exploit")):
                 startExploiter = True
             #if (k in("-f", "--exploit-filter")):
