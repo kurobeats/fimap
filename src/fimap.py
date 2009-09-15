@@ -179,9 +179,9 @@ if __name__ == "__main__":
                 config["p_depth"] = int(v)
             if (k in ("-h", "--help")):
                 show_help(True)
-            if (k in("--credits")):
+            if (k in("--credits",)):
                 show_credits()
-            if (k in ("--greetings")):
+            if (k in ("--greetings",)):
                 show_greetings()
             if (k in("-x", "--exploit")):
                 startExploiter = True
