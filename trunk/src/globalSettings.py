@@ -27,6 +27,7 @@ class globalSettings():
 
     LOG_ERROR = 99
     LOG_WARN  = 99
+    LOG_DEVEL = 1
     LOG_DEBUG = 2
     LOG_INFO  = 3
     LOG_ALWAYS= 4
@@ -35,6 +36,7 @@ class globalSettings():
         self.log_lvl = {}
         self.log_lvl[self.LOG_ERROR]   = "ERROR"
         self.log_lvl[self.LOG_WARN]    = "WARN"
+        self.log_lvl[self.LOG_DEVEL]   = "DEVEL"
         self.log_lvl[self.LOG_DEBUG]   = "DEBUG"
         self.log_lvl[self.LOG_INFO]    = "INFO"
         self.log_lvl[self.LOG_ALWAYS]  = "OUT"
@@ -54,11 +56,11 @@ class globalSettings():
     def setUserAgent(self, UA):
         if (UA != self.UserAgent):
             self.UserAgent = UA
-            self._log("User-Agent changed to '%s'." %UA, 2)
+            self._log("User-Agent changed to '%s'." %UA, self.LOG_DEVEL)
 
     def getUserAgent(self):
         return(self.UserAgent)
 
     def _log(self, txt, LVL):
-        if (4-self.getLogLevel() < LVL):
+        if (5-self.getLogLevel() < LVL):
             print "[%s] %s" %(self.log_lvl[LVL], txt)
