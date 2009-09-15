@@ -87,7 +87,10 @@ class baseClass (object):
         chars = string.letters + string.digits
         ret = ""
         for i in range(8):
-            ret = ret + random.choice(chars)
+            if (i==0):
+                ret = ret + random.choice(string.letters)
+            else:
+                ret = ret + random.choice(chars)
         return ret
 
     def doGetRequest(self, URL, TimeOut=10):
@@ -114,6 +117,7 @@ class baseClass (object):
             return(None)
 
     def doPostRequest(self, url, Post, TimeOut=10):
+        self._log("POST Request: %s" %Post , self.globSet.LOG_DEVEL)
         try:
             opener = urllib2.build_opener()
             header = {'User-agent': self.globalSettings().getUserAgent()}

