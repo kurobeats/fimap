@@ -33,6 +33,7 @@ class googleScan:
         self.config = config
         self.gs = GoogleSearch(self.config["p_query"])
         self.gs.results_per_page = 50
+        
 
     def getNextPage(self):
         results = self.gs.get_results()
@@ -42,6 +43,7 @@ class googleScan:
         print "Querying Google Search: '%s' with max pages %d..."%(self.config["p_query"], self.config["p_pages"])
 
         pagecnt = 0
+        curtry = 0
 
         while(pagecnt < self.config["p_pages"]):
             pagecnt = pagecnt +1
@@ -50,10 +52,20 @@ class googleScan:
               try:
                 results = self.getNextPage()
                 redo = False
+              except KeyboardInterrupt:
+                print "You have terminated me :("
+                sys.exit(0)
               except Exception, err:
                 print err
                 redo = True
                 sys.stderr.write("[RETRYING PAGE %d]\n" %(pagecnt))
+                curtry = curtry +1
+                if (curtry > self.config["p_maxtries"]):
+                    print "MAXIMAL COUNT OF (RE)TRIES REACHED!"
+                    sys.exit(1)
+
+            curtry = 0
+              
 
             if (len(results) == 0): break
             sys.stderr.write("[PAGE %d]\n" %(pagecnt))
