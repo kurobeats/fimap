@@ -27,7 +27,7 @@ __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$30.08.2009 19:59:44$"
 
 INCLUDE_ERR_MSG = "Failed opening( required)* '[\d\w/\.\-]*?%s[\d\w/\.\-]*?' (for inclusion)*"
-SCRIPTPATH_ERR_MSG = "\\(include_path='.*?'\\) in <b>(.*?)</b> on line"
+SCRIPTPATH_ERR_MSG = ("\\(include_path='.*?'\\) in <b>(.*?)</b> on line", "failed to open stream: No such file or directory \\((.*?)- Line")
 
 
 class targetScanner (baseClass.baseClass):
@@ -109,13 +109,14 @@ class targetScanner (baseClass.baseClass):
 
         r = report(URL, Params, VulnParam)
 
-        RE_SCRIPT_PATH = re.compile(SCRIPTPATH_ERR_MSG, re.DOTALL)
-        s = RE_SCRIPT_PATH.search(code)
+        for sp_err_msg in SCRIPTPATH_ERR_MSG:
+            RE_SCRIPT_PATH = re.compile(sp_err_msg)
+            s = RE_SCRIPT_PATH.search(code)
+            if (s != None): break
         if (s == None):
             self._log("Failed to retrieve script path.", self.globSet.LOG_WARN)
         else:
-            script = code[s.start(): s.end()]
-            script = script[script.find("<b>")+3: script.find("</b>")]
+            script = s.group(1)
             if (script != None and script[1] == ":"): # Windows detection quick hack
                 scriptpath = script[:script.rfind("\\")]
                 r.setWindows()
@@ -150,7 +151,7 @@ class targetScanner (baseClass.baseClass):
             #    if pre[-1] != "/":
             #       addSlash = True
 
-            if (pre[0] != "/"):
+            if (pre[0] != "/" and not pre.startswith("./")):
                 pre = os.path.join(r.getServerPath(), pre)
             pre = self.relpath("/", pre)
             if addSlash: pre = "/" + pre
