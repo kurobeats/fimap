@@ -61,7 +61,6 @@ Choose Domain: 5
 #[1] URL: '/vuln.php?inc=index.php' injecting file: '/var/log/apache2/access.log' using param: 'inc'    #
 #[q] Quit                                                                                               #
 #########################################################################################################
-WARNING: Some bugs are suppressed because dynamic_rfi is not configured!
 Choose vulnerable script: 1
 [INFO] Testing php-code injection thru Logfile HTTP-UA-Injection...  # LOG INJECTION HERE
 [INFO] Testing if log kickstarter is present...
