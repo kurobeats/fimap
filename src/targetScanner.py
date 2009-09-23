@@ -1,3 +1,4 @@
+import os.path
 #
 # This file is part of fimap.
 #
@@ -153,6 +154,8 @@ class targetScanner (baseClass.baseClass):
 
             if (pre[0] != "/" and not pre.startswith("./")):
                 pre = os.path.join(r.getServerPath(), pre)
+                pre = os.path.normpath(pre)
+                
             pre = self.relpath("/", pre)
             if addSlash: pre = "/" + pre
             sur = tokens[1]
