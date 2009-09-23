@@ -133,6 +133,7 @@ class codeinjector(baseClass):
                 if (type(attack) == str):
                     if (attack == "fimap_shell"):
                         cmd = ""
+                        print "Please wait - Setting up shell (one request)..."
                         pwd_cmd = payload.replace("__PAYLOAD__", "pwd")
                         curdir = self.__doHaxRequest(url, mode, pwd_cmd, appendix).strip()
                         print shell_banner
