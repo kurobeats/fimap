@@ -282,3 +282,13 @@ class baseClass (object):
             if c != s2[i]:
                 return s1[:i]
         return s1
+
+    def getPHPQuiz(self):
+        ret = None
+        rnd = self.getRandomStr()
+        phpcode = "echo "
+        for c in rnd:
+            phpcode += "chr(%d)."%(ord(c))
+
+        phpcode = phpcode[:-1] + ";"
+        return(phpcode, rnd)

@@ -187,6 +187,7 @@ class targetScanner (baseClass.baseClass):
         files     = settings["files"]
         abs_files = settings["filesabs"]
         rmt_files = settings["filesrmt"]
+        log_files = settings["fileslog"]
         rfi_mode = settings["dynamic_rfi"]["mode"]
 
         ret = []
@@ -215,6 +216,16 @@ class targetScanner (baseClass.baseClass):
             else:
                 self._log("Skipping absolute file '%s'."%f, self.globSet.LOG_INFO)
 
+        self._log("Testing log files...", self.globSet.LOG_DEBUG)
+        for f,p,type in log_files:
+            if ((rep.getSurfix() == "" or rep.isNullbytePossible() or f.endswith(rep.getSurfix()))):
+                if (self.readFile(rep, f, p)):
+                    ret.append(f)
+                    self.addXMLLog(rep, type, f)
+                else:
+                    pass
+            else:
+                self._log("Skipping log file '%s'."%f, self.globSet.LOG_INFO)
 
         if (rfi_mode in ("ftp", "local")):
             if (rfi_mode == "ftp"): self._log("Testing remote inclusion dynamicly with FTP...", self.globSet.LOG_INFO)
@@ -256,6 +267,8 @@ class targetScanner (baseClass.baseClass):
                         pass
                 else:
                     self._log("Skipping remote file '%s'."%f, self.globSet.LOG_INFO)
+
+
 
         self.saveXML()
         return(ret)

