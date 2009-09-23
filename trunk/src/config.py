@@ -127,6 +127,17 @@ settings["filesrmt"] = (
                           )
                        )
 
+# Logfiles!
+settings["fileslog"] = (
+                         ("/var/log/apache2/access.log", None, "LHx"), # (L)og Flag + (H)TTP Useragent injection.
+                         ("/var/log/apache/access.log", None, "LHx"),
+                         ("/var/log/httpd/access.log", None, "LHx"),
+                         ("/var/log/http/access.log", None, "LHx"),
+
+                         #("/var/log/secure", None, "LFx"), # (L)og Flag + (F)TP Username injection.
+                         #("/var/log/messages", None, "LFx") # (L)og Flag + (F)TP Username injection.
+                         # As much as you want here.
+                       )
 
 # Distribution files which can give us infos about the distribution.
 settings["distfiles"]= ("/etc/debian_version", "/etc/redhat-release", "/etc/gentoo-release")
