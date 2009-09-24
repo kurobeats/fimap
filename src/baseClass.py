@@ -30,6 +30,8 @@ __date__ ="$30.08.2009 20:02:04$"
 import urllib2
 import string,random,os,socket
 
+new_stuff = {}
+
 class baseClass (object):
 
     globSet     = None
@@ -179,6 +181,12 @@ class baseClass (object):
                 self._setAttrib(elem_vuln, "remote", "0")
             self._appendXMLChild(elem, elem_vuln)
             self._appendXMLChild(self.XML_RootItem, elem)
+
+            if (t.find("x") != -1 or t.find("R") != -1):
+                try:
+                    new_stuff[rep.getDomain()] += 1
+                except:
+                    new_stuff[rep.getDomain()] = 1
             
 
     def findDomainNode(self, domain):

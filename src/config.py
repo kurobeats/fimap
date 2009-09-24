@@ -134,7 +134,7 @@ settings["fileslog"] = (
                          ("/var/log/httpd/access.log", "\"GET /", "LHx"),
                          ("/var/log/apache2/access_log", "\"GET /", "LHx"),
                          ("/var/log/apache/access_log", "\"GET /", "LHx"),
-                         ("/var/log/http/access_log", "\"GET /", "LHx"),
+                         ("/var/log/httpd/access_log", "\"GET /", "LHx"),
 
                          #("/var/log/secure", None, "LFx"), # (L)og Flag + (F)TP Username injection.
                          #("/var/log/messages", None, "LFx") # (L)og Flag + (F)TP Username injection.

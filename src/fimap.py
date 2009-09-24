@@ -1,3 +1,4 @@
+import baseClass
 #!/usr/bin/python
 #
 # This file is part of fimap.
@@ -130,6 +131,13 @@ def list_results(lst = os.path.join(os.environ.get('HOME'), "fimap_result.xml"))
 
     sys.exit(0)
 
+
+def show_report():
+    if (len(baseClass.new_stuff.items()) > 0):
+        print "New FI Bugs found in this session:"
+        for k,v in baseClass.new_stuff.items():
+            print "\t- %d (probably) usable FI-Bugs on '%s'."%(v, k)
+
 if __name__ == "__main__":
     config["p_url"] = None
     config["p_mode"] = 0 # 0=single ; 1=mass ; 2=google ; 3=crawl
@@ -229,15 +237,18 @@ if __name__ == "__main__":
             print "MassScanner is loading URLs from file: '%s'" %config["p_list"]
             m = massScan(config)
             m.startMassScan()
+            show_report()
 
         elif(config["p_mode"] == 2):
             print "GoogleScanner is searching for Query: '%s'" %config["p_query"]
             g = googleScan(config)
             g.startGoogleScan()
+            show_report()
 
         elif(config["p_mode"] == 3):
             print "Crawler is harvesting URLs from start URL: '%s' with depth: %d and writing results to: '%s'" %(config["p_url"], config["p_depth"], config["p_write"])
             c = crawler(config)
             c.crawl()
+
     except KeyboardInterrupt:
         print "\n\nYou have terminated me :("
