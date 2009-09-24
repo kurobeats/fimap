@@ -152,10 +152,11 @@ class targetScanner (baseClass.baseClass):
             #    if pre[-1] != "/":
             #       addSlash = True
 
-            if (pre[0] != "/" and not pre.startswith("./")):
+            print ">>>" + pre
+            if (pre[0] != "/"):
                 pre = os.path.join(r.getServerPath(), pre)
                 pre = os.path.normpath(pre)
-                
+            print ">>>" + pre
             pre = self.relpath("/", pre)
             if addSlash: pre = "/" + pre
             sur = tokens[1]
