@@ -29,6 +29,14 @@ settings["dynamic_rfi"] = {}
 
 settings["dynamic_rfi"]["mode"] = "off" # Set to "ftp" or "local" to use Dynamic_RFI. Set it to "off" to disable it and rely on settings["filesrmt"] files.
 
+###############
+#!!!# WARNING #
+###################################################################################################
+# If you use dynamic_rfi make sure that NO file will be interpreted in the directory you define!  #
+# Else code (which should be interpreted on the victim server) will be executed on YOUR machine.  #
+# If you don't understand what I say then DON'T USE dynamic_rfi!                                  #
+###################################################################################################
+
 # FTP Mode
 settings["dynamic_rfi"]["ftp"] = {}
 settings["dynamic_rfi"]["ftp"]["ftp_host"] = None
