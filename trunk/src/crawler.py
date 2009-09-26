@@ -20,7 +20,7 @@
 
 import os.path
 from xgoogle.BeautifulSoup import BeautifulSoup
-import os, urllib2, urllib
+import os, urllib2, urllib, socket
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$09.09.2009 21:52:30$"
@@ -40,6 +40,8 @@ class crawler():
 
         idx = 0
         print "[%d] Going to root URL: '%s'..." %(idx, root_url)
+        if (self.countChar(root_url, "/") == 2):
+            root_url = root_url + "/"
         self.crawl_url(root_url)
 
         
@@ -53,6 +55,13 @@ class crawler():
 
         print "Harvesting done."
         outfile.close()
+
+    def countChar(self, word, c):
+        cnt = 0
+        for w in word:
+            if w == c:
+                cnt += 1
+        return(cnt)
 
     def crawl_url(self, url, level=0):
         code = self.__simpleGetRequest(url)
