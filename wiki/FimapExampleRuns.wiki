@@ -1,14 +1,8 @@
 #summary One-sentence summary of this page.
 
-= Introduction =
-
-Here you can see some fimap example runs.
-I hope it gives you a good image how it works :)
-
-
 = Example Runs =
 
-  * Testing an URL for file-inclusion bugs:
+== Absolute Clean ==
     {{{
     <?
       // Vulerable PHP Code:
@@ -53,7 +47,7 @@ SingleScan is testing URL: 'http://localhost/vulnerable.php?inc=index.php'
     
 
 
-  * Testing an URL for file-inclusion bugs:
+== Absolute with Appendix ==
     {{{
     <?
       // Vulerable PHP Code:
@@ -96,7 +90,7 @@ SingleScan is testing URL: 'http://localhost/vulnerable.php?inc=index'
 
     }}}
 
-  * Testing an URL for file-inclusion bugs:
+== Relative with Appendix ==
     {{{
     <?
       // Vulerable PHP Code:
@@ -134,7 +128,7 @@ SingleScan is testing URL: 'http://localhost/vulnerable.php?inc=index'
 ###############################################################
 }}}
 
-  * Obtaining a shell
+== Obtaining a Shell ==
 {{{
 imax@DevelB0x:~$ fimap -x
 fimap v.01 by Iman Karim - Automatic LFI/RFI scanner and exploiter.
