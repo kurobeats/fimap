@@ -19,11 +19,30 @@ For example the PHP code:
 }}}
 will produce a dirty inclusion bug.
 
+----
+
+== What is dynamic_rfi ? ==
+dynamic_rfi (dynamic_remote_file_inclusion) is a special mode of fimap.
+
+If you want to use RFI by hand you usually have to upload your payloads to a server and execute them thru a FI bug on the victim server.
+
+But why shouldn't a tool do that stuff for you? 
+
+You can choose between 'local' and 'ftp' mode.
+
+Based on your mode, fimap will automaticly copy the payloads to either your local machine or the given ftp server, execute them and finally delete them.
+
+With dynamic_rfi enabled you can scan and exploit RFI without uploading one single file (by hand).
+
+----
+
 == If I start fimap I get an error: `[`WARN`]` open() got an unexpected keyword argument 'timeout' ==
 === Solutions ===
   * Please make sure you use Python 2.6. Afaik the timeout argument is not supported in Python 2.5.
   * Download alpha >= v.03 from the download page.
   * Use the SVN snapshot.
 
+----
+ 
 == Is there a way to contact you? ==
   * Jabber: `VanUber@jabber.ccc.de`
