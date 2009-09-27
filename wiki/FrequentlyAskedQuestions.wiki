@@ -26,4 +26,4 @@ will produce a dirty inclusion bug.
   * Use the SVN snapshot.
 
 == Is there a way to contact you? ==
-  * Jabber: VanUber@jabber.ccc.de
+  * Jabber: `VanUber@jabber.ccc.de`
