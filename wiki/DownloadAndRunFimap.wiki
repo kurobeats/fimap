@@ -26,7 +26,8 @@ chmod +x fimap.py
   # Run fimap.
     {{{./fimap.py -h}}}
 
-== Configuring ==
-There are some settings you can define in the config.py file.
-Define the ftp-to-http or local-to-http settings to take full advantage of RFI exploits.
-More details about it you will find in the config.py file.
+== Configuring (optional) ==
+fimap is configured not bad at the moment.
+However - You can add additional pathes and payloads without messing around with the code.
+Another reason to configure fimap is if you want to detect and exploit RFI exploits much better.
+
