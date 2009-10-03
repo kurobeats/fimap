@@ -43,6 +43,12 @@ With dynamic_rfi enabled you can scan and exploit RFI without uploading one sing
   * Use the SVN snapshot.
 
 ----
- 
+== I have spawned a shell on a foreign server. Will the police find me?==
+YES! They will find you and bust you! 
+
+*DON'T USE THIS TOOL ON SERVERS WHERE YOU DONT HAVE PERMISSION TO PENTEST OR YOU'RE IN JAIL FASTER THAN SPEED OF LIGHT!*
+
+----
+
 == Is there a way to contact you? ==
   * Jabber: `VanUber@jabber.ccc.de`
