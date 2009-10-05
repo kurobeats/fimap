@@ -298,7 +298,6 @@ class baseClass (object):
         return s1
 
     def getPHPQuiz(self):
-        ret = None
         rnd = self.getRandomStr()
         phpcode = "echo "
         for c in rnd:
