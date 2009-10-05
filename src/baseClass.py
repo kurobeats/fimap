@@ -37,6 +37,7 @@ class baseClass (object):
     globSet     = None
     XML_Result  = None
     XML_RootItem = None
+    homeDir = os.path.expanduser("~")
 
     def __init__(self, globSet):
         self.globSet = globSet
@@ -44,7 +45,8 @@ class baseClass (object):
         self.__init_logfile()
         self.__logfile
         self._load()
-        self.xmlfile = os.path.join(os.environ.get('HOME'), "fimap_result.xml")
+        
+        self.xmlfile = os.path.join(self.homeDir, "fimap_result.xml")
         self.XML_Result = None
         if (self.XML_Result == None):
             self.XML_RootItem = None
@@ -107,7 +109,9 @@ class baseClass (object):
                     # Python 2.5 compatiblity
                     socket.setdefaulttimeout(TimeOut)
                     f = opener.open(URL)
-                    return(f.read())
+                    ret = f.read()
+                    f.close()
+                    return(ret)
                 except Exception, err:
                     raise
             except:
@@ -125,14 +129,16 @@ class baseClass (object):
             header = {'User-agent': self.globalSettings().getUserAgent()}
             req = urllib2.Request(url, Post, header)
             response = urllib2.urlopen(req)
-            return(response.read())
+            ret = response.read()
+            response.close()
+            return(ret)
         except Exception, err:
             self._log("Failed to do request to (%s)" %(url), self.globSet.LOG_WARN)
             self._log(err, self.globSet.LOG_WARN)
             return(None)
 
     def __init_logfile(self):
-        self.logFilePath = os.path.join(os.environ.get('HOME'), "fimap.log")
+        self.logFilePath = os.path.join(self.homeDir, "fimap.log")
         self.__logfile = open(self.logFilePath, "a")
 
     def _writeToLog(self, txt):

@@ -1,4 +1,3 @@
-import baseClass
 #!/usr/bin/python
 #
 # This file is part of fimap.
@@ -22,7 +21,7 @@ import baseClass
 
 
 
-
+import baseClass
 from codeinjector import codeinjector
 from crawler import crawler
 import getopt
@@ -36,7 +35,7 @@ import sys,os
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$30.08.2009 19:57:21$"
-__version__ = "05_svn"
+__version__ = "06_svn"
 
 config = {}
 
@@ -119,7 +118,7 @@ def show_greetings():
     print " - Ruun"
     sys.exit(0)
 
-def list_results(lst = os.path.join(os.environ.get('HOME'), "fimap_result.xml")):
+def list_results(lst = os.path.join(os.path.expanduser("~"), "fimap_result.xml")):
     if (not os.path.exists(lst)):
         print "File not found! ~/fimap_result.xml"
         sys.exit(1)
