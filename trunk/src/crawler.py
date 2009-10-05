@@ -25,7 +25,7 @@ import os, urllib2, urllib, socket
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$09.09.2009 21:52:30$"
 
-class crawler():
+class crawler:
 
     def __init__(self, config):
         self.goodTypes = ("html", "php", "php4", "php5", "jsp", "htm", "py", "pl", "asp", "cgi", "/")
@@ -122,13 +122,17 @@ class crawler():
                 opener = urllib2.build_opener()
                 opener.addheaders = [('User-agent', self.config["p_useragent"])]
                 f = opener.open(URL, timeout=TimeOut) # TIMEOUT
-                return(f.read())
+                ret = f.read()
+                f.close()
+                return(ret)
             except TypeError, err:
                 try:
                     # Python 2.5 compatiblity
                     socket.setdefaulttimeout(TimeOut)
                     f = opener.open(URL)
-                    return(f.read())
+                    ret = f.read()
+                    f.close()
+                    return(ret)
                 except Exception, err:
                     raise
             except:

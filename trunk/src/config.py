@@ -89,22 +89,7 @@ settings["files"] = (
                         ("/etc/passwd", "root:", "r"),
                         ("/proc/self/environ", "HTTP_USER_AGENT=", "rxA"),
                     )
-
-                     # Possible more files...
-                     #"/var/log/secure",
-                     #"/var/log/messages",
-                     #"/var/log/auth",
-                     #"/var/log/apache/auth.log",
-                     #"/var/log/apache/auth_log",
-                     #"/var/log/apache2/auth.log",
-                     #"/var/log/apache2/auth_log",
-                     #"/var/log/apache/error.log",
-                     #"/var/log/apache/error_log",
-                     #"/var/log/apache2/error.log",
-                     #"/var/log/apache2/error_log",
-                     #"/var/log/httpd/error.log",
-                     #"/var/log/httpd/error_log"
-                     #)
+                     # Possible more if you want. (No Logfiles! Logfiles for Loginjection is below!)
 
 # Files which can't be relativized. These pathes can only work if we have a
 # clean injection.
@@ -115,7 +100,7 @@ settings["files"] = (
 # fimap will check every case for you.
 settings["filesabs"] = (("php://input", None, "rxP"),)
 
-# Remote file inclusion test.
+# Remote file inclusion test (Not needed if you use dynamic_rfi).
 settings["filesrmt"] = (
                           (     # Test for remote inclusion and for dirty urls with suffix .php
                                 "http://www.phpbb.de/index.php", 
@@ -144,7 +129,7 @@ settings["fileslog"] = (
                          ("/var/log/apache/access_log", "\"GET /", "LHx"),
                          ("/var/log/httpd/access_log", "\"GET /", "LHx"),
 
-                         #("/var/log/secure", None, "LFx"), # (L)og Flag + (F)TP Username injection.
+                         #("/var/log/secure", None, "LFx"), # (L)og Flag + (F)TP Username injection. (Not supported right now)
                          #("/var/log/messages", None, "LFx") # (L)og Flag + (F)TP Username injection.
                          # As much as you want here.
                        )
@@ -205,7 +190,7 @@ settings["payloads"]["php"]["Spawn reverse shell"] = (
 
 #settings["payloads"]["sys"]["Something without Question"] = (
 #                                               None,                 # No Question
-#                                               "rm -rf / # JOKE!"    # Command to execute.
+#                                               "eject"               # Command to execute.
 #                                             )
 
 
