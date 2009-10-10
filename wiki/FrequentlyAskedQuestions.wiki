@@ -36,11 +36,17 @@ With dynamic_rfi enabled you can scan and exploit RFI without uploading one sing
 
 ----
 
-== If I start fimap I get an error: `[`WARN`]` open() got an unexpected keyword argument 'timeout' ==
+== If I start fimap I get an error: ==
+Error: {{{`[`WARN`]` open() got an unexpected keyword argument 'timeout' }}}
 === Solutions ===
   * ~~Please make sure you use Python 2.6. Afaik the timeout argument is not supported in Python 2.5.~~ fimap is 2.5 compatible now.
   * Download alpha >= v.03 from the download page.
   * Use the SVN snapshot.
+
+Error: {{{`File "C:\Python25\lib\ntpath.py", line 90, in join assert len(path) > 0 TypeError: object of type 'NoneType' has no len()`}}}
+=== Solutions ===
+  * If you are using Windows this is a known bug. Use SVN Version or v.06 (not released yet)
+  * If you not on Windows please report this bug using the bugtracker.
 
 ----
 == I have spawned a shell on a foreign server. Will the police find me?==
