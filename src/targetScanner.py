@@ -1,4 +1,3 @@
-import os.path
 #
 # This file is part of fimap.
 #
@@ -20,9 +19,11 @@ import os.path
 #
 
 from config import settings
+import shutil
 import baseClass
 from report import report
 import re,os
+import os.path
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$30.08.2009 19:59:44$"
@@ -237,22 +238,26 @@ class targetScanner (baseClass.baseClass):
                 if (rfi_mode == "ftp"):
                     fl = settings["dynamic_rfi"]["ftp"]["ftp_path"] + rep.getAppendix()
                     up = self.FTPuploadFile(settings["php_info"][0], rep.getAppendix())
+                    # Discard the suffix if there is a forced directory structure.
+                    if (not up["http"].endswith(rep.getAppendix())):
+                        rep.setSurfix("")
+                    
                 elif(rfi_mode == "local"):
-                    fl = settings["dynamic_rfi"]["local"]["local_path"] + rep.getAppendix()
-                    up = {}
-                    up["local"] = fl
-                    up["http"] = settings["dynamic_rfi"]["local"]["http_map"] + rep.getAppendix()
-                    f = open(up["local"], "w")
-                    f.write(settings["php_info"][0])
-                    f.close()
-
+                    up = self.putLocalPayload(settings["php_info"][0], rep.getAppendix())
+                    if (not up["http"].endswith(rep.getAppendix())):
+                        rep.setSurfix("")
                 if (self.readFile(rep, up["http"], settings["php_info"][1], True)):
                     ret.append(up["http"])
                     rep.setRemoteInjectable(True)
                     self.addXMLLog(rep, "rxR", up["http"])
 
-                if (rfi_mode == "ftp"): self.FTPdeleteFile(up["ftp"])
-                if (rfi_mode == "local"): os.remove(up["local"])
+                if (rfi_mode == "ftp"): 
+                    if up["dirstruct"]:
+                        self.FTPdeleteDirectory(up["ftp"])
+                    else:
+                        self.FTPdeleteFile(up["ftp"])
+                if (rfi_mode == "local"): 
+                    self.deleteLocalPayload(up["local"])
         else:
             self._log("Testing remote inclusion...", self.globSet.LOG_DEBUG)
             for f,p,type in rmt_files:

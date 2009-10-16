@@ -21,8 +21,10 @@ import os.path
 
 from tempfile import mkstemp
 from ftplib import FTP
+from ftplib import error_perm
 from config import settings
 import xml.dom.minidom
+import shutil
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$30.08.2009 20:02:04$"
@@ -242,23 +244,76 @@ class baseClass (object):
         host = settings["dynamic_rfi"]["ftp"]["ftp_host"]
         user = settings["dynamic_rfi"]["ftp"]["ftp_user"]
         pw   = settings["dynamic_rfi"]["ftp"]["ftp_pass"]
-        path = settings["dynamic_rfi"]["ftp"]["ftp_path"]
+        path = os.path.dirname(settings["dynamic_rfi"]["ftp"]["ftp_path"])
+        file_= os.path.basename(settings["dynamic_rfi"]["ftp"]["ftp_path"])
         http = settings["dynamic_rfi"]["ftp"]["http_map"]
         temp = mkstemp()[1]
+        hasCreatedDirStruct = False
+        
+        # Default case return values:
+        rethttp = http+ suffix
+        retftp  = os.path.join(path, file_) + suffix
 
+        directory = None
+        # Check if the file needs to be in a directory.
+        if (suffix.find("/") != -1):
+            http = os.path.dirname(http)
+            # Yep it has to be in a directory...
+            tmp = self.removeEmptyObjects(suffix.split("/"))
+            if suffix.startswith("/"):
+                # Directory starts immediatly
+                directory = os.path.join(file_, tmp[0]) # Concat the first directory to our path 
+                for d in tmp[1:-1]:                     # Join all directorys excluding first and last token.
+                    directory = os.path.join(directory, d)
+                suffix = suffix[1:]                     # Remove the leading / from the suffix.
+                file_ = tmp[-1]                         # The actual file is the last token.
+                rethttp = settings["dynamic_rfi"]["ftp"]["http_map"] # Return http path
+                retftp  = settings["dynamic_rfi"]["ftp"]["ftp_path"] # and ftp file path.
+                hasCreatedDirStruct = True              # Say fimap that he should delete the directory after payloading.
+            else:
+                # File has a suffix + directory...
+                subsuffix = suffix[:suffix.find("/")]   # Get the attachment of the file.
+                directory = file_ + subsuffix           # Concat the attachment to the user defined filename.
+                for d in tmp[1:-1]:                     # Concat all directorys excluding first and last token.
+                    directory = os.path.join(directory, d)
+                suffix = suffix[suffix.find("/")+1:]    # Get rest of the path excluding the file attachment.
+                file_ = tmp[-1]                         # Get the actual filename.
+                rethttp = settings["dynamic_rfi"]["ftp"]["http_map"]
+                retftp  = settings["dynamic_rfi"]["ftp"]["ftp_path"] + subsuffix
+                hasCreatedDirStruct = True
+            
+        else:
+            file_ = file_ + suffix
+        
+        # Write payload to local drive
         f = open(temp, "w")
         f.write(content)
         f.close()
         f = open(temp, "r")
+
+        # Now toss it to your ftp server
         self._log("Uploading payload to FTP server '%s'..."%(host), self.globSet.LOG_DEBUG)
         ftp = FTP(host, user, pw)
+        ftp.cwd(path)
         
-        ftp.cwd(os.path.dirname(path))
-        ftp.storlines("STOR " + os.path.basename(path) + suffix, f)
+        # If the path is in a extra directory, we will take care of it now
+        if (directory != None):
+            self._log("Creating directory structure '%s'..."%(directory), self.globSet.LOG_DEBUG)
+            for dir_ in directory.split("/"):
+                try:
+                    ftp.cwd(dir_)
+                except error_perm:
+                    self._log("mkdir '%s'..."%(dir_), self.globSet.LOG_DEVEL)
+                    ftp.mkd(dir_)
+                    ftp.cwd(dir_)
+                
+
+        ftp.storlines("STOR " + file_, f)
         ftp.quit()
         ret = {}
-        ret["http"] = http + suffix
-        ret["ftp"] = path + suffix
+        ret["http"] = rethttp
+        ret["ftp"] =  retftp
+        ret["dirstruct"] = hasCreatedDirStruct
         f.close()
         return(ret)
 
@@ -270,6 +325,57 @@ class baseClass (object):
         ftp = FTP(host, user, pw)
         ftp.delete(file)
         ftp.quit()
+
+    def FTPdeleteDirectory(self, directory, ftp = None):
+        host = settings["dynamic_rfi"]["ftp"]["ftp_host"]
+        user = settings["dynamic_rfi"]["ftp"]["ftp_user"]
+        pw   = settings["dynamic_rfi"]["ftp"]["ftp_pass"]
+        if ftp == None: 
+            self._log("Deleting directory recursivly from FTP server '%s'..."%(host), self.globSet.LOG_DEBUG)
+            ftp = FTP(host, user, pw)
+        
+        ftp.cwd(directory)
+        for i in ftp.nlst(directory):
+            try:
+                ftp.delete(i)
+            except:
+                self.FTPdeleteDirectory(i, ftp)
+            
+        ftp.cwd(directory)
+        ftp.rmd(directory)
+
+
+    def putLocalPayload(self, content, append):
+        fl = settings["dynamic_rfi"]["local"]["local_path"] + append
+        dirname = os.path.dirname(fl)
+        if (not os.path.exists(dirname)):
+            os.makedirs(dirname)
+        up = {}
+        
+        up["local"] = settings["dynamic_rfi"]["local"]["local_path"]
+        if append.find("/") != -1 and (not append.startswith("/")):
+            up["local"] = settings["dynamic_rfi"]["local"]["local_path"] + append[:append.find("/")]
+        up["http"] = settings["dynamic_rfi"]["local"]["http_map"]
+        f = open(fl, "w")
+        f.write(content)
+        f.close()
+        
+        return(up)
+
+    def deleteLocalPayload(self, directory):
+        if(os.path.exists(directory)):
+            if (os.path.isdir(directory)):
+                shutil.rmtree(directory)
+            else:
+                os.remove(directory)
+                
+
+    def removeEmptyObjects(self, array, empty = ""):
+        ret = []
+        for a in array:
+            if a != empty:
+                ret.append(a)
+        return(ret)
 
     def relpath(self, path, start=os.curdir, sep="/"):
         # Relpath implementation directly ripped and modified from Python 2.6 source.

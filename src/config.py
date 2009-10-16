@@ -49,7 +49,7 @@ settings["dynamic_rfi"]["ftp"]["http_map"] = None # The mapped HTTP path of the 
 # Local Mode
 settings["dynamic_rfi"]["local"] = {}
 settings["dynamic_rfi"]["local"]["local_path"] = None   # A non existing file on your filesystem without prefix which is reachable by http. Example: /var/www/payload
-settings["dynamic_rfi"]["local"]["http_map"] = None     # The http url of the file without prefix where the file is reachable from the web. Example: http://localhost/payload
+settings["dynamic_rfi"]["local"]["http_map"]   = None   # The http url of the file without prefix where the file is reachable from the web. Example: http://localhost/payload
                                                         # Note that localhost will only work if you are testing local sites. You should define your internet ip - but i believe
                                                         # if you are using this tool you already know it ;)
 
