@@ -1,4 +1,5 @@
 from base64 import b64encode
+import shutil
 import os
 #
 # This file is part of fimap.
@@ -285,17 +286,17 @@ class codeinjector(baseClass):
         if settings["dynamic_rfi"]["mode"]=="ftp":
             up = self.FTPuploadFile(content, appendix)
             code = self.doGetRequest(URL)
-            self.FTPdeleteFile(up["ftp"])
+            if up["dirstruct"]:
+                self.FTPdeleteDirectory(up["ftp"])
+            else:
+                self.FTPdeleteFile(up["ftp"])
             return(code)
         elif settings["dynamic_rfi"]["mode"]=="local":
-            fname = settings["dynamic_rfi"]["local"]["local_path"] + appendix
-            if (os.path.exists(fname)):
-                os.remove(fname)
-            f = open(fname, "w")
-            f.write(content)
-            f.close()
+            up = self.putLocalPayload(content, appendix)
             code = self.doGetRequest(URL)
+            self.deleteLocalPayload(up["local"])
             return(code)
+            
 
     
     def chooseDomains(self, OnlyExploitable=True):

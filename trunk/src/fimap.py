@@ -251,3 +251,11 @@ if __name__ == "__main__":
 
     except KeyboardInterrupt:
         print "\n\nYou have terminated me :("
+        
+    except:
+        print "\n\n========= CONGRATULATIONS! ========="
+        print "You have just found a bug!"
+        print "If you are cool, send the following stacktrace to the bugtracker on http://fimap.googlecode.com/"
+        raw_input("Push enter to see the stacktrace...")
+        print "cut here %<--------------------------------------------------------------"
+        raise

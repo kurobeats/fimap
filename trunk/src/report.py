@@ -37,6 +37,7 @@ class report:
         self.ServerScript = None
         self.RemoteInjectable = False
         self.isLinux = True
+        
 
     def setWindows(self):
         self.isLinux = False
