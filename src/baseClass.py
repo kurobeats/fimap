@@ -292,7 +292,7 @@ class baseClass (object):
         f = open(temp, "r")
 
         # Now toss it to your ftp server
-        self._log("Uploading payload to FTP server '%s'..."%(host), self.globSet.LOG_DEBUG)
+        self._log("Uploading payload (%s) to FTP server '%s'..."%(temp, host), self.globSet.LOG_DEBUG)
         ftp = FTP(host, user, pw)
         ftp.cwd(path)
         
@@ -321,7 +321,7 @@ class baseClass (object):
         host = settings["dynamic_rfi"]["ftp"]["ftp_host"]
         user = settings["dynamic_rfi"]["ftp"]["ftp_user"]
         pw   = settings["dynamic_rfi"]["ftp"]["ftp_pass"]
-        self._log("Deleting payload from FTP server '%s'..."%(host), self.globSet.LOG_DEBUG)
+        self._log("Deleting payload (%s) from FTP server '%s'..."%(file, host), self.globSet.LOG_DEBUG)
         ftp = FTP(host, user, pw)
         ftp.delete(file)
         ftp.quit()

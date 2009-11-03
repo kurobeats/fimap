@@ -75,6 +75,7 @@ def show_help(AndQuit=False):
     print "## Disguise Kit:"
     print "   -A , --user-agent=UA          The User-Agent which should be sent."
     print "## Other:"
+    print "        --test-rfi               A quick test to see if you have configured RFI nicely."
     print "   -v , --verbose=LEVEL          Verbose level you want to receive."
     print "                                 LEVEL=3 -> Debug"
     print "                                 LEVEL=2 -> Info(Default)"
@@ -149,6 +150,8 @@ if __name__ == "__main__":
     config["p_write"] = None
     config["p_depth"] = 1
     config["p_maxtries"] = 5
+    doRFITest = False
+
 
     print head
 
@@ -156,7 +159,8 @@ if __name__ == "__main__":
         show_help(True)
 
     try:
-        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:", ['url=', "mass", "single", "list=", "verbose=", "help", "user-agent=", "query=", "google", "pages=", "credits", "exploit" , "harvest", "write=", "depth=", "greetings"])
+        longSwitches = ['url=', "mass", "single", "list=", "verbose=", "help", "user-agent=", "query=", "google", "pages=", "credits", "exploit" , "harvest", "write=", "depth=", "greetings", "test-rfi"]
+        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:", longSwitches)
 
         startExploiter = False
 
@@ -187,6 +191,8 @@ if __name__ == "__main__":
                 config["p_depth"] = int(v)
             if (k in ("-h", "--help")):
                 show_help(True)
+            if (k in ("--test-rfi",)):
+                doRFITest = True
             if (k in("--credits",)):
                 show_credits()
             if (k in ("--greetings",)):
@@ -202,6 +208,14 @@ if __name__ == "__main__":
     except getopt.GetoptError, err:
         print (err)
         sys.exit(1)
+
+
+    if (doRFITest):
+        g = globalSettings(config["p_verbose"])
+        g.setUserAgent(config["p_useragent"])
+        injector = codeinjector(g)
+        injector.testRFI()
+        sys.exit(0)
 
 
 

