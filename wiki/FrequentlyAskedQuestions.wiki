@@ -32,7 +32,12 @@ You can choose between 'local' and 'ftp' mode.
 
 Based on your mode, fimap will automaticly copy the payloads to either your local machine or the given ftp server, execute them and finally delete them.
 
-With dynamic_rfi enabled you can scan and exploit RFI without uploading one single file (by hand).
+Also (which is only possible with dyn_rfi) you can exploit includes like:
+  * <? include($_GET["inc"] . "/lang/index.php"); ?> 
+where no Null-Byte is possible. The dyn_rfi "engine" will create needed folders and files automaticly. No headache!
+With this in mind you can imagine that RFI scanning with dyn_rfi enabled is more efficient than just trying a few remote sites.
+
+To test if you have dyn_rfi correctly configured you can start fimap with --test-rfi
 
 ----
 
