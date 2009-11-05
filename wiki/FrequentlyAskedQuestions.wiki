@@ -45,8 +45,7 @@ Error: {{{`[`WARN`]` open() got an unexpected keyword argument 'timeout' }}}
 
 Error: {{{`File "C:\Python25\lib\ntpath.py", line 90, in join assert len(path) > 0 TypeError: object of type 'NoneType' has no len()`}}}
 === Solutions ===
-  * If you are using Windows this is a known bug. Use SVN Version or v.06 (not released yet)
-  * If you not on Windows please report this bug using the bugtracker.
+  * You are on Windows using version < .5 I believe. Download fimap >= .6 which is Windows compatible from the download page.
 
 ----
 == I have spawned a shell on a foreign server. Will the police find me?==
