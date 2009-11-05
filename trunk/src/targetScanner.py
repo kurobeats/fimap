@@ -29,7 +29,9 @@ __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$30.08.2009 19:59:44$"
 
 INCLUDE_ERR_MSG = "Failed opening( required)* '[\d\w/\.\-]*?%s[\d\w/\.\-]*?' (for inclusion)*"
-SCRIPTPATH_ERR_MSG = ("\\(include_path='.*?'\\) in <b>(.*?)</b> on line", "failed to open stream: No such file or directory \\((.*?)- Line")
+SCRIPTPATH_ERR_MSG = ("\\(include_path='.*?'\\) in <b>(.*?)</b>* on line", 
+                      "\\(include_path='.*?'\\) in (.*?) on line",
+                      "failed to open stream: No such file or directory \\((.*?)- Line")
 
 
 class targetScanner (baseClass.baseClass):
@@ -117,6 +119,7 @@ class targetScanner (baseClass.baseClass):
             if (s != None): break
         if (s == None):
             self._log("Failed to retrieve script path.", self.globSet.LOG_WARN)
+            return(None)
         else:
             script = s.group(1)
             if (script != None and script[1] == ":"): # Windows detection quick hack
