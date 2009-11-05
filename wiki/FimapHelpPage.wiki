@@ -1,7 +1,6 @@
 #summary fimaps commandline options
 
 {{{
-imax@DevelB0x:$ ~/Coding/Workspace/fimap$ fimap
 fimap v.07_svn by Iman Karim - Automatic LFI/RFI scanner and exploiter.
 Usage: ./fimap [options]
 ## Operating Modes:
