@@ -119,6 +119,22 @@ class targetScanner (baseClass.baseClass):
             if (s != None): break
         if (s == None):
             self._log("Failed to retrieve script path.", self.globSet.LOG_WARN)
+            
+            print "[MINOR BUG FOUND]"
+            print "------------------------------------------------------"
+            print "It's possible that fimap was unable to retrieve the scriptpath"
+            print "because the regex for this kind of error message is missing."
+            a = raw_input("Do you want to help me and send the URL of the site? [y = Print Info/N = Discard]")
+            if (a=="y" or a=="Y"):
+                print "-----------SEND THIS TO 'vanuber@checkjemail.nl'-----------"
+                print "SUBJECT: fimap Regex" 
+                print "ERROR  : Failed to retrieve script path."
+                print "URL    : " + URL
+                print "-----------------------------------------------------------"
+                raw_input("Copy it and press enter to proceed with scanning...")
+            else:
+                print "No problem! I'll continue with your scan..."
+            
             return(None)
         else:
             script = s.group(1)
