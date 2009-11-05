@@ -1,16 +1,10 @@
 #summary fimaps commandline options
 
-= Introduction =
-
-Here you can see the actual commandline options.
-
-
-= Details =
-
 {{{
-fimap v.04_svn by Iman Karim - Automatic LFI/RFI scanner and exploiter.
-Usage: ./fimap [options]                                               
-## Operating Modes:                                                    
+imax@DevelB0x:$ ~/Coding/Workspace/fimap$ fimap
+fimap v.07_svn by Iman Karim - Automatic LFI/RFI scanner and exploiter.
+Usage: ./fimap [options]
+## Operating Modes:
    -s , --single                 Mode to scan a single URL for FI errors.
                                  Needs URL (-u). This mode is the default.
    -m , --mass                   Mode for mass scanning. Will check every URL
@@ -40,21 +34,24 @@ Usage: ./fimap [options]
 ## Disguise Kit:
    -A , --user-agent=UA          The User-Agent which should be sent.
 ## Other:
+        --test-rfi               A quick test to see if you have configured RFI nicely.
    -v , --verbose=LEVEL          Verbose level you want to receive.
                                  LEVEL=3 -> Debug
                                  LEVEL=2 -> Info(Default)
                                  LEVEL=1 -> Messages
                                  LEVEL=0 -> High-Level
         --credits                Shows some credits.
+        --greetings              Some greetings ;)
    -h , --help                   Shows this cruft.
 ## Examples:
   1. Scan a single URL for FI errors:
-     ./fimap.py -u 'http://localhost/test.php?file=bang&id=23'
+        ./fimap.py -u 'http://localhost/test.php?file=bang&id=23'
   2. Scan a list of URLS for FI errors:
-     ./fimap.py -m -l '/tmp/urllist.txt'
+        ./fimap.py -m -l '/tmp/urllist.txt'
   3. Scan Google search results for FI errors:
-     ./fimap.py -g -q 'inurl:include.php'
+        ./fimap.py -g -q 'inurl:include.php'
   4. Harvest all links of a webpage with recurse level of 3 and
      write the URLs to /tmp/urllist
-     ./fimap.py -H -u 'http://localhost' -d 3 -w /tmp/urllist
+        ./fimap.py -H -u 'http://localhost' -d 3 -w /tmp/urllist
+
 }}}
