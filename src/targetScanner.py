@@ -97,6 +97,10 @@ class targetScanner (baseClass.baseClass):
     def identifyVuln(self, URL, Params, VulnParam, identifyMode="inc"):
         # identify Mode can be set to 'inc' for inclusion check or to 'read' for read file check.
 
+        script = None
+        scriptpath = None
+        pre = None
+
         self._log("Identifing Vulnerability '%s' with Param '%s'..."%(URL, VulnParam), self.globSet.LOG_ALWAYS)
         tmpurl = URL
         rndStr = self.getRandomStr()
@@ -146,9 +150,12 @@ class targetScanner (baseClass.baseClass):
                 r.setWindows()
             else:
                 scriptpath = os.path.dirname(script)
-            self._log("Scriptpath received: '%s'" %(scriptpath), self.globSet.LOG_INFO)
-            r.setServerPath(scriptpath)
-            r.setServerScript(script)
+                
+            # Check if scriptpath was received correctly.
+            if(scriptpath!=""):
+                self._log("Scriptpath received: '%s'" %(scriptpath), self.globSet.LOG_INFO)
+                r.setServerPath(scriptpath)
+                r.setServerScript(script)
 
 
         if (r.isWindows()):
@@ -198,6 +205,17 @@ class targetScanner (baseClass.baseClass):
                     r.setSurfix("%00");
                     r.setNullBytePossible(True)
 
+
+        if (scriptpath == ""):
+            # Failed to get scriptpath with easy method :(
+            if (pre != ""):
+                self._log("Failed to retrieve path but we are forced to go relative!", self.globSet.LOG_WARN)
+                return(None)
+            else:
+                self._log("Failed to retrieve path! It's an absolute injection so I'll fake it to '/'...", self.globSet.LOG_WARN)
+                scriptpath = "/"  
+                r.setServerPath(scriptpath)
+                r.setServerScript(script)
 
         return(r)
 
@@ -320,6 +338,7 @@ class targetScanner (baseClass.baseClass):
             filepatha = prefix + "/" +filepath
         else:
             filepatha = filepath
+
 
         if (scriptpath[-1] != "/" and filepatha[0] != "/" and not isAbs):
             filepatha = "/" + filepatha
