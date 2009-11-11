@@ -23,7 +23,7 @@
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$30.08.2009 20:10:00$"
 
-class globalSettings():
+class globalSettings:
 
     LOG_ERROR = 99
     LOG_WARN  = 99
