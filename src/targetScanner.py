@@ -24,6 +24,7 @@ import baseClass
 from report import report
 import re,os
 import os.path
+import posixpath
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$30.08.2009 19:59:44$"
@@ -180,8 +181,8 @@ class targetScanner (baseClass.baseClass):
             #       addSlash = True
 
             if (pre[0] != "/"):
-                pre = os.path.join(r.getServerPath(), pre)
-                pre = os.path.normpath(pre)
+                pre = posixpath.join(r.getServerPath(), pre)
+                pre = posixpath.normpath(pre)
             pre = self.relpath("/", pre)
             if addSlash: pre = "/" + pre
             sur = tokens[1]
