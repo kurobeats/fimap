@@ -25,6 +25,7 @@ from ftplib import error_perm
 from config import settings
 import xml.dom.minidom
 import shutil
+import posixpath
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$30.08.2009 20:02:04$"
@@ -381,14 +382,14 @@ class baseClass (object):
         # Relpath implementation directly ripped and modified from Python 2.6 source.
         if not path:
             raise ValueError("no path specified")
-        start_list = os.path.abspath(start).split(sep)
-        path_list = os.path.abspath(path).split(sep)
+        start_list = posixpath.abspath(start).split(sep)
+        path_list = posixpath.abspath(path).split(sep)
         # Work out how much of the filepath is shared by start and path.
         i = len(self.commonprefix([start_list, path_list]))
         rel_list = [".."] * (len(start_list)-i) + path_list[i:]
         if not rel_list:
             return os.curdir
-        return os.path.join(*rel_list)
+        return posixpath.join(*rel_list)
 
 
 
