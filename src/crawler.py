@@ -72,7 +72,7 @@ class crawler:
             
             try:
                 soup = BeautifulSoup(code)
-            except UnicodeEncodeError, err:
+            except:
                 pass
 
             if soup != None:
