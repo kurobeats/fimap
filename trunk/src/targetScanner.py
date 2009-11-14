@@ -110,9 +110,12 @@ class targetScanner (baseClass.baseClass):
         RE_SUCCESS_MSG = re.compile(INCLUDE_ERR_MSG%(rndStr), re.DOTALL)
 
         code = self.doGetRequest(tmpurl)
+        
+        if (code == None):
+            self._log("Identifing of vulnerability failed. (code == None)", self.globSet.LOG_ERROR)
         m = RE_SUCCESS_MSG.search(code)
-        if (code == None or m == None):
-            self._log("Identifing of vulerability failed.", self.globSet.LOG_ERROR)
+        if (m == None):
+            self._log("Identifing of vulnerability failed. (m == None)", self.globSet.LOG_ERROR)
             return None
 
 
