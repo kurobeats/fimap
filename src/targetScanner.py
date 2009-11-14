@@ -102,7 +102,7 @@ class targetScanner (baseClass.baseClass):
         scriptpath = None
         pre = None
 
-        self._log("Identifing Vulnerability '%s' with Param '%s'..."%(URL, VulnParam), self.globSet.LOG_ALWAYS)
+        self._log("Identifying Vulnerability '%s' with Parameter '%s'..."%(URL, VulnParam), self.globSet.LOG_ALWAYS)
         tmpurl = URL
         rndStr = self.getRandomStr()
         tmpurl = tmpurl.replace("%s=%s"%(VulnParam,Params[VulnParam]), "%s=%s"%(VulnParam, rndStr))
@@ -112,10 +112,10 @@ class targetScanner (baseClass.baseClass):
         code = self.doGetRequest(tmpurl)
         
         if (code == None):
-            self._log("Identifing of vulnerability failed. (code == None)", self.globSet.LOG_ERROR)
+            self._log("Identification of vulnerability failed. (code == None)", self.globSet.LOG_ERROR)
         m = RE_SUCCESS_MSG.search(code)
         if (m == None):
-            self._log("Identifing of vulnerability failed. (m == None)", self.globSet.LOG_ERROR)
+            self._log("Identification of vulnerability failed. (m == None)", self.globSet.LOG_ERROR)
             return None
 
 
