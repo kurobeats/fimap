@@ -32,7 +32,8 @@ __date__ ="$30.08.2009 19:59:44$"
 INCLUDE_ERR_MSG = "Failed opening( required)* '[\d\w/\.\-]*?%s[\d\w/\.\-]*?' (for inclusion)*"
 SCRIPTPATH_ERR_MSG = ("\\(include_path='.*?'\\) in <b>(.*?)</b>* on line", 
                       "\\(include_path='.*?'\\) in (.*?) on line",
-                      "failed to open stream: No such file or directory \\((.*?)- Line")
+                      "failed to open stream: No such file or directory \\((.*?)- Line",
+                      "An error occurred in script '(.*?)' on line \d?.")
 
 
 class targetScanner (baseClass.baseClass):
