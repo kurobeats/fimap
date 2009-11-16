@@ -143,7 +143,7 @@ class crawler:
             print err
             return(None)
 
-    def getDomain(self, url=None, keepPrefix=False):
+    def getDomain(self, url=None, keepPrefix=False, keepPort=False):
         if url==None:
             url = self.URL
 
@@ -152,6 +152,9 @@ class crawler:
         if (not domain.endswith("/")):
             domain = domain + "/"
         domain = domain[:domain.find("/")]
+        if (not keepPort and domain.find(":") != -1):
+            domain = domain[:domain.find(":")]
+                
         if (keepPrefix):
             domain = prefix + domain
         return(domain)
