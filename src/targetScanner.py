@@ -241,9 +241,15 @@ class targetScanner (baseClass.baseClass):
 
         
 
-        for f,p,type in files:
+        for f,p,post,type in files:
+            quiz = answer = None
+            if (post != None):
+                quiz, answer = self.getPHPQuiz()
+                post = post.replace("__PHP_QUIZ__", quiz)
+                p = p.replace("__PHP_ANSWER__", answer)
+
             if ((rep.getSurfix() == "" or rep.isNullbytePossible() or f.endswith(rep.getSurfix()))):
-                if (self.readFile(rep, f, p)):
+                if (self.readFile(rep, f, p, POST=post)):
                     ret.append(f)
                     self.addXMLLog(rep, type, f)
                 else:
@@ -252,9 +258,14 @@ class targetScanner (baseClass.baseClass):
                 self._log("Skipping file '%s'."%f, self.globSet.LOG_INFO)
 
         self._log("Testing absolute files...", self.globSet.LOG_DEBUG)
-        for f,p,type in abs_files:
+        for f,p,post,type in abs_files:
+            quiz = answer = None
+            if (post != None):
+                quiz, answer = self.getPHPQuiz()
+                post = post.replace("__PHP_QUIZ__", quiz)
+                p = p.replace("__PHP_ANSWER__", answer)
             if (rep.getPrefix() == "" and(rep.getSurfix() == "" or rep.isNullbytePossible() or f.endswith(rep.getSurfix()))):
-                if (self.readFile(rep, f, p, True)):
+                if (self.readFile(rep, f, p, True, POST=post)):
                     ret.append(f)
                     self.addXMLLog(rep, type, f)
                 else:
@@ -324,7 +335,7 @@ class targetScanner (baseClass.baseClass):
         return(ret)
 
 
-    def readFile(self, report, filepath, filepattern, isAbs=False):
+    def readFile(self, report, filepath, filepattern, isAbs=False, POST=None):
         self._log("Testing file '%s'..." %filepath, self.globSet.LOG_INFO)
         tmpurl = report.getURL()
         prefix = report.getPrefix()
@@ -355,7 +366,11 @@ class targetScanner (baseClass.baseClass):
         self._log("Testing URL: " + tmpurl, self.globSet.LOG_DEBUG)
 
         RE_SUCCESS_MSG = re.compile(INCLUDE_ERR_MSG %(filepath), re.DOTALL)
-        code = self.doGetRequest(tmpurl)
+        code = None
+        if (POST != None):
+            code = self.doPostRequest(tmpurl, POST)
+        else:
+            code = self.doGetRequest(tmpurl)
 
         if (code == None):
             return(False)
