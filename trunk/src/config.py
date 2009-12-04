@@ -68,26 +68,29 @@ settings["dynamic_rfi"]["local"]["http_map"]   = None   # The http url of the fi
 # be the filepath itself. The second one should be a string which is in the file.
 # The thrid option is a string of flags. The following flags can be used:
 # (r)ead ; e(x)ecute ; executable by User-(A)gent ; executable by (P)ost ; (R)emote executable
-# Example Array 1 : ("/etc/passwd", "root:", "r")
+# Example Array 1 : ("/etc/passwd", "root:", None, "r")
 #                                             # [0] Check the file "/etc/passwd".
 #                                             # [1] The file should contain "root:".
-#                                             # [2] The file is (r)eadonly -> for testing only.
-# Example Array 2 : ("php://input", None, "rxP")
+#                                             # [2] Send nothing thru POST.
+                                              # [3] The file is (r)eadonly -> for testing only.
+# Example Array 2 : ("php://input", "__PHP_ANSWER__", "__PHP_QUIZ__", "rxP")
 #                                             # [0] Check the file "php://input".
-#                                             # [1] Ignore string check and rely on error messages.
-#                                             # [2] The file is (r)eadable and injectable\e(x)ecutable by (P)OST.
-# Example Array 3 : ("/proc/self/environ", "HTTP_USER_AGENT=", "rxA")
+#                                             # [1] Test if the automaticly generated PHP answer is correct.
+#                                             # [2] Create an automatic randomized PHP testing code and send it thru POST.
+#                                             # [3] The file is (r)eadable and injectable\e(x)ecutable by (P)OST.
+# Example Array 3 : ("/proc/self/environ", "HTTP_USER_AGENT=", None, "rxA")
 #                                             # [0] Check the file "/proc/self/environ".
 #                                             # [1] The file should contain "HTTP_USER_AGENT=".
-#                                             # [2] The file is (r)eadable and injectable\e(x)ecutable by User-(A)gent.
+                                              # [2] Send nothing thru POST.
+#                                             # [3] The file is (r)eadable and injectable\e(x)ecutable by User-(A)gent.
 #
 # If NULL-Byte Poisoning is possible, fimap will automaticly try to modify the path for you.
 # If it's not available, fimap will try those files which have the same ending characters like the forced suffix
 #
 # All files here should be defined as absolute files. fimap will automaticly relative them if needed.
 settings["files"] = (
-                        ("/etc/passwd", "root:", "r"),
-                        ("/proc/self/environ", "HTTP_USER_AGENT=", "rxA"),
+                        ("/etc/passwd", "root:", None, "r"),
+                        ("/proc/self/environ", "HTTP_USER_AGENT=", None, "rxA"),
                     )
                      # Possible more if you want. (No Logfiles! Logfiles for Loginjection is below!)
 
@@ -98,7 +101,8 @@ settings["files"] = (
 #   - If the appendix of the include vector has the same ending as our file.
 # In both cases it have to be an absolute path.
 # fimap will check every case for you.
-settings["filesabs"] = (("php://input", None, "rxP"),)
+# Remote files have no possibility to send POST requests. (No Need IMO)
+settings["filesabs"] = (("php://input", "__PHP_ANSWER__", "<?php __PHP_QUIZ__ ?>", "rxP"),)
 
 # Remote file inclusion test (Not needed if you use dynamic_rfi).
 settings["filesrmt"] = (
@@ -121,6 +125,7 @@ settings["filesrmt"] = (
                        )
 
 # Logfiles!
+# Also no POST requests possible here. (No need too IMO)
 settings["fileslog"] = (
                          ("/var/log/apache2/access.log", "\"GET /", "LHx"), # (L)og Flag + (H)TTP Useragent injection.
                          ("/var/log/apache/access.log", "\"GET /", "LHx"),
