@@ -73,7 +73,7 @@ settings["dynamic_rfi"]["local"]["http_map"]   = None   # The http url of the fi
 #                                             # [1] The file should contain "root:".
 #                                             # [2] Send nothing thru POST.
                                               # [3] The file is (r)eadonly -> for testing only.
-# Example Array 2 : ("php://input", "__PHP_ANSWER__", "__PHP_QUIZ__", "rxP")
+# Example Array 2 : ("php://input", "__PHP_ANSWER__", "<?php __PHP_QUIZ__ ?>", "rxP")
 #                                             # [0] Check the file "php://input".
 #                                             # [1] Test if the automaticly generated PHP answer is correct.
 #                                             # [2] Create an automatic randomized PHP testing code and send it thru POST.
