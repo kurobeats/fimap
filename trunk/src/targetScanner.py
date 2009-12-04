@@ -33,7 +33,8 @@ INCLUDE_ERR_MSG = "Failed opening( required)* '[\d\w/\.\-]*?%s[\d\w/\.\-]*?' (fo
 SCRIPTPATH_ERR_MSG = ("\\(include_path='.*?'\\) in <b>(.*?)</b>* on line", 
                       "\\(include_path='.*?'\\) in (.*?) on line",
                       "failed to open stream: No such file or directory \\((.*?)- Line",
-                      "An error occurred in script '(.*?)' on line \d?.")
+                      "An error occurred in script '(.*?)' on line \d?.",
+                      "Failed opening '.*?' for inclusion in <b>(.*?)</b> on line <b>")
 
 
 class targetScanner (baseClass.baseClass):
@@ -135,7 +136,7 @@ class targetScanner (baseClass.baseClass):
             print "because the regex for this kind of error message is missing."
             a = raw_input("Do you want to help me and send the URL of the site? [y = Print Info/N = Discard]")
             if (a=="y" or a=="Y"):
-                print "-----------SEND THIS TO 'vanuber@checkjemail.nl'-----------"
+                print "-----------SEND THIS TO 'fimap.dev@gmail.com'-----------"
                 print "SUBJECT: fimap Regex" 
                 print "ERROR  : Failed to retrieve script path."
                 print "URL    : " + URL
