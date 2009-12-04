@@ -42,7 +42,7 @@ config = {}
 head = "fimap v.%s by Iman Karim - Automatic LFI/RFI scanner and exploiter." %__version__
 
 def show_help(AndQuit=False):
-    print "Usage: ./fimap [options]"
+    print "Usage: ./fimap.py [options]"
     print "## Operating Modes:"
     print "   -s , --single                 Mode to scan a single URL for FI errors."
     print "                                 Needs URL (-u). This mode is the default."
