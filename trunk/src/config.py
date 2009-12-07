@@ -101,10 +101,10 @@ settings["files"] = (
 #   - If the appendix of the include vector has the same ending as our file.
 # In both cases it have to be an absolute path.
 # fimap will check every case for you.
-# Remote files have no possibility to send POST requests. (No Need IMO)
 settings["filesabs"] = (("php://input", "__PHP_ANSWER__", "<?php __PHP_QUIZ__ ?>", "rxP"),)
 
 # Remote file inclusion test (Not needed if you use dynamic_rfi).
+# Remote files have no possibility to send POST requests. (No Need IMO)
 settings["filesrmt"] = (
                           (     # Test for remote inclusion and for dirty urls with suffix .php
                                 "http://www.phpbb.de/index.php", 
