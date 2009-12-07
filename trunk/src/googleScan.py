@@ -31,12 +31,15 @@ class googleScan:
 
     def __init__(self, config):
         self.config = config
-        self.gs = GoogleSearch(self.config["p_query"])
+        self.gs = GoogleSearch(self.config["p_query"], page=self.config["p_skippages"])
         self.gs.results_per_page = 50
-        
+        if (self.config["p_skippages"] > 0):
+            print "Google Scanner will skip the first %d pages..."%(self.config["p_skippages"])
+
 
     def getNextPage(self):
         results = self.gs.get_results()
+
         return(results)
 
     def startGoogleScan(self):
