@@ -61,5 +61,5 @@ YES! They will find you and bust you!
 ----
 
 == Is there a way to contact you? ==
-  * E-Mail: `VanUber@checkjemail.nl`
+  * E-Mail: `fimap.dev@gmail.com`
   * Jabber: `VanUber@jabber.ccc.de`
