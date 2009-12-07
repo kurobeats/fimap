@@ -61,6 +61,7 @@ def show_help(AndQuit=False):
     print "   -q , --query=QUERY            The Google Search QUERY."
     print "                                 Example: 'inurl:include.php'"
     print "                                 Needed in Google Mode (-g)"
+    print "        --skip-pages=X           Skip the first X pages from the Googlescanner."
     print "   -p , --pages=COUNT            Define the COUNT of pages to search (-g)."
     print "                                 Default is 10."
     print "   -w , --write=LIST             The LIST which will be written if you have choosen"
@@ -150,6 +151,7 @@ if __name__ == "__main__":
     config["p_write"] = None
     config["p_depth"] = 1
     config["p_maxtries"] = 5
+    config["p_skippages"] = 0
     doRFITest = False
 
 
@@ -159,7 +161,7 @@ if __name__ == "__main__":
         show_help(True)
 
     try:
-        longSwitches = ['url=', "mass", "single", "list=", "verbose=", "help", "user-agent=", "query=", "google", "pages=", "credits", "exploit" , "harvest", "write=", "depth=", "greetings", "test-rfi"]
+        longSwitches = ['url=', "mass", "single", "list=", "verbose=", "help", "user-agent=", "query=", "google", "pages=", "credits", "exploit" , "harvest", "write=", "depth=", "greetings", "test-rfi", "skip-pages="]
         optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:", longSwitches)
 
         startExploiter = False
@@ -193,6 +195,8 @@ if __name__ == "__main__":
                 show_help(True)
             if (k in ("--test-rfi",)):
                 doRFITest = True
+            if (k in ("--skip-pages",)):
+                config["p_skippages"] = int(v)
             if (k in("--credits",)):
                 show_credits()
             if (k in ("--greetings",)):
