@@ -1,4 +1,3 @@
-import os.path
 #
 # This file is part of fimap.
 #
@@ -26,6 +25,14 @@ from config import settings
 import xml.dom.minidom
 import shutil
 import posixpath
+import os.path
+
+DEFAULT_AGENT = "fimap.googlecode.com"
+SOCKETTIMEOUT = 30
+
+
+import urllib, httplib, copy, urllib2
+import string,random,os,socket, os.path
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$30.08.2009 20:02:04$"
@@ -48,7 +55,7 @@ class baseClass (object):
         self.__init_logfile()
         self.__logfile
         self._load()
-        
+
         self.xmlfile = os.path.join(self.homeDir, "fimap_result.xml")
         self.XML_Result = None
         if (self.XML_Result == None):
@@ -99,46 +106,6 @@ class baseClass (object):
             else:
                 ret = ret + random.choice(chars)
         return ret
-
-    def doGetRequest(self, URL, TimeOut=10):
-        try:
-            try:
-                opener = urllib2.build_opener()
-                opener.addheaders = [('User-agent', self.globalSettings().getUserAgent())]
-                f = opener.open(URL, timeout=TimeOut) # TIMEOUT
-                return(f.read())
-            except TypeError, err:
-                try:
-                    # Python 2.5 compatiblity
-                    socket.setdefaulttimeout(TimeOut)
-                    f = opener.open(URL)
-                    ret = f.read()
-                    f.close()
-                    return(ret)
-                except Exception, err:
-                    raise
-            except:
-                raise
-
-        except Exception, err:
-            self._log("Failed to do request to (%s)" %(URL), self.globSet.LOG_WARN)
-            self._log(err, self.globSet.LOG_WARN)
-            return(None)
-
-    def doPostRequest(self, url, Post, TimeOut=10):
-        self._log("POST Request: %s" %Post , self.globSet.LOG_DEVEL)
-        try:
-            opener = urllib2.build_opener()
-            header = {'User-agent': self.globalSettings().getUserAgent()}
-            req = urllib2.Request(url, Post, header)
-            response = urllib2.urlopen(req)
-            ret = response.read()
-            response.close()
-            return(ret)
-        except Exception, err:
-            self._log("Failed to do request to (%s)" %(url), self.globSet.LOG_WARN)
-            self._log(err, self.globSet.LOG_WARN)
-            return(None)
 
     def __init_logfile(self):
         self.logFilePath = os.path.join(self.homeDir, "fimap.log")
@@ -412,3 +379,147 @@ class baseClass (object):
 
         phpcode = phpcode[:-1] + ";"
         return(phpcode, rnd)
+
+
+    def doGetRequest(self, URL, TimeOut=10, additionalHeaders=None):
+        #self._log("GET Request: '%s'..."%(URL), self.globSet.LOG_DEBUG)
+        self._log("TTL: %d"%TimeOut, self.globSet.LOG_DEVEL)
+        result, headers = self.doRequest(URL, self.globalSettings().getUserAgent(), additionalHeaders=additionalHeaders)
+        self._log("RESULT-HEADER: %s"%headers, self.globSet.LOG_DEVEL)
+        self._log("RESULT-HTML: %s"%result, self.globSet.LOG_DEVEL)
+        return result
+
+    def doPostRequest(self, URL, Post, TimeOut=10, additionalHeaders=None):
+        #self._log("POST Request: '%s' ['%s']..."%(URL, Post), self.globSet.LOG_DEBUG)
+        self._log("TTL: %d"%TimeOut, self.globSet.LOG_DEVEL)
+        result, headers = self.doRequest(URL, self.globalSettings().getUserAgent(), Post, additionalHeaders)
+        self._log("RESULT-HEADER: %s"%headers, self.globSet.LOG_DEVEL)
+        self._log("RESULT-HTML: %s"%result, self.globSet.LOG_DEVEL)
+        return result
+
+    def doGetRequestWithHeaders(self, URL, agent = None, additionalHeaders = None):
+        #self._log("GET+HEADER Request: '%s'..."%(URL), self.globSet.LOG_DEBUG)
+        self._log("TTL: %d"%TimeOut, self.globSet.LOG_DEVEL)
+        result, headers = self.doRequest(URL, self.globalSettings().getUserAgent(), additionalHeaders=additionalHeaders)
+        self._log("RESULT-HEADER: %s"%headers, self.globSet.LOG_DEVEL)
+        self._log("RESULT-HTML: %s"%result, self.globSet.LOG_DEVEL)
+        return result
+
+
+    def doRequest(self, URL, agent = None, postData = None, additionalHeaders = None):
+        result = None
+        headers = None
+
+        try:
+            b = Browser(agent or DEFAULT_AGENT)
+
+            try:
+                if additionalHeaders:
+                    b.headers.update(additionalHeaders)
+
+                if postData:
+                    result, headers = b.get_page(URL, postData)
+                else:
+                    result, headers = b.get_page(URL)
+
+            finally:
+                del(b)
+
+        except:
+            pass
+
+        return result,headers
+
+    #def doGetRequest(self, URL, TimeOut=10):
+    #def doPostRequest(self, url, Post, TimeOut=10):
+
+class BrowserError(Exception):
+  def __init__(self, url, error):
+    self.url = url
+    self.error = error
+
+class PoolHTTPConnection(httplib.HTTPConnection):
+ def connect(self):
+  msg = "getaddrinfo returns an empty list"
+  for res in socket.getaddrinfo(self.host, self.port, 0, socket.SOCK_STREAM):
+   af, socktype, proto, canonname, sa = res
+   try:
+    self.sock = socket.socket(af, socktype, proto)
+    self.sock.settimeout(SOCKETTIMEOUT)
+    self.sock.connect(sa)
+   except socket.error, msg:
+    if self.sock:
+        self.sock.close()
+    self.sock = None
+    continue
+   break
+  if not self.sock:
+      raise socket.error, msg
+
+class PoolHTTPHandler(urllib2.HTTPHandler):
+ def http_open(self, req):
+     return self.do_open(PoolHTTPConnection, req)
+
+class Browser(object):
+ def __init__(self, user_agent=DEFAULT_AGENT, use_pool=False):
+  self.headers = {'User-Agent': user_agent,
+                  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                  'Accept-Language': 'en-us,en;q=0.5'}
+
+ def get_page(self, url, data=None):
+  handlers = [PoolHTTPHandler]
+  opener = urllib2.build_opener(*handlers)
+
+  ret = None
+  headers = None
+  response = None
+
+  request = urllib2.Request(url, data, self.headers)
+  try:
+   try:
+    response = opener.open(request)
+    ret = response.read()
+
+    info = response.info()
+    headers = copy.deepcopy(info.items())
+
+   finally:
+    if response:
+     response.close()
+
+  except:
+   pass
+
+  return ret, headers
+
+ def set_random_user_agent(self):
+  self.headers['User-Agent'] = DEFAULT_AGENT
+  return self.headers['User-Agent']
+
+ def doRequest(self, URL, agent = None, postData = None, additionalHeaders = None):
+  result = None
+  headers = None
+
+  print "doRequest: " + str(URL) # *** don't include ***
+
+  try:
+   b = Browser(agent or DEFAULT_AGENT)
+
+   try:
+    if additionalHeaders:
+     b.headers.update(additionalHeaders)
+
+    if postData:
+     result, headers = b.get_page(URL, postData)
+    else:
+     result, headers = b.get_page(URL)
+
+   finally:
+    del(b)
+
+  except:
+   pass
+
+  return result, headers
+
+
