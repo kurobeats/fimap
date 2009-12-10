@@ -439,85 +439,85 @@ class BrowserError(Exception):
     self.error = error
 
 class PoolHTTPConnection(httplib.HTTPConnection):
- def connect(self):
-  msg = "getaddrinfo returns an empty list"
-  for res in socket.getaddrinfo(self.host, self.port, 0, socket.SOCK_STREAM):
-   af, socktype, proto, canonname, sa = res
-   try:
-    self.sock = socket.socket(af, socktype, proto)
-    self.sock.settimeout(SOCKETTIMEOUT)
-    self.sock.connect(sa)
-   except socket.error, msg:
-    if self.sock:
-        self.sock.close()
-    self.sock = None
-    continue
-   break
-  if not self.sock:
-      raise socket.error, msg
+    def connect(self):
+        msg = "getaddrinfo returns an empty list"
+        for res in socket.getaddrinfo(self.host, self.port, 0, socket.SOCK_STREAM):
+            af, socktype, proto, canonname, sa = res
+            try:
+                self.sock = socket.socket(af, socktype, proto)
+                self.sock.settimeout(SOCKETTIMEOUT)
+                self.sock.connect(sa)
+            except socket.error, msg:
+                if self.sock:
+                    self.sock.close()
+                self.sock = None
+                continue
+            break
+        if not self.sock:
+            raise socket.error, msg
 
 class PoolHTTPHandler(urllib2.HTTPHandler):
- def http_open(self, req):
-     return self.do_open(PoolHTTPConnection, req)
+    def http_open(self, req):
+        return self.do_open(PoolHTTPConnection, req)
 
 class Browser(object):
- def __init__(self, user_agent=DEFAULT_AGENT, use_pool=False):
-  self.headers = {'User-Agent': user_agent,
-                  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                  'Accept-Language': 'en-us,en;q=0.5'}
+    def __init__(self, user_agent=DEFAULT_AGENT, use_pool=False):
+        self.headers = {'User-Agent': user_agent,
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'en-us,en;q=0.5'}
 
- def get_page(self, url, data=None):
-  handlers = [PoolHTTPHandler]
-  opener = urllib2.build_opener(*handlers)
+    def get_page(self, url, data=None):
+        handlers = [PoolHTTPHandler]
+        opener = urllib2.build_opener(*handlers)
 
-  ret = None
-  headers = None
-  response = None
+        ret = None
+        headers = None
+        response = None
 
-  request = urllib2.Request(url, data, self.headers)
-  try:
-   try:
-    response = opener.open(request)
-    ret = response.read()
+        request = urllib2.Request(url, data, self.headers)
+        try:
+            try:
+                response = opener.open(request)
+                ret = response.read()
 
-    info = response.info()
-    headers = copy.deepcopy(info.items())
+                info = response.info()
+                headers = copy.deepcopy(info.items())
 
-   finally:
-    if response:
-     response.close()
+            finally:
+                if response:
+                    response.close()
 
-  except:
-   pass
+        except:
+            pass
 
-  return ret, headers
+        return ret, headers
 
- def set_random_user_agent(self):
-  self.headers['User-Agent'] = DEFAULT_AGENT
-  return self.headers['User-Agent']
+    def set_random_user_agent(self):
+        self.headers['User-Agent'] = DEFAULT_AGENT
+        return self.headers['User-Agent']
 
- def doRequest(self, URL, agent = None, postData = None, additionalHeaders = None):
-  result = None
-  headers = None
+    def doRequest(self, URL, agent=None, postData=None, additionalHeaders=None):
+        result = None
+        headers = None
 
-  try:
-   b = Browser(agent or DEFAULT_AGENT)
+        try:
+            b = Browser(agent or DEFAULT_AGENT)
 
-   try:
-    if additionalHeaders:
-     b.headers.update(additionalHeaders)
+            try:
+                if additionalHeaders:
+                    b.headers.update(additionalHeaders)
 
-    if postData:
-     result, headers = b.get_page(URL, postData)
-    else:
-     result, headers = b.get_page(URL)
+                if postData:
+                    result, headers = b.get_page(URL, postData)
+                else:
+                    result, headers = b.get_page(URL)
 
-   finally:
-    del(b)
+            finally:
+                del(b)
 
-  except:
-   pass
+        except:
+            pass
 
-  return result, headers
+        return result, headers
 
 
