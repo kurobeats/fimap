@@ -500,8 +500,6 @@ class Browser(object):
   result = None
   headers = None
 
-  print "doRequest: " + str(URL) # *** don't include ***
-
   try:
    b = Browser(agent or DEFAULT_AGENT)
 

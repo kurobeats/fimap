@@ -75,6 +75,8 @@ def show_help(AndQuit=False):
     #print "                                 exploit mode (-x)."
     print "## Disguise Kit:"
     print "   -A , --user-agent=UA          The User-Agent which should be sent."
+    print "        --show-my-ip             Shows your internet IP, current country and user-agent."
+    print "                                 Useful if you want to test your vpn\\proxy config."
     print "## Other:"
     print "        --test-rfi               A quick test to see if you have configured RFI nicely."
     print "   -v , --verbose=LEVEL          Verbose level you want to receive."
@@ -120,6 +122,16 @@ def show_greetings():
     print " - Ruun"
     sys.exit(0)
 
+def show_ip():
+    print "Heading to 'http://85.214.27.38/show_my_ip'..."
+    print "----------------------------------------------"
+    g = globalSettings(config["p_verbose"])
+    g.setUserAgent(config["p_useragent"])
+    tester = codeinjector(g)
+    result = tester.doGetRequest("http://85.214.27.38/show_my_ip")
+    print result.strip()
+    sys.exit(0)
+
 def list_results(lst = os.path.join(os.path.expanduser("~"), "fimap_result.xml")):
     if (not os.path.exists(lst)):
         print "File not found! ~/fimap_result.xml"
@@ -153,7 +165,7 @@ if __name__ == "__main__":
     config["p_maxtries"] = 5
     config["p_skippages"] = 0
     doRFITest = False
-
+    doInternetInfo = False
 
     print head
 
@@ -161,7 +173,7 @@ if __name__ == "__main__":
         show_help(True)
 
     try:
-        longSwitches = ['url=', "mass", "single", "list=", "verbose=", "help", "user-agent=", "query=", "google", "pages=", "credits", "exploit" , "harvest", "write=", "depth=", "greetings", "test-rfi", "skip-pages="]
+        longSwitches = ['url=', "mass", "single", "list=", "verbose=", "help", "user-agent=", "query=", "google", "pages=", "credits", "exploit" , "harvest", "write=", "depth=", "greetings", "test-rfi", "skip-pages=", "show-my-ip"]
         optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:", longSwitches)
 
         startExploiter = False
@@ -201,6 +213,8 @@ if __name__ == "__main__":
                 show_credits()
             if (k in ("--greetings",)):
                 show_greetings()
+            if (k in ("--show-my-ip",)):
+                doInternetInfo = True
             if (k in("-x", "--exploit")):
                 startExploiter = True
             #if (k in("-f", "--exploit-filter")):
@@ -222,7 +236,8 @@ if __name__ == "__main__":
         sys.exit(0)
 
 
-
+    if (doInternetInfo):
+        show_ip()
 
     if (config["p_url"] == None and config["p_mode"] == 0):
         print "Target URL required. (-u)"
