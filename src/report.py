@@ -37,6 +37,7 @@ class report:
         self.ServerScript = None
         self.RemoteInjectable = False
         self.isLinux = True
+        self.BlindDiscovered = False
         
 
     def setWindows(self):
@@ -70,6 +71,12 @@ class report:
 
     def getSurfix(self):
         return(self.Surfix)
+
+    def isBlindDiscovered(self):
+        return(self.BlindDiscovered)
+
+    def setBlindDiscovered(self, bd):
+        self.BlindDiscovered = bd
 
     def setServerPath(self, sP):
         self.ServerPath = sP
@@ -115,6 +122,9 @@ class report:
 
     def getType(self):
         ret = ""
+
+        if (self.isBlindDiscovered()):
+            return("Blindly Identified")
 
         if (self.getPrefix() == None):
             return("Not checked.")

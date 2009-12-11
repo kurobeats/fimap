@@ -146,15 +146,21 @@ class baseClass (object):
             self._setAttrib(elem_vuln, "prefix", rep.getPrefix())
             self._setAttrib(elem_vuln, "suffix", rep.getSurfix())
             self._setAttrib(elem_vuln, "appendix", rep.getAppendix())
-            self._setAttrib(elem_vuln, "suffix", rep.getSurfix())
             self._setAttrib(elem_vuln, "mode", t)
             self._setAttrib(elem_vuln, "path", rep.getPath())
             self._setAttrib(elem_vuln, "param", rep.getVulnKey())
             self._setAttrib(elem_vuln, "paramvalue", rep.getVulnKeyVal())
+            
             if (rep.isRemoteInjectable()):
                 self._setAttrib(elem_vuln, "remote", "1")
             else:
                 self._setAttrib(elem_vuln, "remote", "0")
+
+            if (rep.isBlindDiscovered()):
+                self._setAttrib(elem_vuln, "blind", "1")
+            else:
+                self._setAttrib(elem_vuln, "blind", "0")
+                
             self._appendXMLChild(elem, elem_vuln)
             self._appendXMLChild(self.XML_RootItem, elem)
 
