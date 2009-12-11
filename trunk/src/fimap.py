@@ -68,6 +68,8 @@ def show_help(AndQuit=False):
     print "                                 harvest mode (-H). This file will be opened in APPEND mode."
     print "   -d , --depth=CRAWLDEPTH       The CRAWLDEPTH (recurse level) you want to crawl your target site"
     print "                                 in harvest mode (-H). Default is 1."
+    print "   -b , --enable-blind           Enables blind FI-Bug testing when no error messages are printed."
+    print "                                 Note that this mode will cause lots of requests (compared to the default method)."
     print "## Attack Kit:"
     print "   -x , --exploit                Starts an interactive session where you can"
     print "                                 select an target and do some action."
@@ -164,6 +166,7 @@ if __name__ == "__main__":
     config["p_depth"] = 1
     config["p_maxtries"] = 5
     config["p_skippages"] = 0
+    config["p_monkeymode"] = False
     doRFITest = False
     doInternetInfo = False
 
@@ -173,8 +176,8 @@ if __name__ == "__main__":
         show_help(True)
 
     try:
-        longSwitches = ['url=', "mass", "single", "list=", "verbose=", "help", "user-agent=", "query=", "google", "pages=", "credits", "exploit" , "harvest", "write=", "depth=", "greetings", "test-rfi", "skip-pages=", "show-my-ip"]
-        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:", longSwitches)
+        longSwitches = ['url=', "mass", "single", "list=", "verbose=", "help", "user-agent=", "query=", "google", "pages=", "credits", "exploit" , "harvest", "write=", "depth=", "greetings", "test-rfi", "skip-pages=", "show-my-ip", "enable-blind"]
+        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:b", longSwitches)
 
         startExploiter = False
 
@@ -207,6 +210,8 @@ if __name__ == "__main__":
                 show_help(True)
             if (k in ("--test-rfi",)):
                 doRFITest = True
+            if (k in ("-b", "--enable-blind")):
+                config["p_monkeymode"] = True
             if (k in ("--skip-pages",)):
                 config["p_skippages"] = int(v)
             if (k in("--credits",)):

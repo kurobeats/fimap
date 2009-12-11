@@ -139,6 +139,11 @@ settings["fileslog"] = (
                          # As much as you want here.
                        )
 
+# Blindmode settings. Only used if you enable blind scanning.
+settings["blind"] = {}
+settings["blind"]["minlevel"] = 0             # How many ../ are the minimum count to test?
+settings["blind"]["maxlevel"] = 15            # How many ../ are the maximum count to test?
+
 # Distribution files which can give us infos about the distribution.
 settings["distfiles"]= ("/etc/debian_version", "/etc/redhat-release", "/etc/gentoo-release")
 

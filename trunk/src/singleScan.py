@@ -45,6 +45,7 @@ class singleScan(baseClass):
         g.setTargetURL(self.URL)
         g.setUserAgent(self.config["p_useragent"])
         t = targetScanner(g)
+        t.MonkeyTechnique = self.config["p_monkeymode"]
 
         idx = 0
         if (t.prepareTarget()):
@@ -60,15 +61,25 @@ class singleScan(baseClass):
                     header = "[%d] Possible File Injection"%idx
                     boxarr.append("  [URL]      %s"%report.getURL())
                     boxarr.append("  [PARAM]    %s"%report.getVulnKey())
-                    boxarr.append("  [PATH]     %s"%report.getServerPath())
+                    if (report.isBlindDiscovered()):
+                        boxarr.append("  [PATH]     Not received (Blindmode)")
+                    else:
+                        boxarr.append("  [PATH]     %s"%report.getServerPath())
+
                     boxarr.append("  [TYPE]     %s"%report.getType())
-                    if (report.isNullbytePossible() == None):
-                        boxarr.append("  [NULLBYTE] No Need. It's clean.")
+                    if (not report.isBlindDiscovered()):
+                        if (report.isNullbytePossible() == None):
+                            boxarr.append("  [NULLBYTE] No Need. It's clean.")
+                        else:
+                            if (report.isNullbytePossible()):
+                                boxarr.append("  [NULLBYTE] Works. :)")
+                            else:
+                                boxarr.append("  [NULLBYTE] Doesn't work. :(")
                     else:
                         if (report.isNullbytePossible()):
-                            boxarr.append("  [NULLBYTE] Works. :)")
+                            boxarr.append("  [NULLBYTE] Is needed.")
                         else:
-                            boxarr.append("  [NULLBYTE] Doesn't work. :(")
+                            boxarr.append("  [NULLBYTE] Not tested.")
                     boxarr.append("  [READABLE FILES]")
                     if (len(files) == 0):
                         boxarr.append("                   No Readable files found :(")
