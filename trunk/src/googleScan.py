@@ -72,10 +72,13 @@ class googleScan:
 
             if (len(results) == 0): break
             sys.stderr.write("[PAGE %d]\n" %(pagecnt))
-            for r in results:
-                single = singleScan(self.config["p_verbose"])
-                single.setConfig(self.config, r.url)
-                single.setQuite(True)
-                single.scan()
+            try:
+                for r in results:
+                    single = singleScan(self.config["p_verbose"])
+                    single.setConfig(self.config, r.url)
+                    single.setQuite(True)
+                    single.scan()
+            except:
+                raise
             time.sleep(1)
         print "Google Scan completed."
