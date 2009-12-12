@@ -40,63 +40,66 @@ class singleScan(baseClass):
         self.quite = b
 
     def scan(self):
-        self.localLog("SingleScan is testing URL: '%s'" %self.URL)
-        g = globalSettings(self.config["p_verbose"])
-        g.setTargetURL(self.URL)
-        g.setUserAgent(self.config["p_useragent"])
-        t = targetScanner(g)
-        t.MonkeyTechnique = self.config["p_monkeymode"]
+        try:
+            self.localLog("SingleScan is testing URL: '%s'" %self.URL)
+            g = globalSettings(self.config["p_verbose"])
+            g.setTargetURL(self.URL)
+            g.setUserAgent(self.config["p_useragent"])
+            t = targetScanner(g)
+            t.MonkeyTechnique = self.config["p_monkeymode"]
 
-        idx = 0
-        if (t.prepareTarget()):
-            res = t.testTargetVuln()
-            if (len(res) == 0):
-                self.localLog("Target URL isn't affected by any file inclusion bug :(")
-            else:
-                for i in res:
-                    report = i[0]
-                    files = i[1]
-                    idx = idx +1
-                    boxarr = []
-                    header = "[%d] Possible File Injection"%idx
-                    boxarr.append("  [URL]      %s"%report.getURL())
-                    boxarr.append("  [PARAM]    %s"%report.getVulnKey())
-                    if (report.isBlindDiscovered()):
-                        boxarr.append("  [PATH]     Not received (Blindmode)")
-                    else:
-                        boxarr.append("  [PATH]     %s"%report.getServerPath())
+            idx = 0
+            if (t.prepareTarget()):
+                res = t.testTargetVuln()
+                if (len(res) == 0):
+                    self.localLog("Target URL isn't affected by any file inclusion bug :(")
+                else:
+                    for i in res:
+                        report = i[0]
+                        files = i[1]
+                        idx = idx +1
+                        boxarr = []
+                        header = "[%d] Possible File Injection"%idx
+                        boxarr.append("  [URL]      %s"%report.getURL())
+                        boxarr.append("  [PARAM]    %s"%report.getVulnKey())
+                        if (report.isBlindDiscovered()):
+                            boxarr.append("  [PATH]     Not received (Blindmode)")
+                        else:
+                            boxarr.append("  [PATH]     %s"%report.getServerPath())
 
-                    boxarr.append("  [TYPE]     %s"%report.getType())
-                    if (not report.isBlindDiscovered()):
-                        if (report.isNullbytePossible() == None):
-                            boxarr.append("  [NULLBYTE] No Need. It's clean.")
+                        boxarr.append("  [TYPE]     %s"%report.getType())
+                        if (not report.isBlindDiscovered()):
+                            if (report.isNullbytePossible() == None):
+                                boxarr.append("  [NULLBYTE] No Need. It's clean.")
+                            else:
+                                if (report.isNullbytePossible()):
+                                    boxarr.append("  [NULLBYTE] Works. :)")
+                                else:
+                                    boxarr.append("  [NULLBYTE] Doesn't work. :(")
                         else:
                             if (report.isNullbytePossible()):
-                                boxarr.append("  [NULLBYTE] Works. :)")
+                                boxarr.append("  [NULLBYTE] Is needed.")
                             else:
-                                boxarr.append("  [NULLBYTE] Doesn't work. :(")
-                    else:
-                        if (report.isNullbytePossible()):
-                            boxarr.append("  [NULLBYTE] Is needed.")
+                                boxarr.append("  [NULLBYTE] Not tested.")
+                        boxarr.append("  [READABLE FILES]")
+                        if (len(files) == 0):
+                            boxarr.append("                   No Readable files found :(")
                         else:
-                            boxarr.append("  [NULLBYTE] Not tested.")
-                    boxarr.append("  [READABLE FILES]")
-                    if (len(files) == 0):
-                        boxarr.append("                   No Readable files found :(")
-                    else:
-                        fidx = 0
-                        for file in files:
-                            payload = "%s%s%s"%(report.getPrefix(), file, report.getSurfix())
-                            if (file != payload):
-                                txt = "                   [%d] %s -> %s"%(fidx, file, payload)
-                                #if (fidx == 0): txt = txt.strip()
-                                boxarr.append(txt)
-                            else:
-                                txt = "                   [%d] %s"%(fidx, file)
-                                #if (fidx == 0): txt = txt.strip()
-                                boxarr.append(txt)
-                            fidx = fidx +1
-                    self.drawBox(header, boxarr)
+                            fidx = 0
+                            for file in files:
+                                payload = "%s%s%s"%(report.getPrefix(), file, report.getSurfix())
+                                if (file != payload):
+                                    txt = "                   [%d] %s -> %s"%(fidx, file, payload)
+                                    #if (fidx == 0): txt = txt.strip()
+                                    boxarr.append(txt)
+                                else:
+                                    txt = "                   [%d] %s"%(fidx, file)
+                                    #if (fidx == 0): txt = txt.strip()
+                                    boxarr.append(txt)
+                                fidx = fidx +1
+                        self.drawBox(header, boxarr)
+        except:
+            raise
 
     def localLog(self, txt):
         if (not self.quite):

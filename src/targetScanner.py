@@ -114,8 +114,8 @@ class targetScanner (baseClass.baseClass):
                                 rep = self.identifyVuln(self.Target_URL, self.params, k, blindmode=("/.." * i, False))
                             else:
                                 tmpurl = self.Target_URL
-                                testfile = testfile + "%00"
-                                tmpurl = tmpurl.replace("%s=%s"%(k,V), "%s=%s"%(k, testfile))
+                                tmpfile = testfile + "%00"
+                                tmpurl = tmpurl.replace("%s=%s"%(k,V), "%s=%s"%(k, tmpfile))
                                 self._log("Requesting: '%s'..." %(tmpurl), self.globSet.LOG_DEBUG)
                                 code = self.doGetRequest(tmpurl)
                                 if (code.find(v) != -1):
@@ -125,6 +125,7 @@ class targetScanner (baseClass.baseClass):
                             if (rep != None):
                                 rep.setVulnKeyVal(V)
                                 ret.append((rep, self.readFiles(rep)))
+                                rep = None
                         else:
                             # Previous result was none. Assuming that we can break here.
                             self._log("Code == None. Skipping testing of the URL.", self.globSet.LOG_DEBUG)

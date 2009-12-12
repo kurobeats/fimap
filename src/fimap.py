@@ -54,8 +54,8 @@ def show_help(AndQuit=False):
     print "                                 Needs a root url (-u) to start crawling there."
     print "                                 Also needs (-w) to write a URL list for mass mode."
     print "   -b , --enable-blind           Enables blind FI-Bug testing when no error messages are printed."
-    print "                                 Note that this mode will cause lots of requests (compared to the default method)."
-    print "                                 Can be used with -s, -m or -g."
+    print "                                 Note that this mode will cause lots of requests"
+    print "                                 compared to the default method. Can be used with -s, -m or -g."
     print "## Variables:"
     print "   -u , --url=URL                The URL you want to test."
     print "                                 Needed in single mode (-s)."
@@ -261,6 +261,8 @@ if __name__ == "__main__":
         print "Output file to write the URLs to is needed in Harvest Mode. (-w)"
         sys.exit(1)
 
+    if (config["p_monkeymode"] == True):
+        print "Experimental blind FI-error checking enabled."
 
     try:
         if (config["p_mode"] == 0):
