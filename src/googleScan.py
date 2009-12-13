@@ -18,7 +18,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-from globalSettings import globalSettings
 from singleScan import singleScan
 from targetScanner import targetScanner
 from xgoogle.search import GoogleSearch
@@ -74,12 +73,11 @@ class googleScan:
             sys.stderr.write("[PAGE %d]\n" %(pagecnt))
             try:
                 for r in results:
-                    single = singleScan(self.config["p_verbose"])
-                    single.setConfig(self.config, r.url)
+                    single = singleScan(self.config)
+                    single.setURL(r.url)
                     single.setQuite(True)
                     single.scan()
             except KeyboardInterrupt:
-                print "You have terminated me :("
-                sys.exit(1)
+                raise
             time.sleep(1)
         print "Google Scan completed."

