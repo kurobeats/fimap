@@ -55,7 +55,7 @@ class baseClass (object):
         self.__init_logfile()
         self.__logfile
         self._load()
-
+        self.proxy = None
         self.xmlfile = os.path.join(self.homeDir, "fimap_result.xml")
         self.XML_Result = None
         if (self.XML_Result == None):
@@ -79,6 +79,8 @@ class baseClass (object):
     def _setAttrib(self, Node, Key, Value):
         Node.setAttribute(Key, Value)
 
+    def setProxy(self, p):
+        self.proxy = p
 
     def _appendXMLChild(self, Parent, Child):
         Parent.appendChild(Child)
@@ -417,7 +419,7 @@ class baseClass (object):
         headers = None
 
         try:
-            b = Browser(agent or DEFAULT_AGENT)
+            b = Browser(agent or DEFAULT_AGENT, proxystring=self.proxy)
 
             try:
                 if additionalHeaders:
@@ -431,8 +433,8 @@ class baseClass (object):
             finally:
                 del(b)
 
-        except:
-            pass
+        except Exception, err:
+            self._log(err, self.globSet.LOG_INFO)
 
         return result,headers
 
@@ -467,13 +469,18 @@ class PoolHTTPHandler(urllib2.HTTPHandler):
         return self.do_open(PoolHTTPConnection, req)
 
 class Browser(object):
-    def __init__(self, user_agent=DEFAULT_AGENT, use_pool=False):
+    def __init__(self, user_agent=DEFAULT_AGENT, use_pool=False, proxystring=None):
         self.headers = {'User-Agent': user_agent,
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Language': 'en-us,en;q=0.5'}
+        self.proxy = proxystring
 
     def get_page(self, url, data=None):
-        handlers = [PoolHTTPHandler]
+        proxy_support = urllib2.ProxyHandler({})
+        if (self.proxy != None):
+            proxy_support = urllib2.ProxyHandler({'http': self.proxy})
+        handlers = [proxy_support]
+
         opener = urllib2.build_opener(*handlers)
 
         ret = None
@@ -494,7 +501,7 @@ class Browser(object):
                     response.close()
 
         except:
-            pass
+            raise
 
         return ret, headers
 
@@ -502,28 +509,4 @@ class Browser(object):
         self.headers['User-Agent'] = DEFAULT_AGENT
         return self.headers['User-Agent']
 
-    def doRequest(self, URL, agent=None, postData=None, additionalHeaders=None):
-        result = None
-        headers = None
-
-        try:
-            b = Browser(agent or DEFAULT_AGENT)
-
-            try:
-                if additionalHeaders:
-                    b.headers.update(additionalHeaders)
-
-                if postData:
-                    result, headers = b.get_page(URL, postData)
-                else:
-                    result, headers = b.get_page(URL)
-
-            finally:
-                del(b)
-
-        except:
-            pass
-
-        return result, headers
-
-
+    
