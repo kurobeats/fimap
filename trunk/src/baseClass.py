@@ -44,18 +44,33 @@ new_stuff = {}
 
 class baseClass (object):
 
-    globSet     = None
+    LOG_ERROR = 99
+    LOG_WARN  = 99
+    LOG_DEVEL = 1
+    LOG_DEBUG = 2
+    LOG_INFO  = 3
+    LOG_ALWAYS= 4
+    
     XML_Result  = None
     XML_RootItem = None
     homeDir = os.path.expanduser("~")
 
-    def __init__(self, globSet):
-        self.globSet = globSet
+    def __init__(self, config):
+        self.log_lvl = {}
+        self.log_lvl[baseClass.LOG_ERROR]   = "ERROR"
+        self.log_lvl[baseClass.LOG_WARN]    = "WARN"
+        self.log_lvl[baseClass.LOG_DEVEL]   = "DEVEL"
+        self.log_lvl[baseClass.LOG_DEBUG]   = "DEBUG"
+        self.log_lvl[baseClass.LOG_INFO]    = "INFO"
+        self.log_lvl[baseClass.LOG_ALWAYS]  = "OUT"
+        self.LOG_LVL = config["p_verbose"]
+
+
+        self.config = config
         self.logFilePath = None
         self.__init_logfile()
         self.__logfile
         self._load()
-        self.proxy = None
         self.xmlfile = os.path.join(self.homeDir, "fimap_result.xml")
         self.XML_Result = None
         if (self.XML_Result == None):
@@ -79,9 +94,6 @@ class baseClass (object):
     def _setAttrib(self, Node, Key, Value):
         Node.setAttribute(Key, Value)
 
-    def setProxy(self, p):
-        self.proxy = p
-
     def _appendXMLChild(self, Parent, Child):
         Parent.appendChild(Child)
 
@@ -92,12 +104,8 @@ class baseClass (object):
         raise "Implement this!"
 
     def _log(self, txt, LVL):
-        self.globSet._log(txt, LVL)
-        
-
-    def globalSettings(self):
-        return(self.globSet)
-
+        if (4-self.config["p_verbose"] < LVL):
+            print "[%s] %s" %(self.log_lvl[LVL], txt)
 
     def getRandomStr(self):
         chars = string.letters + string.digits
@@ -204,7 +212,7 @@ class baseClass (object):
                     return(True)
 
     def saveXML(self):
-        self._log("Saving results to '%s'..."%self.xmlfile, self.globSet.LOG_DEBUG)
+        self._log("Saving results to '%s'..."%self.xmlfile, self.LOG_DEBUG)
         f = open(self.xmlfile, "w")
         f.write(self.cleanUpLines(self._getXML()))
         f.close()
@@ -268,18 +276,18 @@ class baseClass (object):
         f = open(temp, "r")
 
         # Now toss it to your ftp server
-        self._log("Uploading payload (%s) to FTP server '%s'..."%(temp, host), self.globSet.LOG_DEBUG)
+        self._log("Uploading payload (%s) to FTP server '%s'..."%(temp, host), self.LOG_DEBUG)
         ftp = FTP(host, user, pw)
         ftp.cwd(path)
         
         # If the path is in a extra directory, we will take care of it now
         if (directory != None):
-            self._log("Creating directory structure '%s'..."%(directory), self.globSet.LOG_DEBUG)
+            self._log("Creating directory structure '%s'..."%(directory), self.LOG_DEBUG)
             for dir_ in directory.split("/"):
                 try:
                     ftp.cwd(dir_)
                 except error_perm:
-                    self._log("mkdir '%s'..."%(dir_), self.globSet.LOG_DEVEL)
+                    self._log("mkdir '%s'..."%(dir_), self.LOG_DEVEL)
                     ftp.mkd(dir_)
                     ftp.cwd(dir_)
                 
@@ -297,7 +305,7 @@ class baseClass (object):
         host = settings["dynamic_rfi"]["ftp"]["ftp_host"]
         user = settings["dynamic_rfi"]["ftp"]["ftp_user"]
         pw   = settings["dynamic_rfi"]["ftp"]["ftp_pass"]
-        self._log("Deleting payload (%s) from FTP server '%s'..."%(file, host), self.globSet.LOG_DEBUG)
+        self._log("Deleting payload (%s) from FTP server '%s'..."%(file, host), self.LOG_DEBUG)
         ftp = FTP(host, user, pw)
         ftp.delete(file)
         ftp.quit()
@@ -307,7 +315,7 @@ class baseClass (object):
         user = settings["dynamic_rfi"]["ftp"]["ftp_user"]
         pw   = settings["dynamic_rfi"]["ftp"]["ftp_pass"]
         if ftp == None: 
-            self._log("Deleting directory recursivly from FTP server '%s'..."%(host), self.globSet.LOG_DEBUG)
+            self._log("Deleting directory recursivly from FTP server '%s'..."%(host), self.LOG_DEBUG)
             ftp = FTP(host, user, pw)
         
         ftp.cwd(directory)
@@ -390,27 +398,24 @@ class baseClass (object):
 
 
     def doGetRequest(self, URL, TimeOut=10, additionalHeaders=None):
-        #self._log("GET Request: '%s'..."%(URL), self.globSet.LOG_DEBUG)
-        self._log("TTL: %d"%TimeOut, self.globSet.LOG_DEVEL)
-        result, headers = self.doRequest(URL, self.globalSettings().getUserAgent(), additionalHeaders=additionalHeaders)
-        self._log("RESULT-HEADER: %s"%headers, self.globSet.LOG_DEVEL)
-        self._log("RESULT-HTML: %s"%result, self.globSet.LOG_DEVEL)
+        self._log("TTL: %d"%TimeOut, self.LOG_DEVEL)
+        result, headers = self.doRequest(URL, self.config["p_useragent"], additionalHeaders=additionalHeaders)
+        self._log("RESULT-HEADER: %s"%headers, self.LOG_DEVEL)
+        self._log("RESULT-HTML: %s"%result, self.LOG_DEVEL)
         return result
 
     def doPostRequest(self, URL, Post, TimeOut=10, additionalHeaders=None):
-        #self._log("POST Request: '%s' ['%s']..."%(URL, Post), self.globSet.LOG_DEBUG)
-        self._log("TTL: %d"%TimeOut, self.globSet.LOG_DEVEL)
-        result, headers = self.doRequest(URL, self.globalSettings().getUserAgent(), Post, additionalHeaders)
-        self._log("RESULT-HEADER: %s"%headers, self.globSet.LOG_DEVEL)
-        self._log("RESULT-HTML: %s"%result, self.globSet.LOG_DEVEL)
+        self._log("TTL: %d"%TimeOut, self.LOG_DEVEL)
+        result, headers = self.doRequest(URL, self.config["p_useragent"], Post, additionalHeaders)
+        self._log("RESULT-HEADER: %s"%headers, self.LOG_DEVEL)
+        self._log("RESULT-HTML: %s"%result, self.LOG_DEVEL)
         return result
 
     def doGetRequestWithHeaders(self, URL, agent = None, additionalHeaders = None):
-        #self._log("GET+HEADER Request: '%s'..."%(URL), self.globSet.LOG_DEBUG)
-        self._log("TTL: %d"%TimeOut, self.globSet.LOG_DEVEL)
-        result, headers = self.doRequest(URL, self.globalSettings().getUserAgent(), additionalHeaders=additionalHeaders)
-        self._log("RESULT-HEADER: %s"%headers, self.globSet.LOG_DEVEL)
-        self._log("RESULT-HTML: %s"%result, self.globSet.LOG_DEVEL)
+        self._log("TTL: %d"%TimeOut, self.LOG_DEVEL)
+        result, headers = self.doRequest(URL, self.config["p_useragent"], additionalHeaders=additionalHeaders)
+        self._log("RESULT-HEADER: %s"%headers, self.LOG_DEVEL)
+        self._log("RESULT-HTML: %s"%result, self.LOG_DEVEL)
         return result
 
 
@@ -419,7 +424,7 @@ class baseClass (object):
         headers = None
 
         try:
-            b = Browser(agent or DEFAULT_AGENT, proxystring=self.proxy)
+            b = Browser(agent or DEFAULT_AGENT, proxystring=self.config["p_proxy"])
 
             try:
                 if additionalHeaders:
@@ -434,7 +439,7 @@ class baseClass (object):
                 del(b)
 
         except Exception, err:
-            self._log(err, self.globSet.LOG_INFO)
+            self._log(err, self.LOG_WARN)
 
         return result,headers
 

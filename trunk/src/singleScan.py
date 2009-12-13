@@ -21,6 +21,7 @@
 from baseClass import baseClass
 from targetScanner import targetScanner
 from globalSettings import globalSettings
+import sys
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$03.09.2009 01:29:37$"
@@ -29,13 +30,10 @@ class singleScan(baseClass):
 
     def _load(self):
         self.URL = None
-        self.config = None
         self.quite = False
 
-    def setConfig(self, config, URL):
-        self.config = config
+    def setURL(self, URL):
         self.URL = URL
-        self.setProxy(self.config["p_proxy"])
 
     def setQuite(self, b):
         self.quite = b
@@ -43,14 +41,11 @@ class singleScan(baseClass):
     def scan(self):
         try:
             self.localLog("SingleScan is testing URL: '%s'" %self.URL)
-            g = globalSettings(self.config["p_verbose"])
-            g.setTargetURL(self.URL)
-            g.setUserAgent(self.config["p_useragent"])
-            t = targetScanner(g)
+            t = targetScanner(self.config)
             t.MonkeyTechnique = self.config["p_monkeymode"]
 
             idx = 0
-            if (t.prepareTarget()):
+            if (t.prepareTarget(self.URL)):
                 res = t.testTargetVuln()
                 if (len(res) == 0):
                     self.localLog("Target URL isn't affected by any file inclusion bug :(")
@@ -100,8 +95,7 @@ class singleScan(baseClass):
                                 fidx = fidx +1
                         self.drawBox(header, boxarr)
         except KeyboardInterrupt:
-            print "You have terminated me :("
-            sys.exit(1)
+            raise
 
     def localLog(self, txt):
         if (not self.quite):

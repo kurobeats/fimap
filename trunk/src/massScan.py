@@ -23,7 +23,6 @@
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$01.09.2009 04:28:51$"
 
-from globalSettings import globalSettings
 from targetScanner import targetScanner
 from singleScan import singleScan
 
@@ -44,8 +43,8 @@ class massScan:
                 l = l.strip()
                 if (l.startswith("http://"), l.startswith("https://")):
                     print "[%d][MASS_SCAN] Scanning: '%s'..." %(idx,l)
-                    single = singleScan(self.config["p_verbose"])
-                    single.setConfig(self.config, l)
+                    single = singleScan(self.config)
+                    single.setURL(l)
                     single.setQuite(True)
                     single.scan()
 

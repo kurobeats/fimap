@@ -133,10 +133,7 @@ def show_greetings():
 def show_ip():
     print "Heading to 'http://85.214.27.38/show_my_ip'..."
     print "----------------------------------------------"
-    g = globalSettings(config["p_verbose"])
-    g.setUserAgent(config["p_useragent"])
-    tester = codeinjector(g)
-    tester.setProxy(config["p_proxy"])
+    tester = codeinjector(config)
     result = tester.doGetRequest("http://85.214.27.38/show_my_ip")
     if (result == None):
         print "result = None -> Failed! Maybe you have no connection or bad proxy?"
@@ -148,9 +145,7 @@ def list_results(lst = os.path.join(os.path.expanduser("~"), "fimap_result.xml")
     if (not os.path.exists(lst)):
         print "File not found! ~/fimap_result.xml"
         sys.exit(1)
-    g = globalSettings(config["p_verbose"])
-    g.setUserAgent(config["p_useragent"])
-    c = codeinjector(g)
+    c = codeinjector(config)
 
     c.start()
 
@@ -247,9 +242,7 @@ if __name__ == "__main__":
 
 
     if (doRFITest):
-        g = globalSettings(config["p_verbose"])
-        g.setUserAgent(config["p_useragent"])
-        injector = codeinjector(g)
+        injector = codeinjector(config)
         injector.testRFI()
         sys.exit(0)
 
@@ -282,14 +275,14 @@ if __name__ == "__main__":
 
     try:
         if (config["p_mode"] == 0):
-            single = singleScan(config["p_verbose"])
-            single.setConfig(config, config["p_url"])
+            single = singleScan(config)
+            single.setURL(config["p_url"])
             single.scan()
 
         elif(config["p_mode"] == 1):
             if (not os.path.exists(config["p_list"])):
-                print "Your defined URL-List doesn't exist: %s" %config["p_list"]
-                sys.exit(1)
+                print "Your defined URL-List doesn't exist: '%s'" %config["p_list"]
+                sys.exit(0)
             print "MassScanner is loading URLs from file: '%s'" %config["p_list"]
             m = massScan(config)
             m.startMassScan()
@@ -309,14 +302,12 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print "\n\nYou have terminated me :("
         
-    except:
-        try:
-            print "\n\n========= CONGRATULATIONS! ========="
-            print "You have just found a bug!"
-            print "If you are cool, send the following stacktrace to the bugtracker on http://fimap.googlecode.com/"
-            print "Please also provide the URL where fimap crashed."
-            raw_input("Push enter to see the stacktrace...")
-            print "cut here %<--------------------------------------------------------------"
-            raise
-        except KeyboardInterrupt:
-            print "\n\nCancelled."
+    except Exception, err:
+        print "\n\n========= CONGRATULATIONS! ========="
+        print "You have just found a bug!"
+        print "If you are cool, send the following stacktrace to the bugtracker on http://fimap.googlecode.com/"
+        print "Please also provide the URL where fimap crashed."
+        raw_input("Push enter to see the stacktrace...")
+        print "cut here %<--------------------------------------------------------------"
+        print "Exception: %s" %err
+        raise
