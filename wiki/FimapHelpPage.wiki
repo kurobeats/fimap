@@ -2,7 +2,7 @@
 
 {{{
 fimap v.07_svn by Iman Karim - Automatic LFI/RFI scanner and exploiter.
-Usage: ./fimap [options]
+Usage: ./fimap.py [options]
 ## Operating Modes:
    -s , --single                 Mode to scan a single URL for FI errors.
                                  Needs URL (-u). This mode is the default.
@@ -13,6 +13,9 @@ Usage: ./fimap [options]
    -H , --harvest                Mode to harvest a URL recursivly for new URLs.
                                  Needs a root url (-u) to start crawling there.
                                  Also needs (-w) to write a URL list for mass mode.
+   -b , --enable-blind           Enables blind FI-Bug testing when no error messages are printed.
+                                 Note that this mode will cause lots of requests
+                                 compared to the default method. Can be used with -s, -m or -g.
 ## Variables:
    -u , --url=URL                The URL you want to test.
                                  Needed in single mode (-s).
@@ -21,6 +24,7 @@ Usage: ./fimap [options]
    -q , --query=QUERY            The Google Search QUERY.
                                  Example: 'inurl:include.php'
                                  Needed in Google Mode (-g)
+        --skip-pages=X           Skip the first X pages from the Googlescanner.
    -p , --pages=COUNT            Define the COUNT of pages to search (-g).
                                  Default is 10.
    -w , --write=LIST             The LIST which will be written if you have choosen
@@ -32,6 +36,13 @@ Usage: ./fimap [options]
                                  select an target and do some action.
 ## Disguise Kit:
    -A , --user-agent=UA          The User-Agent which should be sent.
+      , --http-proxy=PROXY       Setup your proxy with this option. But read this facts:
+                                   * Only HTTP will be sent thru proxy (no HTTPS).
+                                   * The googlescanner will ignore the proxy to get the URLs.
+                                     But the pentest\attack itself will go thru proxy.
+                                   * PROXY should be in format like this: 127.0.0.1:8080
+        --show-my-ip             Shows your internet IP, current country and user-agent.
+                                 Useful if you want to test your vpn\proxy config.
 ## Other:
         --test-rfi               A quick test to see if you have configured RFI nicely.
    -v , --verbose=LEVEL          Verbose level you want to receive.
