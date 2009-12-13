@@ -35,6 +35,7 @@ class singleScan(baseClass):
     def setConfig(self, config, URL):
         self.config = config
         self.URL = URL
+        self.setProxy(self.config["p_proxy"])
 
     def setQuite(self, b):
         self.quite = b
@@ -98,8 +99,9 @@ class singleScan(baseClass):
                                     boxarr.append(txt)
                                 fidx = fidx +1
                         self.drawBox(header, boxarr)
-        except:
-            raise
+        except KeyboardInterrupt:
+            print "You have terminated me :("
+            sys.exit(1)
 
     def localLog(self, txt):
         if (not self.quite):

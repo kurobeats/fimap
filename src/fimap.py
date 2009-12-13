@@ -78,6 +78,11 @@ def show_help(AndQuit=False):
     #print "                                 exploit mode (-x)."
     print "## Disguise Kit:"
     print "   -A , --user-agent=UA          The User-Agent which should be sent."
+    print "        --http-proxy=PROXY       Setup your proxy with this option. But read this facts:"
+    print "                                   * Only HTTP will be sent thru proxy (no HTTPS)."
+    print "                                   * The googlescanner will ignore the proxy to get the URLs."
+    print "                                     But the pentest\\attack itself will go thru proxy."
+    print "                                   * PROXY should be in format like this: 127.0.0.1:8080"
     print "        --show-my-ip             Shows your internet IP, current country and user-agent."
     print "                                 Useful if you want to test your vpn\\proxy config."
     print "## Other:"
@@ -131,7 +136,11 @@ def show_ip():
     g = globalSettings(config["p_verbose"])
     g.setUserAgent(config["p_useragent"])
     tester = codeinjector(g)
+    tester.setProxy(config["p_proxy"])
     result = tester.doGetRequest("http://85.214.27.38/show_my_ip")
+    if (result == None):
+        print "result = None -> Failed! Maybe you have no connection or bad proxy?"
+        sys.exit(1)
     print result.strip()
     sys.exit(0)
 
@@ -168,6 +177,7 @@ if __name__ == "__main__":
     config["p_maxtries"] = 5
     config["p_skippages"] = 0
     config["p_monkeymode"] = False
+    config["p_proxy"] = None
     doRFITest = False
     doInternetInfo = False
 
@@ -177,7 +187,7 @@ if __name__ == "__main__":
         show_help(True)
 
     try:
-        longSwitches = ['url=', "mass", "single", "list=", "verbose=", "help", "user-agent=", "query=", "google", "pages=", "credits", "exploit" , "harvest", "write=", "depth=", "greetings", "test-rfi", "skip-pages=", "show-my-ip", "enable-blind"]
+        longSwitches = ['url=', "mass", "single", "list=", "verbose=", "help", "user-agent=", "query=", "google", "pages=", "credits", "exploit" , "harvest", "write=", "depth=", "greetings", "test-rfi", "skip-pages=", "show-my-ip", "enable-blind", "http-proxy="]
         optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:b", longSwitches)
 
         startExploiter = False
@@ -203,6 +213,8 @@ if __name__ == "__main__":
                 config["p_pages"] = int(v)
             if (k in ("-A", "--user-agent")):
                 config["p_useragent"] = v
+            if (k in ("--http-proxy",)):
+                config["p_proxy"] = v
             if (k in ("-w", "--write")):
                 config["p_write"] = v
             if (k in ("-d", "--depth")):
@@ -241,6 +253,8 @@ if __name__ == "__main__":
         injector.testRFI()
         sys.exit(0)
 
+    if (config["p_proxy"] != None):
+        print "Using HTTP-Proxy '%s'." %(config["p_proxy"])
 
     if (doInternetInfo):
         show_ip()
@@ -263,6 +277,8 @@ if __name__ == "__main__":
 
     if (config["p_monkeymode"] == True):
         print "Experimental blind FI-error checking enabled."
+
+
 
     try:
         if (config["p_mode"] == 0):
@@ -294,10 +310,13 @@ if __name__ == "__main__":
         print "\n\nYou have terminated me :("
         
     except:
-        print "\n\n========= CONGRATULATIONS! ========="
-        print "You have just found a bug!"
-        print "If you are cool, send the following stacktrace to the bugtracker on http://fimap.googlecode.com/"
-        print "Please also provide the URL where fimap crashed."
-        raw_input("Push enter to see the stacktrace...")
-        print "cut here %<--------------------------------------------------------------"
-        raise
+        try:
+            print "\n\n========= CONGRATULATIONS! ========="
+            print "You have just found a bug!"
+            print "If you are cool, send the following stacktrace to the bugtracker on http://fimap.googlecode.com/"
+            print "Please also provide the URL where fimap crashed."
+            raw_input("Push enter to see the stacktrace...")
+            print "cut here %<--------------------------------------------------------------"
+            raise
+        except KeyboardInterrupt:
+            print "\n\nCancelled."

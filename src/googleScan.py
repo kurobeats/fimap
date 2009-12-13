@@ -78,7 +78,8 @@ class googleScan:
                     single.setConfig(self.config, r.url)
                     single.setQuite(True)
                     single.scan()
-            except:
-                raise
+            except KeyboardInterrupt:
+                print "You have terminated me :("
+                sys.exit(1)
             time.sleep(1)
         print "Google Scan completed."
