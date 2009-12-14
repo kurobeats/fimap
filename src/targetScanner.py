@@ -36,6 +36,9 @@ SCRIPTPATH_ERR_MSG = ("\\(include_path='.*?'\\) in <b>(.*?)</b>* on line",
                       "An error occurred in script '(.*?)' on line \d?.",
                       "Failed opening '.*?' for inclusion in <b>(.*?)</b> on line <b>")
 
+READFILE_ERR_MSG = ("<b>Warning</b>:  file\(.*?%s.*?\)*",
+                    "<b>Warning</b>:  highlight_file\(.*?%s.*?\)*",
+                    "<b>Warning</b>:  read_file\(.*?%s.*?\)*")
 
 class targetScanner (baseClass.baseClass):
 
@@ -74,22 +77,29 @@ class targetScanner (baseClass.baseClass):
             self._log("Requesting: '%s'..." %(tmpurl), self.LOG_DEBUG)
             code = self.doGetRequest(tmpurl)
             if (code != None):
-                RE_SUCCESS_MSG = re.compile(INCLUDE_ERR_MSG%(rndStr), re.DOTALL)
-                m = RE_SUCCESS_MSG.search(code)
-                if (m != None):
-                    self._log("Possible file inclusion found! -> '%s' with Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
-                    self._writeToLog("POSSIBLE ; %s ; %s"%(self.Target_URL, k))
-                    rep = self.identifyVuln(self.Target_URL, self.params, k)
-                    if (rep != None):
-                        rep.setVulnKeyVal(v)
-                        ret.append((rep, self.readFiles(rep)))
+                disclosure_found = False
+                for ex in READFILE_ERR_MSG:
+                    RE_SUCCESS_MSG = re.compile(ex%(rndStr), re.DOTALL)
+                    m = RE_SUCCESS_MSG.search(code)
+                    if (m != None):
+                        self._log("Possible local file disclosure found! -> '%s' with Parameter '%s'."%(tmpurl, k), self.LOG_ALWAYS)
+                        #self.identifyReadFile(URL, Params, VulnParam)
+                        self._writeToLog("READ ; %s ; %s"%(tmpurl, k))
+                        disclosure_found = True
+                        break
 
-                RE_SUCCESS_MSG = re.compile("<b>Warning</b>:  file\(.*?%s.*?\)*"%(rndStr), re.DOTALL)
-                m = RE_SUCCESS_MSG.search(code)
-                if (m != None):
-                    self._log("Possible local file disclosure found! -> '%s' with Parameter '%s'."%(tmpurl, k), self.LOG_ALWAYS)
-                    #self.identifyReadFile(URL, Params, VulnParam)
-                    self._writeToLog("READ ; %s ; %s"%(tmpurl, k))
+                if (not disclosure_found):
+                    RE_SUCCESS_MSG = re.compile(INCLUDE_ERR_MSG%(rndStr), re.DOTALL)
+                    m = RE_SUCCESS_MSG.search(code)
+                    if (m != None):
+                        self._log("Possible file inclusion found! -> '%s' with Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
+                        self._writeToLog("POSSIBLE ; %s ; %s"%(self.Target_URL, k))
+                        rep = self.identifyVuln(self.Target_URL, self.params, k)
+                        if (rep != None):
+                            rep.setVulnKeyVal(v)
+                            ret.append((rep, self.readFiles(rep)))
+
+                
 
         if (len(ret) == 0 and self.MonkeyTechnique):
             self._log("No bug found by relying on error messages. Trying to break it blindly...", self.LOG_DEBUG)
