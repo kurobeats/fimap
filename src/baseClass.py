@@ -396,6 +396,13 @@ class baseClass (object):
         phpcode = phpcode[:-1] + ";"
         return(phpcode, rnd)
 
+    def getUserAgent(self):
+        return (self.config["p_useragent"])
+
+    def setUserAgent(self, ua):
+        if (ua != self.config["p_useragent"]):
+            self._log("Useragent changed to: %s" %(ua), self.LOG_DEBUG)
+            self.config["p_useragent"] = ua
 
     def doGetRequest(self, URL, TimeOut=10, additionalHeaders=None):
         self._log("TTL: %d"%TimeOut, self.LOG_DEVEL)
