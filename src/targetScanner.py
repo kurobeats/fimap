@@ -40,7 +40,6 @@ SCRIPTPATH_ERR_MSG = ("\\(include_path='.*?'\\) in <b>(.*?)</b>* on line",
 class targetScanner (baseClass.baseClass):
 
     def _load(self):
-        self.INC_SUCCESS_MSG = "for inclusion (include_path="
         self.MonkeyTechnique = False
         self._log("TargetScanner loaded.", self.LOG_DEBUG)
         self.params = {}
@@ -88,7 +87,7 @@ class targetScanner (baseClass.baseClass):
                 RE_SUCCESS_MSG = re.compile("<b>Warning</b>:  file\(.*?%s.*?\)*"%(rndStr), re.DOTALL)
                 m = RE_SUCCESS_MSG.search(code)
                 if (m != None):
-                    self._log("Possible local file disclose found! -> '%s' with Parameter '%s'. (IDENTIFY DISABLED IN THIS VERSION)"%(tmpurl, k), self.LOG_ALWAYS)
+                    self._log("Possible local file disclosure found! -> '%s' with Parameter '%s'."%(tmpurl, k), self.LOG_ALWAYS)
                     #self.identifyReadFile(URL, Params, VulnParam)
                     self._writeToLog("READ ; %s ; %s"%(tmpurl, k))
 
