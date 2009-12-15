@@ -28,7 +28,6 @@ import getopt
 from googleScan import googleScan
 from massScan import massScan
 from singleScan import singleScan
-from globalSettings import globalSettings
 import sys,os
 # To change this template, choose Tools | Templates
 # and open the template in the editor.
