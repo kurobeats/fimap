@@ -20,7 +20,6 @@
 
 from baseClass import baseClass
 from targetScanner import targetScanner
-from globalSettings import globalSettings
 import sys
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
