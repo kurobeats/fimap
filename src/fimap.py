@@ -70,6 +70,7 @@ def show_help(AndQuit=False):
     print "                                 harvest mode (-H). This file will be opened in APPEND mode."
     print "   -d , --depth=CRAWLDEPTH       The CRAWLDEPTH (recurse level) you want to crawl your target site"
     print "                                 in harvest mode (-H). Default is 1."
+    print "        --ttl=SECONDS            Define the TTL (in seconds) for requests. Default is 30 seconds."
     print "## Attack Kit:"
     print "   -x , --exploit                Starts an interactive session where you can"
     print "                                 select an target and do some action."
@@ -172,6 +173,7 @@ if __name__ == "__main__":
     config["p_skippages"] = 0
     config["p_monkeymode"] = False
     config["p_proxy"] = None
+    config["p_ttl"] = 30
     doRFITest = False
     doInternetInfo = False
 
@@ -181,7 +183,10 @@ if __name__ == "__main__":
         show_help(True)
 
     try:
-        longSwitches = ['url=', "mass", "single", "list=", "verbose=", "help", "user-agent=", "query=", "google", "pages=", "credits", "exploit" , "harvest", "write=", "depth=", "greetings", "test-rfi", "skip-pages=", "show-my-ip", "enable-blind", "http-proxy="]
+        longSwitches = ["url="          , "mass"        , "single"      , "list="       , "verbose="        , "help",
+                        "user-agent="   , "query="      , "google"      , "pages="      , "credits"         , "exploit",
+                        "harvest"       , "write="      , "depth="      , "greetings"   , "test-rfi"        , "skip-pages=",
+                        "show-my-ip"    , "enable-blind", "http-proxy=" , "ttl="]
         optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:b", longSwitches)
 
         startExploiter = False
@@ -213,6 +218,8 @@ if __name__ == "__main__":
                 config["p_write"] = v
             if (k in ("-d", "--depth")):
                 config["p_depth"] = int(v)
+            if (k in ("--ttl",)):
+                config["p_ttl"] = int(v)
             if (k in ("-h", "--help")):
                 show_help(True)
             if (k in ("--test-rfi",)):

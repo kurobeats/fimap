@@ -28,8 +28,6 @@ import posixpath
 import os.path
 
 DEFAULT_AGENT = "fimap.googlecode.com"
-SOCKETTIMEOUT = 30
-
 
 import urllib, httplib, copy, urllib2
 import string,random,os,socket, os.path
@@ -55,6 +53,8 @@ class baseClass (object):
     XML_RootItem = None
     homeDir = os.path.expanduser("~")
 
+    TIMEOUT = 30
+
     def __init__(self, config):
         self.log_lvl = {}
         self.log_lvl[baseClass.LOG_ERROR]   = "ERROR"
@@ -65,7 +65,6 @@ class baseClass (object):
         self.log_lvl[baseClass.LOG_ALWAYS]  = "OUT"
         self.LOG_LVL = config["p_verbose"]
 
-
         self.config = config
         self.logFilePath = None
         self.__init_logfile()
@@ -73,6 +72,9 @@ class baseClass (object):
         self._load()
         self.xmlfile = os.path.join(self.homeDir, "fimap_result.xml")
         self.XML_Result = None
+
+        baseClass.TIMEOUT = config["p_ttl"]
+
         if (self.XML_Result == None):
             self.XML_RootItem = None
             self.__init_xmlresult()
@@ -404,31 +406,34 @@ class baseClass (object):
             self._log("Useragent changed to: %s" %(ua), self.LOG_DEBUG)
             self.config["p_useragent"] = ua
 
-    def doGetRequest(self, URL, TimeOut=10, additionalHeaders=None):
-        self._log("TTL: %d"%TimeOut, self.LOG_DEVEL)
+    def doGetRequest(self, URL, additionalHeaders=None):
+        self._log("TTL: %d"%baseClass.TIMEOUT, self.LOG_DEVEL)
         result, headers = self.doRequest(URL, self.config["p_useragent"], additionalHeaders=additionalHeaders)
         self._log("RESULT-HEADER: %s"%headers, self.LOG_DEVEL)
         self._log("RESULT-HTML: %s"%result, self.LOG_DEVEL)
         return result
 
-    def doPostRequest(self, URL, Post, TimeOut=10, additionalHeaders=None):
-        self._log("TTL: %d"%TimeOut, self.LOG_DEVEL)
+    def doPostRequest(self, URL, Post, additionalHeaders=None):
+        self._log("TTL: %d"%baseClass.TIMEOUT, self.LOG_DEVEL)
         result, headers = self.doRequest(URL, self.config["p_useragent"], Post, additionalHeaders)
         self._log("RESULT-HEADER: %s"%headers, self.LOG_DEVEL)
         self._log("RESULT-HTML: %s"%result, self.LOG_DEVEL)
         return result
 
     def doGetRequestWithHeaders(self, URL, agent = None, additionalHeaders = None):
-        self._log("TTL: %d"%TimeOut, self.LOG_DEVEL)
+        self._log("TTL: %d"%baseClass.TIMEOUT, self.LOG_DEVEL)
         result, headers = self.doRequest(URL, self.config["p_useragent"], additionalHeaders=additionalHeaders)
         self._log("RESULT-HEADER: %s"%headers, self.LOG_DEVEL)
         self._log("RESULT-HTML: %s"%result, self.LOG_DEVEL)
         return result
 
 
-    def doRequest(self, URL, agent = None, postData = None, additionalHeaders = None):
+    def doRequest(self, URL, agent = None, postData = None, additionalHeaders = None, TimeOut=30):
         result = None
         headers = None
+
+        socket.setdefaulttimeout(baseClass.TIMEOUT)
+
 
         try:
             b = Browser(agent or DEFAULT_AGENT, proxystring=self.config["p_proxy"])
