@@ -495,7 +495,7 @@ class Browser(object):
     def get_page(self, url, data=None):
         proxy_support = urllib2.ProxyHandler({})
         if (self.proxy != None):
-            proxy_support = urllib2.ProxyHandler({'http': self.proxy})
+            proxy_support = urllib2.ProxyHandler({'http': self.proxy, 'https': self.proxy})
         handlers = [proxy_support]
 
         opener = urllib2.build_opener(*handlers)
