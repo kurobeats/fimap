@@ -140,7 +140,7 @@ class targetScanner (baseClass.baseClass):
                             self._log("Code == None. Skipping testing of the URL.", self.LOG_DEBUG)
                             doBreak = True
 
-                    if (doBreak): break
+                    if (doBreak): return(ret)
         return(ret)
 
 
