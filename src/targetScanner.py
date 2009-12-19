@@ -38,7 +38,8 @@ SCRIPTPATH_ERR_MSG = ("\\(include_path='.*?'\\) in <b>(.*?)</b>* on line",
 
 READFILE_ERR_MSG = ("<b>Warning</b>:  file\(.*?%s.*?\)*",
                     "<b>Warning</b>:  highlight_file\(.*?%s.*?\)*",
-                    "<b>Warning</b>:  read_file\(.*?%s.*?\)*")
+                    "<b>Warning</b>:  read_file\(.*?%s.*?\)*",
+                    "<b>Warning</b>:  show_source\(.*?%s.*?\)*")
 
 class targetScanner (baseClass.baseClass):
 
