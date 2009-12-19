@@ -207,6 +207,10 @@ class targetScanner (baseClass.baseClass):
                     r.setWindows()
                 else:
                     scriptpath = os.path.dirname(script)
+                    if (scriptpath == None or scriptpath == ""):
+                        self._log("Scriptpath is empty! Assuming that we are on toplevel.", self.LOG_WARN)
+                        scriptpath = "/"
+                        script = "/" + script
 
                 # Check if scriptpath was received correctly.
                 if(scriptpath!=""):
