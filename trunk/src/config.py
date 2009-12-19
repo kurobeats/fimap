@@ -143,6 +143,15 @@ settings["fileslog"] = (
 settings["blind"] = {}
 settings["blind"]["minlevel"] = 0             # How many ../ are the minimum count to test?
 settings["blind"]["maxlevel"] = 15            # How many ../ are the maximum count to test?
+# Define here the files which should be tested in blindmode.
+# NOTE: This files are NOT the ones you use to inject code. The files here are ONLY used
+#       To find out the directory count. Or in other words, this files here are used to find
+#       out how many ../ are needed. In best case you should define here files which are files
+#       which exists on every unix machine and are readable by every user. No need to be injectable.
+# The files here should be all absolute. No need to add Null-Bytes. fimap will it do automaticly.
+settings["blind"]["files"] = (
+                                ("/etc/passwd", "root:", None),
+                             )
 
 # Distribution files which can give us infos about the distribution.
 settings["distfiles"]= ("/etc/debian_version", "/etc/redhat-release", "/etc/gentoo-release")
