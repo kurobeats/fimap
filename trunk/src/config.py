@@ -145,7 +145,7 @@ settings["blind"]["minlevel"] = 0             # How many ../ are the minimum cou
 settings["blind"]["maxlevel"] = 15            # How many ../ are the maximum count to test?
 # Define here the files which should be tested in blindmode.
 # NOTE: This files are NOT the ones you use to inject code. The files here are ONLY used
-#       To find out the directory count. Or in other words, this files here are used to find
+#       to find out the directory count. Or in other words, this files here are used to find
 #       out how many ../ are needed. In best case you should define here files which are files
 #       which exists on every unix machine and are readable by every user. No need to be injectable.
 # The files here should be all absolute. No need to add Null-Bytes. fimap will it do automaticly.
