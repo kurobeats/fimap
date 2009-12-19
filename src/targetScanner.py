@@ -104,8 +104,8 @@ class targetScanner (baseClass.baseClass):
 
         if (len(ret) == 0 and self.MonkeyTechnique):
             self._log("No bug found by relying on error messages. Trying to break it blindly...", self.LOG_DEBUG)
-            files     = settings["files"]
-            for f,v,p,t in files:
+            files = settings["blind"]["files"]
+            for f,v,p in files:
                 for i in range(settings["blind"]["minlevel"], settings["blind"]["maxlevel"]):
                     doBreak = False
                     testfile = f
