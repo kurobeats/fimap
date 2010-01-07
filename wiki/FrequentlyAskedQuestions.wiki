@@ -1,7 +1,9 @@
 #summary Frequently Asked Questions
 
 = FAQ =
-
+== What does the 'fi' in fimap stands for? ==
+File Inclusion.
+----
 == What's a clean\dirty inclusion? ==
 === Clean inclusion ===
 A clean inclusion doesn't have any appendix.
@@ -60,6 +62,12 @@ YES! They will find you and bust you!
 
 ----
 
+== Can I join development? ==
+Sure! But currently I want to code fimap how I like it. It's currently (January 2010) 4 month old and I am still not happy with some points of fimap. 
+Once I am happy with it you guys are welcome join the development team. 
+
+But if you have a great patch ready and you think that I *have* to add it hardly, send it to me! :)
+----
 == Is there a way to contact you? ==
   * E-Mail: `fimap.dev@gmail.com`
   * Jabber: `VanUber@jabber.ccc.de`
