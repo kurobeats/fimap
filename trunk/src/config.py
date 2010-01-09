@@ -157,11 +157,11 @@ settings["blind"]["files"] = (
 settings["distfiles"]= ("/etc/debian_version", "/etc/redhat-release", "/etc/gentoo-release")
 
 # CMD to test if PHP injection works and a string which should be found if it was successfull.
-settings["php_info"] = ("<? phpinfo(); ?>", "HTTP_USER_AGENT </td><td class=\"v\">")
+settings["php_info"] = ("<? __PHP_QUIZ__ ?>", "__PHP_ANSWER__")
 
 # Shell test. The command which should be executed and the result of it to test if the php_exec stuff below works.
 # Big thanks to exorzist@freenet.de for this much greater shell test! He is an excellent coder. Believe me.
-settings["shell_test"] = ("echo $((77*77))", "5929")
+settings["shell_test"] = ("__SHELL_QUIZ__", "__SHELL_ANSWER__")
 
 # PHP Execution Methods. Methods to execute system commands on the exploitable system. 
 # In best case it should echo all stuff back to us.
