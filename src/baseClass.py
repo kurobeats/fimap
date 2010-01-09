@@ -407,6 +407,13 @@ class baseClass (object):
         phpcode = phpcode[:-1] + ";"
         return(phpcode, rnd)
 
+    def getShellQuiz(self):
+        rnd1 = random.randrange(10, 99)
+        rnd2 = random.randrange(10, 99)
+        result = str(rnd1 * rnd2)
+        shellcode = "echo $((%d*%d))"%(rnd1, rnd2)
+        return(shellcode, result)
+
     def getUserAgent(self):
         return (self.config["p_useragent"])
 

