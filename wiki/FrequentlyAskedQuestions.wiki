@@ -1,7 +1,7 @@
 #summary Frequently Asked Questions
 
 = FAQ =
-== What does the 'fi' in fimap stands for? ==
+== What does the 'fi' in fimap stand for? ==
 File Inclusion.
 ----
 == What's a clean\dirty inclusion? ==
