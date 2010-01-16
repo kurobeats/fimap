@@ -38,7 +38,15 @@ class report:
         self.RemoteInjectable = False
         self.isLinux = True
         self.BlindDiscovered = False
+        self.PostData = None
+        self.isPost = False
         
+
+    def setPostData(self, p):
+        self.PostData = p
+
+    def setPost(self, b):
+        self.isPost = b
 
     def setWindows(self):
         self.isLinux = False

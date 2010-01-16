@@ -174,6 +174,7 @@ if __name__ == "__main__":
     config["p_monkeymode"] = False
     config["p_proxy"] = None
     config["p_ttl"] = 30
+    config["p_post"] = ""
     doRFITest = False
     doInternetInfo = False
 
@@ -186,8 +187,8 @@ if __name__ == "__main__":
         longSwitches = ["url="          , "mass"        , "single"      , "list="       , "verbose="        , "help",
                         "user-agent="   , "query="      , "google"      , "pages="      , "credits"         , "exploit",
                         "harvest"       , "write="      , "depth="      , "greetings"   , "test-rfi"        , "skip-pages=",
-                        "show-my-ip"    , "enable-blind", "http-proxy=" , "ttl="]
-        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:b", longSwitches)
+                        "show-my-ip"    , "enable-blind", "http-proxy=" , "ttl="        , "post="]
+        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:", longSwitches)
 
         startExploiter = False
 
@@ -236,6 +237,8 @@ if __name__ == "__main__":
                 doInternetInfo = True
             if (k in("-x", "--exploit")):
                 startExploiter = True
+            if (k in ("-P", "--post")):
+                config["p_post"] = v
             #if (k in("-f", "--exploit-filter")):
             #    config["p_exploit_filter"] = v
                 
