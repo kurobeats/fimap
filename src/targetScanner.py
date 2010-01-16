@@ -48,6 +48,7 @@ class targetScanner (baseClass.baseClass):
         self.MonkeyTechnique = False
         self._log("TargetScanner loaded.", self.LOG_DEBUG)
         self.params = {}
+        self.postparams = {}
 
     def prepareTarget(self, url):
         self.Target_URL = url
@@ -56,16 +57,74 @@ class targetScanner (baseClass.baseClass):
 
         if (self.Target_URL.find("?") == -1):
             self._log("Target URL doesn't have any params.", self.LOG_DEBUG);
-            return(False);
-
-        data = self.Target_URL.split("?")[1]
-        if (data.find("&") == -1):
-            self.__addToken(data)
         else:
-            for ln in data.split("&"):
-                self.__addToken(ln)
+            data = self.Target_URL.split("?")[1]
+            if (data.find("&") == -1):
+                self.__addToken(self.params, data)
+            else:
+                for ln in data.split("&"):
+                    self.__addToken(self.params, ln)
 
-        return(len(self.params)>0)
+        post = self.config["p_post"]
+        if (post != ""):
+            if (post.find("&") == -1):
+                self.__addToken(self.postparams, post)
+            else:
+                for ln in post.split("&"):
+                    self.__addToken(self.postparams, ln)
+
+        return(len(self.params)>0 or len(self.postparams)>0)
+
+    def analyzeURL(self, k, v, post=None, isPost=False):
+        ret = []
+        tmpurl = self.Target_URL
+        tmppost = post
+        rndStr = self.getRandomStr()
+        if (not isPost):
+            tmpurl = tmpurl.replace("%s=%s"%(k,v), "%s=%s"%(k, rndStr))
+        else:
+            tmppost = tmppost.replace("%s=%s"%(k,v), "%s=%s"%(k, rndStr))
+        code = None
+        if (post==None):
+            self._log("Requesting: '%s'..." %(tmpurl), self.LOG_DEBUG)
+            code = self.doGetRequest(tmpurl)
+        else:
+            self._log("Requesting: '%s' with POST('%s')..." %(tmpurl, post), self.LOG_DEBUG)
+            code = self.doPostRequest(tmpurl, tmppost)
+
+        if (code != None):
+            disclosure_found = False
+            for ex in READFILE_ERR_MSG:
+                RE_SUCCESS_MSG = re.compile(ex%(rndStr), re.DOTALL)
+                m = RE_SUCCESS_MSG.search(code)
+                if (m != None):
+                    if (not isPost):
+                        self._log("Possible local file disclosure found! -> '%s' with Parameter '%s'."%(tmpurl, k), self.LOG_ALWAYS)
+                    else:
+                        self._log("Possible local file disclosure found! -> '%s' with POST-Parameter '%s'."%(tmpurl, k), self.LOG_ALWAYS)
+                    #self.identifyReadFile(URL, Params, VulnParam)
+                    self._writeToLog("READ ; %s ; %s"%(tmpurl, k))
+                    disclosure_found = True
+                    break
+
+            if (not disclosure_found):
+                RE_SUCCESS_MSG = re.compile(INCLUDE_ERR_MSG%(rndStr), re.DOTALL)
+                m = RE_SUCCESS_MSG.search(code)
+                if (m != None):
+                    rep = None
+                    self._writeToLog("POSSIBLE ; %s ; %s"%(self.Target_URL, k))
+                    if (not isPost):
+                        self._log("Possible file inclusion found! -> '%s' with Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
+                        rep = self.identifyVuln(self.Target_URL, self.params, k, post)
+                    else:
+                        self._log("Possible file inclusion found! -> '%s' with POST-Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
+                        rep = self.identifyVuln(self.Target_URL, self.postparams, k, post, True)
+                    
+                    
+                    if (rep != None):
+                        rep.setVulnKeyVal(v)
+                        ret.append((rep, self.readFiles(rep)))
+        return(ret)
 
     def testTargetVuln(self):
         ret = []
@@ -73,33 +132,9 @@ class targetScanner (baseClass.baseClass):
         self._log("Fiddling around with URL...", self.LOG_INFO)
 
         for k,v in self.params.items():
-            tmpurl = self.Target_URL
-            rndStr = self.getRandomStr()
-            tmpurl = tmpurl.replace("%s=%s"%(k,v), "%s=%s"%(k, rndStr))
-            self._log("Requesting: '%s'..." %(tmpurl), self.LOG_DEBUG)
-            code = self.doGetRequest(tmpurl)
-            if (code != None):
-                disclosure_found = False
-                for ex in READFILE_ERR_MSG:
-                    RE_SUCCESS_MSG = re.compile(ex%(rndStr), re.DOTALL)
-                    m = RE_SUCCESS_MSG.search(code)
-                    if (m != None):
-                        self._log("Possible local file disclosure found! -> '%s' with Parameter '%s'."%(tmpurl, k), self.LOG_ALWAYS)
-                        #self.identifyReadFile(URL, Params, VulnParam)
-                        self._writeToLog("READ ; %s ; %s"%(tmpurl, k))
-                        disclosure_found = True
-                        break
-
-                if (not disclosure_found):
-                    RE_SUCCESS_MSG = re.compile(INCLUDE_ERR_MSG%(rndStr), re.DOTALL)
-                    m = RE_SUCCESS_MSG.search(code)
-                    if (m != None):
-                        self._log("Possible file inclusion found! -> '%s' with Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
-                        self._writeToLog("POSSIBLE ; %s ; %s"%(self.Target_URL, k))
-                        rep = self.identifyVuln(self.Target_URL, self.params, k)
-                        if (rep != None):
-                            rep.setVulnKeyVal(v)
-                            ret.append((rep, self.readFiles(rep)))
+            self.analyzeURL(k, v, self.config["p_post"], False)
+        for k,v in self.postparams.items():
+            self.analyzeURL(k, v, self.config["p_post"], True)
 
                 
 
@@ -147,24 +182,29 @@ class targetScanner (baseClass.baseClass):
 
 
 
-    def identifyVuln(self, URL, Params, VulnParam, identifyMode="inc", blindmode=None):
-        # identify Mode can be set to 'inc' for inclusion check or to 'read' for read file check.
-
+    def identifyVuln(self, URL, Params, VulnParam, PostData, isPost=False, blindmode=None):
         if (blindmode == None):
 
             script = None
             scriptpath = None
             pre = None
+            if (not isPost):
+                self._log("Identifying Vulnerability '%s' with Parameter '%s'..."%(URL, VulnParam), self.LOG_ALWAYS)
+            else:
+                self._log("Identifying Vulnerability '%s' with POST-Parameter '%s'..."%(URL, VulnParam), self.LOG_ALWAYS)
 
-            self._log("Identifying Vulnerability '%s' with Parameter '%s'..."%(URL, VulnParam), self.LOG_ALWAYS)
             tmpurl = URL
+            PostHax = PostData
             rndStr = self.getRandomStr()
-            tmpurl = tmpurl.replace("%s=%s"%(VulnParam,Params[VulnParam]), "%s=%s"%(VulnParam, rndStr))
+
+            if (not isPost):
+                tmpurl = tmpurl.replace("%s=%s"%(VulnParam,Params[VulnParam]), "%s=%s"%(VulnParam, rndStr))
+            else:
+                PostHax = PostHax.replace("%s=%s"%(VulnParam,Params[VulnParam]), "%s=%s"%(VulnParam, rndStr))
 
             RE_SUCCESS_MSG = re.compile(INCLUDE_ERR_MSG%(rndStr), re.DOTALL)
 
-            code = self.doGetRequest(tmpurl)
-
+            code = self.doPostRequest(tmpurl, PostHax)
             if (code == None):
                 self._log("Identification of vulnerability failed. (code == None)", self.LOG_ERROR)
             m = RE_SUCCESS_MSG.search(code)
@@ -174,6 +214,8 @@ class targetScanner (baseClass.baseClass):
 
 
             r = report(URL, Params, VulnParam)
+            r.setPost(isPost)
+            r.setPostData(PostData)
 
             for sp_err_msg in SCRIPTPATH_ERR_MSG:
                 RE_SCRIPT_PATH = re.compile(sp_err_msg)
@@ -455,12 +497,12 @@ class targetScanner (baseClass.baseClass):
 
         return(False)
 
-    def __addToken(self, token):
+    def __addToken(self, arr, token):
         if (token.find("=") == -1):
-            self.params[token] = ""
+            arr[token] = ""
             self._log("Token found: [%s] = none" %(token), self.LOG_DEBUG)
         else:
             k = token.split("=")[0]
             v = token.split("=")[1]
-            self.params[k] = v
+            arr[k] = v
             self._log("Token found: [%s] = [%s]" %(k,v), self.LOG_DEBUG)
