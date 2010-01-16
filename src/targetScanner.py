@@ -125,6 +125,59 @@ class targetScanner (baseClass.baseClass):
                         result.append((rep, self.readFiles(rep)))
         return(result)
 
+    def analyzeURLblindly(self, i, testfile, k, v, post=None, isPost=False):
+        tmpurl = self.Target_URL
+        tmppost = post
+        rep = None
+        doBreak = False
+    
+        if (not isPost):
+            tmpurl = tmpurl.replace("%s=%s"%(k,v), "%s=%s"%(k, testfile))
+            
+        else:
+            tmppost = tmppost.replace("%s=%s"%(k,v), "%s=%s"%(k, testfile))
+        
+        if (post != None and post != ""):
+            self._log("Requesting: '%s'..." %(tmpurl), self.LOG_DEBUG)
+        else:
+            self._log("Requesting: '%s' with POST('%s')..." %(tmpurl, tmppost), self.LOG_DEBUG)
+        code = self.doPostRequest(tmpurl, tmppost)
+        if (code != None):
+            if (code.find(v) != -1):
+                self._log("Possible file inclusion found blindly! -> '%s' with Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
+                doBreak = True
+                if (not isPost):
+                    rep = self.identifyVuln(self.Target_URL, self.params, k, post, isPost, blindmode=("/.." * i, False))
+                else:
+                    rep = self.identifyVuln(self.Target_URL, self.postparams, k, post, isPost, blindmode=("/.." * i, False))
+            else:
+                tmpurl = self.Target_URL
+                tmpfile = testfile + "%00"
+                postdata = post
+                if (not isPost):
+                    tmpurl = tmpurl.replace("%s=%s"%(k,v), "%s=%s"%(k, tmpfile))
+                else:
+                    postdata = postdata.replace("%s=%s"%(k,v), "%s=%s"%(k, tmpfile))
+                
+                if (post != None and post != ""):
+                    self._log("Requesting: '%s'..." %(tmpurl), self.LOG_DEBUG)
+                else:
+                    self._log("Requesting: '%s' with POST('%s')..." %(tmpurl, postdata), self.LOG_DEBUG)
+                
+                code = self.doPostRequest(tmpurl, postdata)
+                if (code.find(v) != -1):
+                    if (not isPost):
+                        self._log("Possible file inclusion found blindly! -> '%s' with Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
+                    else:
+                        self._log("Possible file inclusion found blindly! -> '%s' with POST-Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
+                    doBreak = True
+                    rep = self.identifyVuln(self.Target_URL, self.params, k, blindmode=("/.." * i, True))
+        else:
+            # Previous result was none. Assuming that we can break here.
+            self._log("Code == None. Skipping testing of the URL.", self.LOG_DEBUG)
+            doBreak = True
+        return(rep, doBreak)
+
     def testTargetVuln(self):
         ret = []
 
@@ -148,34 +201,18 @@ class targetScanner (baseClass.baseClass):
                         testfile = "/.." * i + f
                     rep = None
                     for k,V in self.params.items():
-                        tmpurl = self.Target_URL
-                        tmpurl = tmpurl.replace("%s=%s"%(k,V), "%s=%s"%(k, testfile))
-                        self._log("Requesting: '%s'..." %(tmpurl), self.LOG_DEBUG)
-                        code = self.doGetRequest(tmpurl)
-                        if (code != None):
-                            if (code.find(v) != -1):
-                                self._log("Possible file inclusion found blindly! -> '%s' with Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
-                                doBreak = True
-                                rep = self.identifyVuln(self.Target_URL, self.params, k, blindmode=("/.." * i, False))
-                            else:
-                                tmpurl = self.Target_URL
-                                tmpfile = testfile + "%00"
-                                tmpurl = tmpurl.replace("%s=%s"%(k,V), "%s=%s"%(k, tmpfile))
-                                self._log("Requesting: '%s'..." %(tmpurl), self.LOG_DEBUG)
-                                code = self.doGetRequest(tmpurl)
-                                if (code.find(v) != -1):
-                                    self._log("Possible file inclusion found blindly! -> '%s' with Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
-                                    doBreak = True
-                                    rep = self.identifyVuln(self.Target_URL, self.params, k, blindmode=("/.." * i, True))
-                            if (rep != None):
-                                rep.setVulnKeyVal(V)
-                                ret.append((rep, self.readFiles(rep)))
-                                rep = None
-                        else:
-                            # Previous result was none. Assuming that we can break here.
-                            self._log("Code == None. Skipping testing of the URL.", self.LOG_DEBUG)
-                            doBreak = True
-
+                        rep, doBreak = self.analyzeURLblindly(i, testfile, k, V, self.config["p_post"], False)
+                        if (rep != None):
+                            rep.setVulnKeyVal(V)
+                            rep.setPostData(self.config["p_post"])
+                            ret.append((rep, self.readFiles(rep)))
+                    for k,V in self.postparams.items():
+                        rep, doBreak = self.analyzeURLblindly(i, testfile, k, V, self.config["p_post"], True)
+                        if (rep != None):
+                            rep.setVulnKeyVal(V)
+                            rep.setPostData(self.config["p_post"])
+                            rep.setPost(True)
+                            ret.append((rep, self.readFiles(rep)))
                     if (doBreak): return(ret)
         return(ret)
 
