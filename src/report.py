@@ -47,6 +47,12 @@ class report:
 
     def setPost(self, b):
         self.isPost = b
+        
+    def getPostData(self):
+        return(self.PostData)
+    
+    def isPost(self):
+        return(self.isPost)
 
     def setWindows(self):
         self.isLinux = False

@@ -75,8 +75,7 @@ class targetScanner (baseClass.baseClass):
 
         return(len(self.params)>0 or len(self.postparams)>0)
 
-    def analyzeURL(self, k, v, post=None, isPost=False):
-        ret = []
+    def analyzeURL(self, result, k, v, post=None, isPost=False):
         tmpurl = self.Target_URL
         tmppost = post
         rndStr = self.getRandomStr()
@@ -123,8 +122,8 @@ class targetScanner (baseClass.baseClass):
                     
                     if (rep != None):
                         rep.setVulnKeyVal(v)
-                        ret.append((rep, self.readFiles(rep)))
-        return(ret)
+                        result.append((rep, self.readFiles(rep)))
+        return(result)
 
     def testTargetVuln(self):
         ret = []
@@ -132,9 +131,9 @@ class targetScanner (baseClass.baseClass):
         self._log("Fiddling around with URL...", self.LOG_INFO)
 
         for k,v in self.params.items():
-            self.analyzeURL(k, v, self.config["p_post"], False)
+            self.analyzeURL(ret, k, v, self.config["p_post"], False)
         for k,v in self.postparams.items():
-            self.analyzeURL(k, v, self.config["p_post"], True)
+            self.analyzeURL(ret, k, v, self.config["p_post"], True)
 
                 
 
@@ -353,15 +352,13 @@ class targetScanner (baseClass.baseClass):
         ret = []
         self._log("Testing default files...", self.LOG_DEBUG)
 
-        
-
         for f,p,post,type in files:
             quiz = answer = None
             if (post != None):
                 quiz, answer = self.getPHPQuiz()
                 post = post.replace("__PHP_QUIZ__", quiz)
                 p = p.replace("__PHP_ANSWER__", answer)
-
+                
             if ((rep.getSurfix() == "" or rep.isNullbytePossible() or f.endswith(rep.getSurfix()))):
                 if (self.readFile(rep, f, p, POST=post)):
                     ret.append(f)
@@ -457,6 +454,12 @@ class targetScanner (baseClass.baseClass):
         vuln   = report.getVulnKey()
         params = report.getParams()
         scriptpath = report.getServerPath()
+        
+        postdata = None
+        isPost = report.isPost
+        if (isPost):
+            postdata = report.getPostData()
+
 
         filepatha = ""
         if (prefix != None and prefix != "" and prefix[-1] == "/"):
@@ -475,13 +478,21 @@ class targetScanner (baseClass.baseClass):
             filepatha = "/" + filepatha
 
         payload = "%s%s"%(filepatha, surfix)
-        tmpurl = tmpurl.replace("%s=%s" %(vuln, params[vuln]), "%s=%s"%(vuln, payload))
+        if (not isPost):
+            tmpurl = tmpurl.replace("%s=%s" %(vuln, params[vuln]), "%s=%s"%(vuln, payload))
+        else:
+            postdata = postdata.replace("%s=%s" %(vuln, params[vuln]), "%s=%s"%(vuln, payload))
 
         self._log("Testing URL: " + tmpurl, self.LOG_DEBUG)
 
         RE_SUCCESS_MSG = re.compile(INCLUDE_ERR_MSG %(filepath), re.DOTALL)
         code = None
-        if (POST != None):
+        if (POST != None or postdata != None):
+            if (postdata != None):
+                if (POST == None):
+                    POST = postdata
+                else:
+                    POST = "%s&%s"%(postdata, POST)
             code = self.doPostRequest(tmpurl, POST)
         else:
             code = self.doGetRequest(tmpurl)
