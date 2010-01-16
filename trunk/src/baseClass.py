@@ -162,6 +162,7 @@ class baseClass (object):
             self._setAttrib(elem_vuln, "path", rep.getPath())
             self._setAttrib(elem_vuln, "param", rep.getVulnKey())
             self._setAttrib(elem_vuln, "paramvalue", rep.getVulnKeyVal())
+            self._setAttrib(elem_vuln, "postdata", rep.getPostData())
             self._setAttrib(elem_vuln, "kernel", "")
             
             if (rep.isRemoteInjectable()):
@@ -173,6 +174,11 @@ class baseClass (object):
                 self._setAttrib(elem_vuln, "blind", "1")
             else:
                 self._setAttrib(elem_vuln, "blind", "0")
+
+            if (rep.isPost):
+                self._setAttrib(elem_vuln, "ispost", "1")
+            else:
+                self._setAttrib(elem_vuln, "ispost", "0")
                 
             self._appendXMLChild(elem, elem_vuln)
             self._appendXMLChild(self.XML_RootItem, elem)

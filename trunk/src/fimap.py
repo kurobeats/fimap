@@ -70,6 +70,8 @@ def show_help(AndQuit=False):
     print "                                 harvest mode (-H). This file will be opened in APPEND mode."
     print "   -d , --depth=CRAWLDEPTH       The CRAWLDEPTH (recurse level) you want to crawl your target site"
     print "                                 in harvest mode (-H). Default is 1."
+    print "   -P , --post=POSTDATA          The POSTDATA you want to send. All variables inside"
+    print "                                 will also be scanned for file inclusion bugs."
     print "        --ttl=SECONDS            Define the TTL (in seconds) for requests. Default is 30 seconds."
     print "## Attack Kit:"
     print "   -x , --exploit                Starts an interactive session where you can"

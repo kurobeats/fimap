@@ -56,7 +56,11 @@ class singleScan(baseClass):
                         boxarr = []
                         header = "[%d] Possible File Injection"%idx
                         boxarr.append("  [URL]      %s"%report.getURL())
-                        boxarr.append("  [PARAM]    %s"%report.getVulnKey())
+                        if (report.getPostData() != None and report.getPostData() != ""): boxarr.append("  [POST]     %s"%report.getPostData())
+                        if (report.isPost):
+                            boxarr.append("  [POSTPARA] %s (POST)"%report.getVulnKey())
+                        else:
+                            boxarr.append("  [PARAM]    %s"%report.getVulnKey())
                         if (report.isBlindDiscovered()):
                             boxarr.append("  [PATH]     Not received (Blindmode)")
                         else:

