@@ -41,7 +41,7 @@ Usage: ./fimap.py [options]
                                    * The googlescanner will ignore the proxy to get the URLs,
                                      but the pentest\attack itself will go thru proxy.
                                    * PROXY should be in format like this: 127.0.0.1:8080
-                                   * It's experimental
+                                   * Its experimental
         --show-my-ip             Shows your internet IP, current country and user-agent.
                                  Useful if you want to test your vpn\proxy config.
 ## Other:
