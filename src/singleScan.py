@@ -58,7 +58,7 @@ class singleScan(baseClass):
                         boxarr.append("  [URL]      %s"%report.getURL())
                         if (report.getPostData() != None and report.getPostData() != ""): boxarr.append("  [POST]     %s"%report.getPostData())
                         if (report.isPost):
-                            boxarr.append("  [POSTPARA] %s (POST)"%report.getVulnKey())
+                            boxarr.append("  [POSTPARM] %s"%report.getVulnKey())
                         else:
                             boxarr.append("  [PARAM]    %s"%report.getVulnKey())
                         if (report.isBlindDiscovered()):
