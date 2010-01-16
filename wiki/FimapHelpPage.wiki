@@ -1,9 +1,6 @@
-#summary fimaps commandline options
-
-{{{
-fimap v.07_svn by Iman Karim - Automatic LFI/RFI scanner and exploiter.
-Usage: ./fimap.py [options]
-## Operating Modes:
+fimap v.08_svn by Iman Karim - Automatic LFI/RFI scanner and exploiter.
+Usage: ./fimap.py [options]                                            
+## Operating Modes:                                                    
    -s , --single                 Mode to scan a single URL for FI errors.
                                  Needs URL (-u). This mode is the default.
    -m , --mass                   Mode for mass scanning. Will check every URL
@@ -14,8 +11,8 @@ Usage: ./fimap.py [options]
                                  Needs a root url (-u) to start crawling there.
                                  Also needs (-w) to write a URL list for mass mode.
    -b , --enable-blind           Enables blind FI-Bug testing when no error messages are printed.
-                                 Note that this mode will cause lots of requests
-                                 compared to the default method. Can be used with -s, -m or -g.
+                                 Note that this mode will cause lots of requests compared to the
+                                 default method. Can be used with -s, -m or -g. Experimental.
 ## Variables:
    -u , --url=URL                The URL you want to test.
                                  Needed in single mode (-s).
@@ -31,16 +28,19 @@ Usage: ./fimap.py [options]
                                  harvest mode (-H). This file will be opened in APPEND mode.
    -d , --depth=CRAWLDEPTH       The CRAWLDEPTH (recurse level) you want to crawl your target site
                                  in harvest mode (-H). Default is 1.
+   -P , --post=POSTDATA          The POSTDATA you want to send. All variables inside
+                                 will also be scanned for file inclusion bugs.
+        --ttl=SECONDS            Define the TTL (in seconds) for requests. Default is 30 seconds.
 ## Attack Kit:
    -x , --exploit                Starts an interactive session where you can
                                  select an target and do some action.
 ## Disguise Kit:
    -A , --user-agent=UA          The User-Agent which should be sent.
-      , --http-proxy=PROXY       Setup your proxy with this option. But read this facts:
-                                   * Only HTTP will be sent thru proxy (no HTTPS).
-                                   * The googlescanner will ignore the proxy to get the URLs.
-                                     But the pentest\attack itself will go thru proxy.
+        --http-proxy=PROXY       Setup your proxy with this option. But read this facts:
+                                   * The googlescanner will ignore the proxy to get the URLs,
+                                     but the pentest\attack itself will go thru proxy.
                                    * PROXY should be in format like this: 127.0.0.1:8080
+                                   * It's experimental
         --show-my-ip             Shows your internet IP, current country and user-agent.
                                  Useful if you want to test your vpn\proxy config.
 ## Other:
@@ -63,5 +63,3 @@ Usage: ./fimap.py [options]
   4. Harvest all links of a webpage with recurse level of 3 and
      write the URLs to /tmp/urllist
         ./fimap.py -H -u 'http://localhost' -d 3 -w /tmp/urllist
-
-}}}
