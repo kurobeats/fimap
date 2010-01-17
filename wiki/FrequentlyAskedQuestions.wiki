@@ -53,7 +53,9 @@ YES! They will find you and bust you!
 *DON'T USE THIS TOOL ON SERVERS WHERE YOU DONT HAVE PERMISSION TO PENTEST OR YOU'RE IN JAIL FASTER THAN SPEED OF LIGHT!*
 
 ----
-
+== Why the hell then can this tool spawn a shell if I am not allowed to use it? ==
+It's because this tool should provide you a realistic and easy way to test how secure your server really is. Maybe you host different sites for different customers - in that case you can see how vulnerable your whole system is if one of your customer "codes" an inclusion-bug. You can see how deep the impact is if your customers have spend too few time and love to the security.
+----
 == I have found a bug! How should I report it? ==
 First of all download the SVN version and verify that your bug still exists in the SVN snapshot. If it's fixed thanks for your time!
 If not feel free to file a new bug in the issues tracker here!
