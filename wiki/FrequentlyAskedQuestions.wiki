@@ -43,6 +43,11 @@ To test if you have dyn_rfi correctly configured you can start fimap with --test
 
 ----
 
+== Are the possible inclusions in the fimap.log file dangerous? ==
+Yes! This means usually that fimap has found a FI-Bug but hasn't any readable files.
+In that case it could be possible to upload (for example) a manipulated Image and use this as inclusion point! Take care!
+----
+
 == If I start fimap I get an error: ==
 Error: {{{`[`WARN`]` open() got an unexpected keyword argument 'timeout' }}}
 === Solutions ===
