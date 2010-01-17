@@ -47,19 +47,6 @@ To test if you have dyn_rfi correctly configured you can start fimap with --test
 Yes! This means usually that fimap has found a FI-Bug but hasn't any readable files.
 In that case it could be possible to upload (for example) a manipulated Image and use this as inclusion point! Take care!
 ----
-
-== If I start fimap I get an error: ==
-Error: {{{`[`WARN`]` open() got an unexpected keyword argument 'timeout' }}}
-=== Solutions ===
-  * ~~Please make sure you use Python 2.6. Afaik the timeout argument is not supported in Python 2.5.~~ fimap is 2.5 compatible now.
-  * Download alpha >= v.03 from the download page.
-  * Use the SVN snapshot.
-
-Error: {{{`File "C:\Python25\lib\ntpath.py", line 90, in join assert len(path) > 0 TypeError: object of type 'NoneType' has no len()`}}}
-=== Solutions ===
-  * You are on Windows using version < .5 I believe. Download fimap >= .6 which is Windows compatible from the download page.
-
-----
 == I have spawned a shell on a foreign server. Will the police find me?==
 YES! They will find you and bust you! 
 
@@ -67,6 +54,11 @@ YES! They will find you and bust you!
 
 ----
 
+== I have found a bug! How should I report it? ==
+First of all download the SVN version and verify that your bug still exists in the SVN snapshot. If it's fixed thanks for your time!
+If not feel free to file a new bug in the issues tracker here!
+I usually fix bugs very quickly so if you are annoyed of a bug it's in your interest to report it :)
+----
 == Can I join development? ==
 Sure! But currently I want to code fimap how I like it. It's currently (January 2010) 4 month old and I am still not happy with some points of fimap. 
 Once I am happy with it you guys are welcome join the development team. 
