@@ -404,6 +404,8 @@ class codeinjector(baseClass):
         idx = 1
         header = ":: List of Domains ::"
         textarr = []
+        doRemoteWarn = False
+        
         for n in nodes:
             host = n.getAttribute("hostname")
             kernel = n.getAttribute("kernel")
@@ -413,6 +415,11 @@ class codeinjector(baseClass):
                 mode = child.getAttribute("mode")
                 if ("x" in mode):
                     showit = True
+                elif (mode.find("R") != -1 and settings["dynamic_rfi"]["mode"] not in ("ftp", "local")):
+                    doRemoteWarn = True
+                elif (mode.find("R") != -1 and settings["dynamic_rfi"]["mode"] in ("ftp", "local")):
+                    showit = True
+
             if (showit or not OnlyExploitable):
                 choose[idx] = n
                 if (kernel != None):
@@ -423,7 +430,9 @@ class codeinjector(baseClass):
 
         textarr.append("[q] Quit")
         self.drawBox(header, textarr)
-        
+        if (doRemoteWarn):
+            print "WARNING: Some domains may be not listed here because dynamic_rfi is not configured! "
+
         while(1==1):
             c = raw_input("Choose Domain: ")
             if (c == "q"):
