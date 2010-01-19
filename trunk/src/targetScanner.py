@@ -35,7 +35,9 @@ SCRIPTPATH_ERR_MSG = ("\\(include_path='.*?'\\) in <b>(.*?)</b>* on line",
                       "failed to open stream: No such file or directory \\((.*?)- Line",
                       "An error occurred in script '(.*?)' on line \d?.",
                       "Failed opening '.*?' for inclusion in <b>(.*?)</b> on line <b>",
-                      "failed to open stream:.*?@(.*?):")
+                      "failed to open stream:.*?@(.*?):",
+                      "in file <b>(.*?)</b>",
+                      "in file (.*?) on")
 
 READFILE_ERR_MSG = ("<b>Warning</b>:  file\(.*?%s.*?\)*",
                     "<b>Warning</b>:  highlight_file\(.*?%s.*?\)*",
