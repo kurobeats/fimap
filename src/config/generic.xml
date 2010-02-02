@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<fimap language="generic" definition="0">
+<fimap language="generic" revision="0">
 	<relative_files>
 		<file path="/etc/passwd" find="root:" flags="r"/>
 		<file path="/proc/self/environ" find="HTTP_USER_AGENT=" flags="rxA"/>

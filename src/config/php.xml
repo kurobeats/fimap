@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<fimap language="php" definition="0" autor="Iman Karim (ikarim2s@smail.inf.fh-brs.de)" >
-	<snipe regex="Failed opening( required)* '[\d\w/\.\-]*?%s[\d\w/\.\-]*?' (for inclusion)*" />
+<fimap language="php" revision="0" autor="Iman Karim (ikarim2s@smail.inf.fh-brs.de)" >
+	<snipe regex="Failed opening( required)* '(?P&lt;incname&gt;[\d\w/\.\-]*?%s[\d\w/\.\-]*?)' (for inclusion)*" />
 	
 	<relative_files>
 	</relative_files>
