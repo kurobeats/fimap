@@ -40,7 +40,14 @@ class report:
         self.BlindDiscovered = False
         self.PostData = None
         self.isPost = False
+        self.language = None
         
+
+    def setLanguage(self, lang):
+        self.language = lang
+        
+    def getLanguage(self):
+        return(self.language)
 
     def setPostData(self, p):
         self.PostData = p

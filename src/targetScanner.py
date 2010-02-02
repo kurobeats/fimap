@@ -29,21 +29,6 @@ import posixpath
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$30.08.2009 19:59:44$"
 
-INCLUDE_ERR_MSG = "Failed opening( required)* '[\d\w/\.\-]*?%s[\d\w/\.\-]*?' (for inclusion)*"
-SCRIPTPATH_ERR_MSG = ("\\(include_path='.*?'\\) in <b>(.*?)</b>* on line", 
-                      "\\(include_path='.*?'\\) in (.*?) on line",
-                      "failed to open stream: No such file or directory \\((.*?)- Line",
-                      "An error occurred in script '(.*?)' on line \d?.",
-                      "Failed opening '.*?' for inclusion in <b>(.*?)</b> on line <b>",
-                      "failed to open stream:.*?@(.*?):",
-                      "in file <b>(.*?)</b>",
-                      "in file (.*?) on")
-
-READFILE_ERR_MSG = ("<b>Warning</b>:  file\(.*?%s.*?\)*",
-                    "<b>Warning</b>:  highlight_file\(.*?%s.*?\)*",
-                    "<b>Warning</b>:  read_file\(.*?%s.*?\)*",
-                    "<b>Warning</b>:  show_source\(.*?%s.*?\)*")
-
 class targetScanner (baseClass.baseClass):
 
     def _load(self):
@@ -93,38 +78,44 @@ class targetScanner (baseClass.baseClass):
             self._log("Requesting: '%s' with POST('%s')..." %(tmpurl, post), self.LOG_DEBUG)
             code = self.doPostRequest(tmpurl, tmppost)
 
+        xml2config = self.config["XML2CONFIG"]
+        READFILE_ERR_MSG = xml2config.getAllReadfileRegex()
+
         if (code != None):
             disclosure_found = False
-            for ex in READFILE_ERR_MSG:
+            for lang, ex in READFILE_ERR_MSG:
                 RE_SUCCESS_MSG = re.compile(ex%(rndStr), re.DOTALL)
                 m = RE_SUCCESS_MSG.search(code)
                 if (m != None):
                     if (not isPost):
-                        self._log("Possible local file disclosure found! -> '%s' with Parameter '%s'."%(tmpurl, k), self.LOG_ALWAYS)
+                        self._log("Possible local file disclosure found! -> '%s' with Parameter '%s'. (%s)"%(tmpurl, k), self.LOG_ALWAYS, lang)
                     else:
-                        self._log("Possible local file disclosure found! -> '%s' with POST-Parameter '%s'."%(tmpurl, k), self.LOG_ALWAYS)
+                        self._log("Possible local file disclosure found! -> '%s' with POST-Parameter '%s'. (%s)"%(tmpurl, k), self.LOG_ALWAYS, lang)
                     #self.identifyReadFile(URL, Params, VulnParam)
                     self._writeToLog("READ ; %s ; %s"%(tmpurl, k))
                     disclosure_found = True
                     break
 
             if (not disclosure_found):
-                RE_SUCCESS_MSG = re.compile(INCLUDE_ERR_MSG%(rndStr), re.DOTALL)
-                m = RE_SUCCESS_MSG.search(code)
-                if (m != None):
-                    rep = None
-                    self._writeToLog("POSSIBLE ; %s ; %s"%(self.Target_URL, k))
-                    if (not isPost):
-                        self._log("Possible file inclusion found! -> '%s' with Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
-                        rep = self.identifyVuln(self.Target_URL, self.params, k, post)
-                    else:
-                        self._log("Possible file inclusion found! -> '%s' with POST-Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
-                        rep = self.identifyVuln(self.Target_URL, self.postparams, k, post, True)
-                    
-                    
-                    if (rep != None):
-                        rep.setVulnKeyVal(v)
-                        result.append((rep, self.readFiles(rep)))
+                sniper_regex = xml2config.getAllSniperRegex()
+                for lang, sniper in sniper_regex:
+                    RE_SUCCESS_MSG = re.compile(sniper%(rndStr), re.DOTALL)
+                    m = RE_SUCCESS_MSG.search(code)
+                    if (m != None):
+                        rep = None
+                        self._writeToLog("POSSIBLE ; %s ; %s"%(self.Target_URL, k))
+                        if (not isPost):
+                            self._log("[%s] Possible file inclusion found! -> '%s' with Parameter '%s'." %(lang, tmpurl, k), self.LOG_ALWAYS)
+                            rep = self.identifyVuln(self.Target_URL, self.params, k, post, lang)
+                        else:
+                            self._log("[%s] Possible file inclusion found! -> '%s' with POST-Parameter '%s'." %(lang, tmpurl, k), self.LOG_ALWAYS)
+                            rep = self.identifyVuln(self.Target_URL, self.postparams, k, post, lang, True)
+                        
+                        
+                        if (rep != None):
+                            rep.setVulnKeyVal(v)
+                            rep.setLanguage(lang)
+                            result.append((rep, self.readFiles(rep)))
         return(result)
 
     def analyzeURLblindly(self, i, testfile, k, v, post=None, isPost=False):
@@ -220,16 +211,21 @@ class targetScanner (baseClass.baseClass):
 
 
 
-    def identifyVuln(self, URL, Params, VulnParam, PostData, isPost=False, blindmode=None):
+    def identifyVuln(self, URL, Params, VulnParam, PostData, Language, isPost=False, blindmode=None):
+        xml2config = self.config["XML2CONFIG"]
+        
         if (blindmode == None):
 
             script = None
             scriptpath = None
             pre = None
+            
+            langClass = xml2config.getAllLangSets()[Language]
+            
             if (not isPost):
-                self._log("Identifying Vulnerability '%s' with Parameter '%s'..."%(URL, VulnParam), self.LOG_ALWAYS)
+                self._log("[%s] Identifying Vulnerability '%s' with Parameter '%s'..."%(Language, URL, VulnParam), self.LOG_ALWAYS)
             else:
-                self._log("Identifying Vulnerability '%s' with POST-Parameter '%s'..."%(URL, VulnParam), self.LOG_ALWAYS)
+                self._log("[%s] Identifying Vulnerability '%s' with POST-Parameter '%s'..."%(Language, URL, VulnParam), self.LOG_ALWAYS)
 
             tmpurl = URL
             PostHax = PostData
@@ -240,7 +236,7 @@ class targetScanner (baseClass.baseClass):
             else:
                 PostHax = PostHax.replace("%s=%s"%(VulnParam,Params[VulnParam]), "%s=%s"%(VulnParam, rndStr))
 
-            RE_SUCCESS_MSG = re.compile(INCLUDE_ERR_MSG%(rndStr), re.DOTALL)
+            RE_SUCCESS_MSG = re.compile(langClass.getSniper()%(rndStr), re.DOTALL)
 
             code = self.doPostRequest(tmpurl, PostHax)
             if (code == None):
@@ -255,7 +251,7 @@ class targetScanner (baseClass.baseClass):
             r.setPost(isPost)
             r.setPostData(PostData)
 
-            for sp_err_msg in SCRIPTPATH_ERR_MSG:
+            for sp_err_msg in langClass.getIncludeDetectors():
                 RE_SCRIPT_PATH = re.compile(sp_err_msg)
                 s = RE_SCRIPT_PATH.search(code)
                 if (s != None): break
@@ -382,21 +378,28 @@ class targetScanner (baseClass.baseClass):
 
 
     def readFiles(self, rep):
-        files     = settings["files"]
-        abs_files = settings["filesabs"]
-        rmt_files = settings["filesrmt"]
-        log_files = settings["fileslog"]
+        xml2config = self.config["XML2CONFIG"]
+        langClass = xml2config.getAllLangSets()[rep.getLanguage()]
+        
+        files     = xml2config.getRelativeFiles(rep.getLanguage())
+        abs_files = xml2config.getAbsoluteFiles(rep.getLanguage())
+        rmt_files = xml2config.getRemoteFiles(rep.getLanguage())
+        log_files = xml2config.getLogFiles(rep.getLanguage())
         rfi_mode = settings["dynamic_rfi"]["mode"]
 
         ret = []
         self._log("Testing default files...", self.LOG_DEBUG)
 
-        for f,p,post,type in files:
+        for fileobj in files:
+            post = fileobj.getPostData()
+            p    = fileobj.getFindStr()
+            f    = fileobj.getFilepath()
+            type = fileobj.getFlags()
             quiz = answer = None
             if (post != None):
-                quiz, answer = self.getPHPQuiz()
-                post = post.replace("__PHP_QUIZ__", quiz)
-                p = p.replace("__PHP_ANSWER__", answer)
+                quiz, answer = langClass.generateQuiz()
+                post = post.replace("__QUIZ__", quiz)
+                p = p.replace("__ANSWER__", answer)
                 
             if ((rep.getSurfix() == "" or rep.isNullbytePossible() or f.endswith(rep.getSurfix()))):
                 if (self.readFile(rep, f, p, POST=post)):
@@ -408,12 +411,16 @@ class targetScanner (baseClass.baseClass):
                 self._log("Skipping file '%s'."%f, self.LOG_INFO)
 
         self._log("Testing absolute files...", self.LOG_DEBUG)
-        for f,p,post,type in abs_files:
+        for fileobj in abs_files:
+            post = fileobj.getPostData()
+            p    = fileobj.getFindStr()
+            f    = fileobj.getFilepath()
+            type = fileobj.getFlags()
             quiz = answer = None
             if (post != None):
-                quiz, answer = self.getPHPQuiz()
-                post = post.replace("__PHP_QUIZ__", quiz)
-                p = p.replace("__PHP_ANSWER__", answer)
+                quiz, answer = langClass.generateQuiz()
+                post = post.replace("__QUIZ__", quiz)
+                p = p.replace("__ANSWER__", answer)
             if (rep.getPrefix() == "" and(rep.getSurfix() == "" or rep.isNullbytePossible() or f.endswith(rep.getSurfix()))):
                 if (self.readFile(rep, f, p, True, POST=post)):
                     ret.append(f)
@@ -424,7 +431,11 @@ class targetScanner (baseClass.baseClass):
                 self._log("Skipping absolute file '%s'."%f, self.LOG_INFO)
 
         self._log("Testing log files...", self.LOG_DEBUG)
-        for f,p,type in log_files:
+        for fileobj in log_files:
+            post = fileobj.getPostData()
+            p    = fileobj.getFindStr()
+            f    = fileobj.getFilepath()
+            type = fileobj.getFlags()
             if ((rep.getSurfix() == "" or rep.isNullbytePossible() or f.endswith(rep.getSurfix()))):
                 if (self.readFile(rep, f, p)):
                     ret.append(f)
@@ -464,7 +475,11 @@ class targetScanner (baseClass.baseClass):
                     self.deleteLocalPayload(up["local"])
         else:
             self._log("Testing remote inclusion...", self.LOG_DEBUG)
-            for f,p,type in rmt_files:
+            for fileobj in rmt_files:
+                post = fileobj.getPostData()
+                p    = fileobj.getFindStr()
+                f    = fileobj.getFilepath()
+                type = fileobj.getFlags()
                 if (rep.getPrefix() == "" and(rep.getSurfix() == "" or rep.isNullbytePossible() or f.endswith(rep.getSurfix()))):
                     if ((not rep.isNullbytePossible() and not rep.getSurfix() == "") and f.endswith(rep.getSurfix())):
                         f = f[:-len(rep.getSurfix())]
@@ -487,6 +502,10 @@ class targetScanner (baseClass.baseClass):
 
     def readFile(self, report, filepath, filepattern, isAbs=False, POST=None):
         self._log("Testing file '%s'..." %filepath, self.LOG_INFO)
+        
+        xml2config = self.config["XML2CONFIG"]
+        langClass = xml2config.getAllLangSets()[report.getLanguage()]
+        
         tmpurl = report.getURL()
         prefix = report.getPrefix()
         surfix = report.getSurfix()
@@ -524,7 +543,7 @@ class targetScanner (baseClass.baseClass):
 
         self._log("Testing URL: " + tmpurl, self.LOG_DEBUG)
 
-        RE_SUCCESS_MSG = re.compile(INCLUDE_ERR_MSG %(filepath), re.DOTALL)
+        RE_SUCCESS_MSG = re.compile(langClass.getSniper()%(filepath), re.DOTALL)
         code = None
         if (POST != None or postdata != None):
             if (postdata != None):
