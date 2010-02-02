@@ -25,6 +25,7 @@
 	
 	<methods>
 		<quiz source="cm5kID0gc2VsZi5nZXRSYW5kb21TdHIoKQpwaHBjb2RlID0gImVjaG8gIgpmb3IgYyBpbiBybmQ6CiAgICBwaHBjb2RlICs9ICJjaHIoJWQpLiIlKG9yZChjKSkKcGhwY29kZSA9ICI8P3BocCAlczsgPz4iICUocGhwY29kZVs6LTFdKQpyZXQgPSAocGhwY29kZSwgcm5kKQo=" />
+		<print source="print '__PLACEHOLDER__';" />
 	</methods>
 	
 	<detectors>

