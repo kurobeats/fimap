@@ -28,6 +28,7 @@ import getopt
 from googleScan import googleScan
 from massScan import massScan
 from singleScan import singleScan
+import language
 import sys,os
 # To change this template, choose Tools | Templates
 # and open the template in the editor.
@@ -251,6 +252,9 @@ if __name__ == "__main__":
         print (err)
         sys.exit(1)
 
+
+    xmlsettings = language.XML2Config(config)
+    config["XML2CONFIG"] = xmlsettings
 
     if (doRFITest):
         injector = codeinjector(config)

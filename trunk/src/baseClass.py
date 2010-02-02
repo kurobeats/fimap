@@ -23,6 +23,7 @@ from ftplib import FTP
 from ftplib import error_perm
 from config import settings
 import xml.dom.minidom
+import baseTools
 import shutil
 import posixpath
 import os.path
@@ -41,29 +42,17 @@ import string,random,os,socket
 new_stuff = {}
 
 class baseClass (object):
-
-    LOG_ERROR = 99
-    LOG_WARN  = 99
-    LOG_DEVEL = 1
-    LOG_DEBUG = 2
-    LOG_INFO  = 3
-    LOG_ALWAYS= 4
     
     XML_Result  = None
     XML_RootItem = None
     homeDir = os.path.expanduser("~")
 
     TIMEOUT = 30
+    
+    tools = baseTools.baseTools()
 
     def __init__(self, config):
-        self.log_lvl = {}
-        self.log_lvl[baseClass.LOG_ERROR]   = "ERROR"
-        self.log_lvl[baseClass.LOG_WARN]    = "WARN"
-        self.log_lvl[baseClass.LOG_DEVEL]   = "DEVEL"
-        self.log_lvl[baseClass.LOG_DEBUG]   = "DEBUG"
-        self.log_lvl[baseClass.LOG_INFO]    = "INFO"
-        self.log_lvl[baseClass.LOG_ALWAYS]  = "OUT"
-        self.LOG_LVL = config["p_verbose"]
+        self.tools.initLog(config)
 
         self.config = config
         self.logFilePath = None
@@ -106,18 +95,10 @@ class baseClass (object):
         raise "Implement this!"
 
     def _log(self, txt, LVL):
-        if (4-self.config["p_verbose"] < LVL):
-            print "[%s] %s" %(self.log_lvl[LVL], txt)
+        self.tools._log(txt, LVL)
 
     def getRandomStr(self):
-        chars = string.letters + string.digits
-        ret = ""
-        for i in range(8):
-            if (i==0):
-                ret = ret + random.choice(string.letters)
-            else:
-                ret = ret + random.choice(chars)
-        return ret
+        return(self.tools.getRandomStr())
 
     def __init_logfile(self):
         self.logFilePath = os.path.join(self.homeDir, "fimap.log")

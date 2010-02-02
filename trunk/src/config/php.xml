@@ -33,14 +33,7 @@
 	</payloads>
 	
 	<methods>
-		<quiz>
-			<line>rnd = self.getRandomStr()</line>
-        	<line>phpcode = "echo "</line>
-        	<line>for c in rnd:</line>
-           	<line>    phpcode += "chr(%d)."%(ord(c))</line>
-           	<line>phpcode = phpcode[:-1] + ";"</line>
-        	<line>ret = (phpcode, rnd)</line>
-        </quiz>
+		<quiz source="cm5kID0gc2VsZi5nZXRSYW5kb21TdHIoKQpwaHBjb2RlID0gImVjaG8gIgpmb3IgYyBpbiBybmQ6CiAgICBwaHBjb2RlICs9ICJjaHIoJWQpLiIlKG9yZChjKSkKcGhwY29kZSA9IHBocGNvZGVbOi0xXSArICI7IgpyZXQgPSAocGhwY29kZSwgcm5kKQo=" />
 	</methods>
 	
 	<detectors>

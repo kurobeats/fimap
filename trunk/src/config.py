@@ -18,8 +18,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-import language
-
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$01.09.2009 13:56:47$"
 
@@ -68,4 +66,3 @@ settings["blind"]["files"] = (
                                 ("/etc/passwd", "root:", None),
                              )
 
-xmlsettings = language.XML2Config()
