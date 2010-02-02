@@ -52,7 +52,6 @@ class XML2Config(baseClass):
     def _load(self):
         self.langsets = {}
         self.xmlfile = os.path.join(sys.path[0], "config", "generic.xml")
-        print self.xmlfile
         self.XML_Generic = None
         self.XML_Rootitem = None
 
@@ -263,6 +262,8 @@ class baseLanguage(baseTools):
         self.sniper_regex   = None
         
         self.quiz_function  = None
+        self.print_function  = None
+        self.eval_kickstarter = None
         
         self.detector_include    = []
         self.detector_readfile   = []
@@ -331,6 +332,13 @@ class baseLanguage(baseTools):
             raise
         return(ret)
     
+    def generatePrint(self, data):
+        ret = self.print_function.replace("__PLACEHOLDER__", data)
+        return(ret)
+    
+    def getEvalKickstarter(self):
+        return(self.eval_kickstarter)
+    
     def __populate(self):
         self.XMLRevision                = int(self.XML_Rootitem.getAttribute("revision"))
         self.XMLAutor                   = self.XML_Rootitem.getAttribute("autor")
@@ -391,6 +399,32 @@ class baseLanguage(baseTools):
                 self._log("Committing suicide :-O", self.LOG_ERROR)
                 sys.exit(1)
             self.quiz_function = quiz_code
+        
+        print_node = getXMLNode(methods_node, "print")
+        if (print_node == None):
+            self._log("FATAL! XML-Language-Definition (%s) has no print function defined!"%(self.getName()), self.LOG_ERROR)
+            self._log("Please fix that in order to run fimap without problems!", self.LOG_ERROR)
+            self._log("Committing suicide :-O", self.LOG_ERROR)
+            sys.exit(1)
+        else:
+            print_code = print_node.getAttribute("source")
+            if (print_code == None or print_code.strip() == ""):
+                self._log("FATAL! XML-Language-Definition (%s) has no print function defined!"%(self.getName()), self.LOG_ERROR)
+                self._log("Please fix that in order to run fimap without problems!", self.LOG_ERROR)
+                self._log("Committing suicide :-O", self.LOG_ERROR)
+                sys.exit(1)
+            self.print_function = print_code
+        
+        eval_node = getXMLNode(methods_node, "eval_kickstarter")
+        if (eval_node == None):
+            self._log("XML-LD (%s) has no eval_kickstarter method defined."%(self.getName()), self.LOG_DEBUG)
+            self._log("Language will not be able to use logfile-injection.", self.LOG_DEBUG)
+        else:
+            eval_code = print_node.getAttribute("source")
+            if (eval_code == None or eval_code.strip() == ""):
+                self._log("XML-LD (%s) has no eval_kickstarter method defined."%(self.getName()), self.LOG_DEBUG)
+                self._log("Language will not be able to use logfile-injection."%(self.getName()), self.LOG_DEBUG)
+            self.eval_kickstarter = eval_code
         
         detectors_node = getXMLNode(self.XML_Rootitem, "detectors")
         include_patterns = getXMLNode(detectors_node, "include_patterns")
