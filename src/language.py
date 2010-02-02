@@ -1,9 +1,22 @@
-'''
-Created on 23.01.2010
-
-@author: Iman Karim (ikarim2s@smail.inf.fh-brs.de)
-'''
-
+#
+# This file is part of fimap.
+#
+# Copyright(c) 2009-2010 Iman Karim(ikarim2s@smail.inf.fh-brs.de).
+# http://fimap.googlecode.com
+#
+# This file may be licensed under the terms of of the
+# GNU General Public License Version 2 (the ``GPL'').
+#
+# Software distributed under the License is distributed
+# on an ``AS IS'' basis, WITHOUT WARRANTY OF ANY KIND, either
+# express or implied. See the GPL for the specific language
+# governing rights and limitations.
+#
+# You should have received a copy of the GPL along with this
+# program. If not, go to http://www.gnu.org/licenses/gpl.html
+# or write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#
 import xml.dom.minidom
 import base64
 import sys, os
@@ -52,7 +65,8 @@ class XML2Config(baseClass):
         self.blind_min      = 0
         self.blind_max      = 0
     
-        self.shellquiz_code = None
+        self.shellquiz_code     = None
+        self.kernelversion_code = None
     
         self.__init_xmlresult()
    
@@ -117,6 +131,9 @@ class XML2Config(baseClass):
             quiz_node = getXMLNode(methods_node, "shellquiz")
             self.shellquiz_code = base64.b64decode(quiz_node.getAttribute("source"))
             
+            kernel_node = getXMLNode(methods_node, "kernelversion")
+            self.kernelversion_code = kernel_node.getAttribute("source")
+            
             self.__loadLanguageSets()
         else:
             print "generic.xml file not found! This file is very important!"
@@ -156,6 +173,9 @@ class XML2Config(baseClass):
             readfile_regex = v.getSniper()
             ret.append((k, readfile_regex))
         return(ret)
+    
+    def getKernelCode(self):
+        return(self.kernelversion_code)
     
     def getRelativeFiles(self, lang=None):
         ret = []
@@ -246,7 +266,9 @@ class baseLanguage(baseTools):
         
         self.detector_include    = []
         self.detector_readfile   = []
-        self.detector_extentions = [] 
+        self.detector_extentions = []
+        
+        self.do_force_inclusion_test = False
     
         self.__populate()
     
@@ -261,6 +283,9 @@ class baseLanguage(baseTools):
     
     def getSniper(self):
         return(self.sniper_regex)
+    
+    def doForceInclusionTest(self):
+        return(self.do_force_inclusion_test)
     
     def getExecMethods(self):
         return(self.exec_methods)
@@ -307,8 +332,9 @@ class baseLanguage(baseTools):
         return(ret)
     
     def __populate(self):
-        self.XMLRevision = int(self.XML_Rootitem.getAttribute("revision"))
-        self.XMLAutor    = self.XML_Rootitem.getAttribute("autor")
+        self.XMLRevision                = int(self.XML_Rootitem.getAttribute("revision"))
+        self.XMLAutor                   = self.XML_Rootitem.getAttribute("autor")
+        self.do_force_inclusion_test    = self.XML_Rootitem.getAttribute("force_inclusion_test") == "1"
         
         rel_node = getXMLNode(self.XML_Rootitem, "relative_files")
         rel_files = getXMLNodes(rel_node, "file")

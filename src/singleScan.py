@@ -54,7 +54,9 @@ class singleScan(baseClass):
                         files = i[1]
                         idx = idx +1
                         boxarr = []
-                        header = "[%d] Possible %s-File Inclusion"%(idx, report.getLanguage())
+                        header = "[%d] Possible File Inclusion"%(idx)
+                        if (report.getLanguage() != None):
+                            header = "[%d] Possible %s-File Inclusion"%(idx, report.getLanguage())
                         boxarr.append("  [URL]      %s"%report.getURL())
                         if (report.getPostData() != None and report.getPostData() != ""): boxarr.append("  [POST]     %s"%report.getPostData())
                         if (report.isPost):

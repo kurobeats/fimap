@@ -352,6 +352,7 @@ class targetScanner (baseClass.baseClass):
                 # Failed to get scriptpath with easy method :(
                 if (pre != ""):
                     self._log("Failed to retrieve path but we are forced to go relative!", self.LOG_WARN)
+                    self._log("Go and try it to scan with --enable-blind.", self.LOG_WARN)
                     return(None)
                 else:
                     self._log("Failed to retrieve path! It's an absolute injection so I'll fake it to '/'...", self.LOG_WARN)
