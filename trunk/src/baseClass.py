@@ -46,7 +46,14 @@ class baseClass (object):
     XML_Result  = None
     XML_RootItem = None
     homeDir = os.path.expanduser("~")
-
+    
+    LOG_ERROR = 99
+    LOG_WARN  = 99
+    LOG_DEVEL = 1
+    LOG_DEBUG = 2
+    LOG_INFO  = 3
+    LOG_ALWAYS= 4
+    
     TIMEOUT = 30
     
     tools = baseTools.baseTools()
@@ -145,6 +152,7 @@ class baseClass (object):
             self._setAttrib(elem_vuln, "paramvalue", rep.getVulnKeyVal())
             self._setAttrib(elem_vuln, "postdata", rep.getPostData())
             self._setAttrib(elem_vuln, "kernel", "")
+            self._setAttrib(elem_vuln, "language", rep.getLanguage())
             
             if (rep.isRemoteInjectable()):
                 self._setAttrib(elem_vuln, "remote", "1")

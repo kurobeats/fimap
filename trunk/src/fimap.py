@@ -244,7 +244,9 @@ if __name__ == "__main__":
                 config["p_post"] = v
             #if (k in("-f", "--exploit-filter")):
             #    config["p_exploit_filter"] = v
-                
+
+        xmlsettings = language.XML2Config(config)
+        config["XML2CONFIG"] = xmlsettings                
         if startExploiter:
             list_results()
 
@@ -252,9 +254,6 @@ if __name__ == "__main__":
         print (err)
         sys.exit(1)
 
-
-    xmlsettings = language.XML2Config(config)
-    config["XML2CONFIG"] = xmlsettings
 
     if (doRFITest):
         injector = codeinjector(config)

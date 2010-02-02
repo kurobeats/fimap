@@ -9,7 +9,7 @@ import base64
 import sys, os
 from baseClass import baseClass
 from baseTools import baseTools
-
+import random
 
 def getXMLNode(item, nodename):
     for child in item.childNodes:
@@ -41,34 +41,131 @@ class XML2Config(baseClass):
         self.xmlfile = os.path.join(sys.path[0], "config", "generic.xml")
         print self.xmlfile
         self.XML_Generic = None
-        self.XML_RootItem = None
+        self.XML_Rootitem = None
+
+
+        self.relative_files = []
+        self.absolute_files = []
+        self.remote_files   = []
+        self.log_files      = []
+    
+        self.shellquiz_code = None
     
         self.__init_xmlresult()
-    
-        print self.langsets["PHP"].generateQuiz()
-    
-        sys.exit(0)
+   
+        #sys.exit(0)
     
     def __init_xmlresult(self):
         xmlfile = self.xmlfile
         if (os.path.exists(xmlfile)):
             self.XML_Generic = xml.dom.minidom.parse(xmlfile)
-            self.XML_RootItem = self.XML_Generic.firstChild
+            self.XML_Rootitem = self.XML_Generic.firstChild
+            
+            rel_node = getXMLNode(self.XML_Rootitem, "relative_files")
+            rel_files = getXMLNodes(rel_node, "file")
+            for f in rel_files:
+                self.relative_files.append(fiFile(f, self.config))
+            
+            abs_node = getXMLNode(self.XML_Rootitem, "absolute_files")
+            abs_files = getXMLNodes(abs_node, "file")
+            for f in abs_files:
+                self.absolute_files.append(fiFile(f, self.config))
+            
+            rem_node = getXMLNode(self.XML_Rootitem, "remote_files")
+            rem_files = getXMLNodes(rem_node, "file")
+            for f in rem_files:
+                self.remote_files.append(fiFile(f, self.config))
+            
+            log_node = getXMLNode(self.XML_Rootitem, "log_files")
+            log_files = getXMLNodes(log_node, "file")
+            for f in log_files:
+                self.log_files.append(fiFile(f, self.config))
+            
+            
+            methods_node = getXMLNode(self.XML_Rootitem, "methods")
+            quiz_node = getXMLNode(methods_node, "shellquiz")
+            self.shellquiz_code = base64.b64decode(quiz_node.getAttribute("source"))
+            
             self.__loadLanguageSets()
         else:
             print "generic.xml file not found! This file is very important!"
             sys.exit(1)
         
     def __loadLanguageSets(self):
-        langnodes = getXMLNode(self.XML_RootItem, "languagesets")
+        langnodes = getXMLNode(self.XML_Rootitem, "languagesets")
         for c in langnodes.childNodes:
             if (c.nodeName == "language"):
                 langname = c.getAttribute("name")
                 langfile = c.getAttribute("langfile")
                 self.langsets[langname] = baseLanguage(langname, langfile, self.config)
     
+    def generateShellQuiz(self):
+        ret = None
+        exec(self.shellquiz_code)
+        return(ret)
+    
     def getAllLangSets(self):
         return(self.langsets)
+    
+    def getAllReadfileRegex(self):
+        ret = []
+        langs = self.getAllLangSets()
+        for k,v in langs.items():
+            readfile_regex = v.getReadfileDetectors()
+            for reg in readfile_regex:
+                ret.append((k, reg))
+        return(ret)
+    
+    def getAllSniperRegex(self):
+        ret = []
+        langs = self.getAllLangSets()
+        for k,v in langs.items():
+            readfile_regex = v.getSniper()
+            ret.append((k, readfile_regex))
+        return(ret)
+    
+    def getRelativeFiles(self, lang=None):
+        ret = []
+        for f in self.relative_files:
+            ret.append(f)
+            
+        if (lang != None):
+            for f in self.langsets[lang].getRelativeFiles():
+                ret.append(f)
+        return(ret)
+    
+        
+    def getAbsoluteFiles(self, lang=None):
+        ret = []
+        for f in self.absolute_files:
+            ret.append(f)
+            
+        if (lang != None):
+            for f in self.langsets[lang].getAbsoluteFiles():
+                ret.append(f)
+        return(ret)
+    
+        
+    def getLogFiles(self, lang=None):
+        ret = []
+        for f in self.log_files:
+            ret.append(f)
+            
+        if (lang != None):
+            for f in self.langsets[lang].getLogFiles():
+                ret.append(f)
+        return(ret)
+    
+        
+    def getRemoteFiles(self, lang=None):
+        ret = []
+        for f in self.remote_files:
+            ret.append(f)
+            
+        if (lang != None):
+            for f in self.langsets[lang].getRemoteFiles():
+                ret.append(f)
+        return(ret)
     
 class baseLanguage(baseTools):
     
@@ -109,6 +206,12 @@ class baseLanguage(baseTools):
     
     def getSniper(self):
         return(self.sniper_regex)
+    
+    def getExecMethods(self):
+        return(self.exec_methods)
+    
+    def getPayloads(self):
+        return(self.payloads)
     
     def getRelativeFiles(self):
         return(self.relative_files)
@@ -184,9 +287,9 @@ class baseLanguage(baseTools):
             
         
         readfile_patterns = getXMLNode(detectors_node, "readfile_patterns")
-        pattern_nodes =  getXMLNodes(include_patterns, "pattern")
+        pattern_nodes =  getXMLNodes(readfile_patterns, "pattern")
         for f in pattern_nodes:
-            self.detector_readfile.append(f.getAttribute("regex"))
+            self.detector_readfile.append(str(f.getAttribute("regex")))
         
 class fiPayload(baseTools):
     def __init__(self, xmlPayload, config):

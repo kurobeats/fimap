@@ -21,13 +21,7 @@
 	</log_files>
 	
 	<methods>
-		<shellquiz>
-			<line>rnd1 = random.randrange(10, 99)</line>
-        	<line>rnd2 = random.randrange(10, 99)</line>
-        	<line>result = str(rnd1 * rnd2)</line>
-        	<line>shellcode = "echo $((%d*%d))"%(rnd1, rnd2)</line>
-        	<line>ret = (shellcode, result)</line>
-		</shellquiz>
+		<shellquiz source="cm5kMSA9IHJhbmRvbS5yYW5kcmFuZ2UoMTAsIDk5KQpybmQyID0gcmFuZG9tLnJhbmRyYW5nZSgxMCwgOTkpCnJlc3VsdCA9IHN0cihybmQxICogcm5kMikKc2hlbGxjb2RlID0gImVjaG8gJCgoJWQqJWQpKSIlKHJuZDEsIHJuZDIpCnJldCA9IChzaGVsbGNvZGUsIHJlc3VsdCk=" />
 	</methods>
 	
 	
