@@ -391,6 +391,7 @@ class targetScanner (baseClass.baseClass):
                 self._log("Unknown language - Autodetecting...", self.LOG_WARN)
                 if (rep.autoDetectLanguage(xml2config.getAllLangSets())):
                     self._log("Autodetect thinks this could be a %s-Script..."%(rep.getLanguage()), self.LOG_INFO)
+                    self._log("If you think this is wrong start fimap with --no-auto-detect", self.LOG_INFO)
                     langClass = xml2config.getAllLangSets()[rep.getLanguage()]
                 else:
                     self._log("Autodetect failed!", self.LOG_ERROR)
