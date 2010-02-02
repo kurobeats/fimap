@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fimap language="generic" definition="0">
+	<relative_files>
+		<file path="/etc/passwd" find="root:" flags="r"/>
+		<file path="/proc/self/environ" find="HTTP_USER_AGENT=" flags="rxA"/>
+	</relative_files>
+	
+	<absolute_files>
+	</absolute_files>
+	
+	<remote_files>
+	</remote_files>
+	
+	<log_files>
+		<file path="/var/log/apache2/access.log" find='"GET /' flags="LHx" />
+		<file path="/var/log/apache/access.log" find='"GET /' flags="LHx" />
+		<file path="/var/log/httpd/access.log" find='"GET /' flags="LHx" />
+		<file path="/var/log/apache2/access_log" find='"GET /' flags="LHx" />
+		<file path="/var/log/apache/access_log" find='"GET /' flags="LHx" />
+		<file path="/var/log/httpd/access_log" find='"GET /' flags="LHx" />
+	</log_files>
+	
+	<methods>
+		<shellquiz>
+			<line>rnd1 = random.randrange(10, 99)</line>
+        	<line>rnd2 = random.randrange(10, 99)</line>
+        	<line>result = str(rnd1 * rnd2)</line>
+        	<line>shellcode = "echo $((%d*%d))"%(rnd1, rnd2)</line>
+        	<line>ret = (shellcode, result)</line>
+		</shellquiz>
+	</methods>
+	
+	
+	<languagesets>
+		<language name="PHP" langfile="php.xml" /> 
+	</languagesets>
+</fimap>
