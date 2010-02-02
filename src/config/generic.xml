@@ -20,6 +20,10 @@
 		<file path="/var/log/httpd/access_log" find='"GET /' flags="LHx" />
 	</log_files>
 	
+	<blind_files>
+		<file path="/etc/passwd" find="root:" flags="r"/>
+	</blind_files>
+	
 	<methods>
 		<shellquiz source="cm5kMSA9IHJhbmRvbS5yYW5kcmFuZ2UoMTAsIDk5KQpybmQyID0gcmFuZG9tLnJhbmRyYW5nZSgxMCwgOTkpCnJlc3VsdCA9IHN0cihybmQxICogcm5kMikKc2hlbGxjb2RlID0gImVjaG8gJCgoJWQqJWQpKSIlKHJuZDEsIHJuZDIpCnJldCA9IChzaGVsbGNvZGUsIHJlc3VsdCk=" />
 	</methods>

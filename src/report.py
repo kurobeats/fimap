@@ -48,6 +48,9 @@ class report:
         
     def getLanguage(self):
         return(self.language)
+    
+    def isLanguageSet(self):
+        return(self.language != None)
 
     def setPostData(self, p):
         self.PostData = p
@@ -181,3 +184,11 @@ class report:
         url = url[url.find("/"):]
         return(url)
 
+    def autoDetectLanguage(self, languageSets):
+        for Name, langClass in languageSets.items():
+            exts = langClass.getExtentions()
+            for ext in exts:
+                if (self.URL.find(ext) != -1):
+                    self.setLanguage(Name)
+                    return(True)
+        return(False)

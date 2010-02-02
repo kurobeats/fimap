@@ -74,6 +74,9 @@ def show_help(AndQuit=False):
     print "   -P , --post=POSTDATA          The POSTDATA you want to send. All variables inside"
     print "                                 will also be scanned for file inclusion bugs."
     print "        --ttl=SECONDS            Define the TTL (in seconds) for requests. Default is 30 seconds."
+    print "        --no-auto-detect         Use this switch if you don't want to let fimap automaticly detect"
+    print "                                 the target language in blind-mode. In that case you will get some"
+    print "                                 options you can choose if fimap isn't sure which lang it is."
     print "## Attack Kit:"
     print "   -x , --exploit                Starts an interactive session where you can"
     print "                                 select an target and do some action."
@@ -178,6 +181,7 @@ if __name__ == "__main__":
     config["p_proxy"] = None
     config["p_ttl"] = 30
     config["p_post"] = ""
+    config["p_autolang"] = True
     doRFITest = False
     doInternetInfo = False
 
@@ -190,7 +194,7 @@ if __name__ == "__main__":
         longSwitches = ["url="          , "mass"        , "single"      , "list="       , "verbose="        , "help",
                         "user-agent="   , "query="      , "google"      , "pages="      , "credits"         , "exploit",
                         "harvest"       , "write="      , "depth="      , "greetings"   , "test-rfi"        , "skip-pages=",
-                        "show-my-ip"    , "enable-blind", "http-proxy=" , "ttl="        , "post="]
+                        "show-my-ip"    , "enable-blind", "http-proxy=" , "ttl="        , "post="           , "no-auto-detect"]
         optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:", longSwitches)
 
         startExploiter = False
@@ -242,6 +246,8 @@ if __name__ == "__main__":
                 startExploiter = True
             if (k in ("-P", "--post")):
                 config["p_post"] = v
+            if (k in ("--no-auto-detect", )):
+                config["p_autolang"] = False
             #if (k in("-f", "--exploit-filter")):
             #    config["p_exploit_filter"] = v
 

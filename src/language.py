@@ -48,6 +48,7 @@ class XML2Config(baseClass):
         self.absolute_files = []
         self.remote_files   = []
         self.log_files      = []
+        self.blind_files    = []
     
         self.shellquiz_code = None
     
@@ -81,6 +82,11 @@ class XML2Config(baseClass):
             for f in log_files:
                 self.log_files.append(fiFile(f, self.config))
             
+            
+            blind_node = getXMLNode(self.XML_Rootitem, "blind_files")
+            blind_files = getXMLNodes(blind_node, "file")
+            for f in blind_files:
+                self.blind_files.append(fiFile(f, self.config))
             
             methods_node = getXMLNode(self.XML_Rootitem, "methods")
             quiz_node = getXMLNode(methods_node, "shellquiz")
@@ -169,6 +175,13 @@ class XML2Config(baseClass):
                 ret.append(f)
         return(ret)
     
+    def getBlindFiles(self):
+        ret = []
+        for f in self.blind_files:
+            ret.append(f)
+           
+        return(ret)
+    
 class baseLanguage(baseTools):
     
     def __init__(self, langname, langfile, config):
@@ -200,8 +213,9 @@ class baseLanguage(baseTools):
         
         self.quiz_function  = None
         
-        self.detector_include  = []
-        self.detector_readfile = [] 
+        self.detector_include    = []
+        self.detector_readfile   = []
+        self.detector_extentions = [] 
     
         self.__populate()
     
@@ -240,6 +254,9 @@ class baseLanguage(baseTools):
     
     def getReadfileDetectors(self):
         return(self.detector_readfile)
+    
+    def getExtentions(self):
+        return(self.detector_extentions)
     
     def getQuizSource(self):
         return(self.quiz_function)
@@ -335,6 +352,13 @@ class baseLanguage(baseTools):
             self._log("XML-LD has no readfile patterns defined!", self.LOG_DEBUG)
             self._log("  No readfile bugs can be scanned if this is not defined.", self.LOG_DEBUG)
 
+        extentions = getXMLNode(detectors_node, "extentions")
+        extention_nodes =  getXMLNodes(extentions, "extention")
+        for f in extention_nodes:
+            self.detector_extentions.append(str(f.getAttribute("ext")))
+        if (len(self.detector_readfile) == 0):
+            self._log("XML-LD has no extentions defined!", self.LOG_DEBUG)
+        
 
 class fiPayload(baseTools):
     def __init__(self, xmlPayload, config, ParentName):
