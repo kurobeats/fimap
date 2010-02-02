@@ -268,7 +268,7 @@ class baseLanguage(baseTools):
         payloads = getXMLNode(self.XML_Rootitem, "payloads")
         payload_nodes = getXMLNodes(payloads, "payload")
         for f in payload_nodes:
-            self.payloads.append(fiPayload(f, self.config))
+            self.payloads.append(fiPayload(f, self.config, self.getName()))
         
         
         self.sniper_regex = getXMLNode(self.XML_Rootitem, "snipe").getAttribute("regex")
@@ -292,14 +292,22 @@ class baseLanguage(baseTools):
             self.detector_readfile.append(str(f.getAttribute("regex")))
         
 class fiPayload(baseTools):
-    def __init__(self, xmlPayload, config):
+    def __init__(self, xmlPayload, config, ParentName):
         self.initLog(config)
         self.name = xmlPayload.getAttribute("name")
         self.doBase64 = (xmlPayload.getAttribute("dobase64") == "1")
+        self.inshell  = (xmlPayload.getAttribute("inshell") == "1")
         self.inputlist = getXMLNodes(xmlPayload, "input")
         self.source = getXMLNode(xmlPayload, "code").getAttribute("source")
+        self.ParentName = ParentName
         self._log("fimap PayloadObject loaded: %s" %(self.name), self.LOG_DEVEL)
-        
+
+    def getParentName(self):
+        return(self.ParentName)
+    
+    def doInShell(self):
+        return(self.inshell)
+    
     def getName(self):
         return(self.name)
     
@@ -316,7 +324,7 @@ class fiPayload(baseTools):
                 inp = raw_input(question)
                 if (self.doBase64):
                     inp = base64.b64encode(inp)
-                ret = self.source.replace(placeholder, inp)
+                ret = ret.replace(placeholder, inp)
             elif (type_ == "info"):
                 info = q.getAttribute("text")
                 print info

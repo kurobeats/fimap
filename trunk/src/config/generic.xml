@@ -27,5 +27,6 @@
 	
 	<languagesets>
 		<language name="PHP" langfile="php.xml" /> 
+		<language name="Perl" langfile="perl.xml" />
 	</languagesets>
 </fimap>
