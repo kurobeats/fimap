@@ -174,6 +174,8 @@ class targetScanner (baseClass.baseClass):
     def testTargetVuln(self):
         ret = []
 
+        xml2config = self.config["XML2CONFIG"]
+
         self._log("Fiddling around with URL...", self.LOG_INFO)
 
         for k,v in self.params.items():
@@ -185,9 +187,12 @@ class targetScanner (baseClass.baseClass):
 
         if (len(ret) == 0 and self.MonkeyTechnique):
             self._log("No bug found by relying on error messages. Trying to break it blindly...", self.LOG_DEBUG)
-            files = settings["blind"]["files"]
-            for f,v,p in files:
-                for i in range(settings["blind"]["minlevel"], settings["blind"]["maxlevel"]):
+            files = xml2config.getBlindFiles()
+            for fileobj in files:
+                post = fileobj.getPostData()
+                v    = fileobj.getFindStr()
+                f    = fileobj.getFilepath()
+                for i in range(xml2config.getBlindMin(), xml2config.getBlindMax()):
                     doBreak = False
                     testfile = f
                     if (i > 0):
