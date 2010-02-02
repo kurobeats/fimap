@@ -26,6 +26,7 @@
 	
 	<methods>
 		<shellquiz source="cm5kMSA9IHJhbmRvbS5yYW5kcmFuZ2UoMTAsIDk5KQpybmQyID0gcmFuZG9tLnJhbmRyYW5nZSgxMCwgOTkpCnJlc3VsdCA9IHN0cihybmQxICogcm5kMikKc2hlbGxjb2RlID0gImVjaG8gJCgoJWQqJWQpKSIlKHJuZDEsIHJuZDIpCnJldCA9IChzaGVsbGNvZGUsIHJlc3VsdCk=" />
+		<kernelversion source="uname -r -s" />
 	</methods>
 	
 	
