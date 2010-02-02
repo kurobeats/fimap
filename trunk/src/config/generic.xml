@@ -20,7 +20,7 @@
 		<file path="/var/log/httpd/access_log" find='"GET /' flags="LHx" />
 	</log_files>
 	
-	<blind_files>
+	<blind_files mindepth="0" maxdepth="15">
 		<file path="/etc/passwd" find="root:" flags="r"/>
 	</blind_files>
 	

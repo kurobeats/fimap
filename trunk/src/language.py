@@ -49,6 +49,8 @@ class XML2Config(baseClass):
         self.remote_files   = []
         self.log_files      = []
         self.blind_files    = []
+        self.blind_min      = 0
+        self.blind_max      = 0
     
         self.shellquiz_code = None
     
@@ -84,6 +86,29 @@ class XML2Config(baseClass):
             
             
             blind_node = getXMLNode(self.XML_Rootitem, "blind_files")
+            mindepth = blind_node.getAttribute("mindepth")
+            maxdepth = blind_node.getAttribute("maxdepth")
+            try:
+                mindepth = int(mindepth)
+                maxdepth = int(maxdepth)
+            except:
+                print "Mindepth and Maxdepth for blindmode have non-integer values!"
+                print "Fix it in the generic.xml!"
+                print "Committing suicide..."
+                sys.exit(1)
+                
+            if (mindepth > maxdepth):
+                print "Logic isn't your best friend eh?"
+                print "The mindepth value is greater than the maxdepth value!"
+                print "Fix that in the generic.xml!"
+                print "Committing suicide..."
+                sys.exit(1)
+                
+            self._log("Mindepth (%d) and Maxdepth (%d) loaded from generic.xml."%(mindepth, maxdepth), self.LOG_DEBUG)
+            self.blind_min = mindepth
+            self.blind_max = maxdepth
+            
+            
             blind_files = getXMLNodes(blind_node, "file")
             for f in blind_files:
                 self.blind_files.append(fiFile(f, self.config))
@@ -181,6 +206,12 @@ class XML2Config(baseClass):
             ret.append(f)
            
         return(ret)
+    
+    def getBlindMax(self):
+        return(self.blind_max)
+    
+    def getBlindMin(self):
+        return(self.blind_min)
     
 class baseLanguage(baseTools):
     

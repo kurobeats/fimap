@@ -52,17 +52,4 @@ settings["dynamic_rfi"]["local"]["http_map"]   = None   # The http url of the fi
                                                         # if you are using this tool you already know it ;)
 
 
-# Blindmode settings. Only used if you enable blind scanning.
-settings["blind"] = {}
-settings["blind"]["minlevel"] = 0             # How many ../ are the minimum count to test?
-settings["blind"]["maxlevel"] = 15            # How many ../ are the maximum count to test?
-# Define here the files which should be tested in blindmode.
-# NOTE: This files are NOT the ones you use to inject code. The files here are ONLY used
-#       to find out the directory count. Or in other words, this files here are used to find
-#       out how many ../ are needed. In best case you should define here files which
-#       exists on every unix machine and are readable by every user. No need to be injectable.
-# The files here should be all absolute. No need to add Null-Bytes. fimap will it do automaticly.
-settings["blind"]["files"] = (
-                                ("/etc/passwd", "root:", None),
-                             )
 
