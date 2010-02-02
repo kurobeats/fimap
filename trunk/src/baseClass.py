@@ -114,29 +114,8 @@ class baseClass (object):
     def _writeToLog(self, txt):
         self.__logfile.write("%s\n" %(txt))
 
-    def drawBox(self, header, textarray):
-        maxLen = self.__getLongestLine(textarray, header) + 5
-        headspacelen = (maxLen/2 - len(header)/2)
-        print "#"* (maxLen+1)
-        self.__printBoxLine(header, maxLen)
-        print "#"* (maxLen+1)
-        
-        for ln in textarray:
-            self.__printBoxLine(ln, maxLen)
-
-        print "#"* (maxLen+1)
-
-    def __printBoxLine(self, txt, maxlen):
-        suffix = " " * (maxlen - len(txt)-1)
-        print "#" + txt + suffix + "#"
-
-    def __getLongestLine(self, textarray, header):
-        maxLen = len(header)
-        for ln in textarray:
-            if (len(ln) > maxLen):
-                maxLen = len(ln)
-        return(maxLen)
-
+    def drawBox(self, boxheader, boxarr):
+        self.tools.drawBox(boxheader, boxarr)
 
     def addXMLLog(self, rep, t, f):
         if (not self.existsXMLEntry(rep.getDomain(), f, rep.getPath())):

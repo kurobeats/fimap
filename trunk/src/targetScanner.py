@@ -301,8 +301,7 @@ class targetScanner (baseClass.baseClass):
                 return(None)
 
 
-            errmsg = code[m.start(): m.end()]
-            errmsg = errmsg[errmsg.find("'")+1:errmsg.rfind("'")]
+            errmsg = m.group("incname")
 
             if (errmsg == rndStr):
                 r.setPrefix("")

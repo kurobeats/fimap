@@ -97,7 +97,9 @@ class XML2Config(baseClass):
             if (c.nodeName == "language"):
                 langname = c.getAttribute("name")
                 langfile = c.getAttribute("langfile")
-                self.langsets[langname] = baseLanguage(langname, langfile, self.config)
+                langClass = baseLanguage(langname, langfile, self.config)
+                self.langsets[langname] = langClass
+                self._log("Loaded XML-LD for '%s' at revision %d by %s" %(langname, langClass.getRevision(), langClass.getAutor()), self.LOG_DEBUG)
     
     def generateShellQuiz(self):
         ret = None
@@ -170,7 +172,7 @@ class XML2Config(baseClass):
 class baseLanguage(baseTools):
     
     def __init__(self, langname, langfile, config):
-        baseTools.config = config
+        self.initLog(config)
         langfile = os.path.join(sys.path[0], "config", langfile)
         self.XML_Langfile = None
         self.XML_Rootitem = None
@@ -183,6 +185,8 @@ class baseLanguage(baseTools):
             sys.exit(1)
         
         self.LanguageName = langname
+        self.XMLRevision  = None
+        self.XMLAutor     = None
         
         self.relative_files = []
         self.absolute_files = []
@@ -203,6 +207,12 @@ class baseLanguage(baseTools):
     
     def getName(self):
         return(self.LanguageName)
+    
+    def getRevision(self):
+        return(self.XMLRevision)
+    
+    def getAutor(self):
+        return(self.XMLAutor)
     
     def getSniper(self):
         return(self.sniper_regex)
@@ -236,10 +246,22 @@ class baseLanguage(baseTools):
     
     def generateQuiz(self):
         ret = None
-        exec(self.quiz_function)
+        try:
+            exec(self.quiz_function)
+        except:
+            boxarr = []
+            boxheader = "[!!!] BAAAAAAAAAAAAAAAANG - Welcome back to reality [!!!]"
+            boxarr.append("The quiz function defined in one of the XML-Language-Definition files")
+            boxarr.append("just failed! If you are coding your own XML then fix that!")
+            boxarr.append("If not please report this bug at http://fimap.googlecode.com (!) Thanks!")
+            self.drawBox(boxheader, boxarr)
+            raise
         return(ret)
     
     def __populate(self):
+        self.XMLRevision = int(self.XML_Rootitem.getAttribute("revision"))
+        self.XMLAutor    = self.XML_Rootitem.getAttribute("autor")
+        
         rel_node = getXMLNode(self.XML_Rootitem, "relative_files")
         rel_files = getXMLNodes(rel_node, "file")
         for f in rel_files:
@@ -264,33 +286,56 @@ class baseLanguage(baseTools):
         exec_nodes = getXMLNodes(exec_methods, "exec")
         for f in exec_nodes:
             self.exec_methods.append(fiExecMethod(f, self.config))
-            
+        if (len(self.exec_methods) == 0):
+            self._log("XML-LD has no exec-method(s) defined!", self.LOG_ERROR)
+            self._log("  This XML-LD can't be used to go into exploit mode!", self.LOG_ERROR)
+        
+         
         payloads = getXMLNode(self.XML_Rootitem, "payloads")
         payload_nodes = getXMLNodes(payloads, "payload")
         for f in payload_nodes:
             self.payloads.append(fiPayload(f, self.config, self.getName()))
-        
+        if (len(self.payloads) == 0):
+            self._log("XML-LD has no payload(s) defined!", self.LOG_DEBUG)
         
         self.sniper_regex = getXMLNode(self.XML_Rootitem, "snipe").getAttribute("regex")
+        if (self.sniper_regex == None or self.sniper_regex.strip() == ""):
+            self._log("XML-LD has no sniper regex! So this XML-LD can only be used in blind-mode!", self.LOG_WARN)
         
         methods_node = getXMLNode(self.XML_Rootitem, "methods")
         quiz_node = getXMLNode(methods_node, "quiz")
-        quiz_code = base64.b64decode(quiz_node.getAttribute("source"))
-        
-        self.quiz_function = quiz_code
+        if (quiz_node == None):
+            self._log("FATAL! XML-Language-Definition (%s) has no quiz function defined!"%(self.getName()), self.LOG_ERROR)
+            self._log("Please fix that in order to run fimap without problems!", self.LOG_ERROR)
+            self._log("Committing suicide :-O", self.LOG_ERROR)
+            sys.exit(1)
+        else:
+            quiz_code = base64.b64decode(quiz_node.getAttribute("source"))
+            if (quiz_code == None or quiz_code.strip() == ""):
+                self._log("FATAL! XML-Language-Definition (%s) has no quiz function defined!"%(self.getName()), self.LOG_ERROR)
+                self._log("Please fix that in order to run fimap without problems!", self.LOG_ERROR)
+                self._log("Committing suicide :-O", self.LOG_ERROR)
+                sys.exit(1)
+            self.quiz_function = quiz_code
         
         detectors_node = getXMLNode(self.XML_Rootitem, "detectors")
         include_patterns = getXMLNode(detectors_node, "include_patterns")
         pattern_nodes =  getXMLNodes(include_patterns, "pattern")
         for f in pattern_nodes:
             self.detector_include.append(f.getAttribute("regex"))
-            
+        if (len(self.detector_include) == 0):
+            self._log("XML-LD has no include patterns defined!", self.LOG_WARN)
+            self._log("  Only blindmode will work because they are used to retrieve informations out of the error message!", self.LOG_DEBUG)
         
         readfile_patterns = getXMLNode(detectors_node, "readfile_patterns")
         pattern_nodes =  getXMLNodes(readfile_patterns, "pattern")
         for f in pattern_nodes:
             self.detector_readfile.append(str(f.getAttribute("regex")))
-        
+        if (len(self.detector_readfile) == 0):
+            self._log("XML-LD has no readfile patterns defined!", self.LOG_DEBUG)
+            self._log("  No readfile bugs can be scanned if this is not defined.", self.LOG_DEBUG)
+
+
 class fiPayload(baseTools):
     def __init__(self, xmlPayload, config, ParentName):
         self.initLog(config)
