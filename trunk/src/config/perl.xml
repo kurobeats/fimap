@@ -34,5 +34,10 @@
 		
 		<readfile_patterns>
 		</readfile_patterns>
+		
+		<extentions>
+			<extention ext=".cgi"/>
+			<extention ext=".pl"/>
+		</extentions>
 	</detectors>
 </fimap>

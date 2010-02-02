@@ -60,5 +60,13 @@
 			<pattern regex="&lt;b&gt;Warning&lt;/b&gt;:  highlight_file(.*?%s.*?)*" />
 			<pattern regex="&lt;b&gt;Warning&lt;/b&gt;:  show_source(.*?%s.*?)*" />
 		</readfile_patterns>
+		
+		<extentions>
+			<extention ext=".php" />
+			<extention ext=".php3" />
+			<extention ext=".php4" />
+			<extention ext=".php5" />
+			<extention ext=".phtml" />
+		</extentions>
 	</detectors>
 </fimap>

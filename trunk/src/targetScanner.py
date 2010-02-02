@@ -378,7 +378,48 @@ class targetScanner (baseClass.baseClass):
 
     def readFiles(self, rep):
         xml2config = self.config["XML2CONFIG"]
-        langClass = xml2config.getAllLangSets()[rep.getLanguage()]
+        langClass = None
+        if rep.isLanguageSet():
+            langClass = xml2config.getAllLangSets()[rep.getLanguage()]
+        else:
+            if (self.config["p_autolang"]):
+                self._log("Unknown language - Autodetecting...", self.LOG_WARN)
+                if (rep.autoDetectLanguage(xml2config.getAllLangSets())):
+                    self._log("Autodetect thinks this could be a %s-Script..."%(rep.getLanguage()), self.LOG_INFO)
+                    langClass = xml2config.getAllLangSets()[rep.getLanguage()]
+                else:
+                    self._log("Autodetect failed!", self.LOG_ERROR)
+                    return([])
+            else:
+                self._log("Unknown language! You have told me to let you choose - here we go.", self.LOG_WARN)
+                boxheader = "Choose language for URL: %s" %(rep.getURL())
+                boxarr = []
+                choose = []
+                idx = 0
+                for Name, langClass in xml2config.getAllLangSets().items():
+                    boxarr.append("[%d] %s"%(idx+1, Name))
+                    choose.append(Name)
+                    idx += 1
+                boxarr.append("[q] Quit")
+                self.drawBox(boxheader, boxarr)
+                inp = ""
+                while (1==1):
+                    inp = raw_input("Script number: ")
+                    if (inp == "q" or inp == "Q"):
+                        return([])
+                    else:
+                        try:
+                            idx = int(inp)
+                            if (idx < 1 or idx > len(choose)):
+                                print "Choose out of range..."
+                            else:
+                                rep.setLanguage(choose[idx-1])
+                                langClass = xml2config.getAllLangSets()[rep.getLanguage()]
+                                break
+                        except:
+                            print "Invalid Number!"
+        
+        
         
         files     = xml2config.getRelativeFiles(rep.getLanguage())
         abs_files = xml2config.getAbsoluteFiles(rep.getLanguage())
