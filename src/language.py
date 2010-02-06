@@ -131,7 +131,7 @@ class XML2Config(baseClass):
             self.shellquiz_code = base64.b64decode(quiz_node.getAttribute("source"))
             
             kernel_node = getXMLNode(methods_node, "kernelversion")
-            self.kernelversion_code = kernel_node.getAttribute("source")
+            self.kernelversion_code = str(kernel_node.getAttribute("source"))
             
             self.__loadLanguageSets()
         else:
@@ -142,8 +142,8 @@ class XML2Config(baseClass):
         langnodes = getXMLNode(self.XML_Rootitem, "languagesets")
         for c in langnodes.childNodes:
             if (c.nodeName == "language"):
-                langname = c.getAttribute("name")
-                langfile = c.getAttribute("langfile")
+                langname = str(c.getAttribute("name"))
+                langfile = str(c.getAttribute("langfile"))
                 langClass = baseLanguage(langname, langfile, self.config)
                 self.langsets[langname] = langClass
                 self._log("Loaded XML-LD for '%s' at revision %d by %s" %(langname, langClass.getRevision(), langClass.getAutor()), self.LOG_DEBUG)
@@ -380,7 +380,7 @@ class baseLanguage(baseTools):
         if (len(self.payloads) == 0):
             self._log("XML-LD has no payload(s) defined!", self.LOG_DEBUG)
         
-        self.sniper_regex = getXMLNode(self.XML_Rootitem, "snipe").getAttribute("regex")
+        self.sniper_regex = str(getXMLNode(self.XML_Rootitem, "snipe").getAttribute("regex"))
         if (self.sniper_regex == None or self.sniper_regex.strip() == ""):
             self._log("XML-LD has no sniper regex! So this XML-LD can only be used in blind-mode!", self.LOG_WARN)
         
@@ -398,7 +398,7 @@ class baseLanguage(baseTools):
                 self._log("Please fix that in order to run fimap without problems!", self.LOG_ERROR)
                 self._log("Committing suicide :-O", self.LOG_ERROR)
                 sys.exit(1)
-            self.quiz_function = quiz_code
+            self.quiz_function = str(quiz_code)
         
         print_node = getXMLNode(methods_node, "print")
         if (print_node == None):
@@ -413,7 +413,7 @@ class baseLanguage(baseTools):
                 self._log("Please fix that in order to run fimap without problems!", self.LOG_ERROR)
                 self._log("Committing suicide :-O", self.LOG_ERROR)
                 sys.exit(1)
-            self.print_function = print_code
+            self.print_function = str(print_code)
         
         eval_node = getXMLNode(methods_node, "eval_kickstarter")
         if (eval_node == None):
@@ -424,13 +424,13 @@ class baseLanguage(baseTools):
             if (eval_code == None or eval_code.strip() == ""):
                 self._log("XML-LD (%s) has no eval_kickstarter method defined."%(self.getName()), self.LOG_DEBUG)
                 self._log("Language will not be able to use logfile-injection."%(self.getName()), self.LOG_DEBUG)
-            self.eval_kickstarter = eval_code
+            self.eval_kickstarter = str(eval_code)
         
         detectors_node = getXMLNode(self.XML_Rootitem, "detectors")
         include_patterns = getXMLNode(detectors_node, "include_patterns")
         pattern_nodes =  getXMLNodes(include_patterns, "pattern")
         for f in pattern_nodes:
-            self.detector_include.append(f.getAttribute("regex"))
+            self.detector_include.append(str(f.getAttribute("regex")))
         if (len(self.detector_include) == 0):
             self._log("XML-LD has no include patterns defined!", self.LOG_WARN)
             self._log("  Only blindmode will work because they are used to retrieve informations out of the error message!", self.LOG_DEBUG)
@@ -458,7 +458,7 @@ class fiPayload(baseTools):
         self.doBase64 = (xmlPayload.getAttribute("dobase64") == "1")
         self.inshell  = (xmlPayload.getAttribute("inshell") == "1")
         self.inputlist = getXMLNodes(xmlPayload, "input")
-        self.source = getXMLNode(xmlPayload, "code").getAttribute("source")
+        self.source = str(getXMLNode(xmlPayload, "code").getAttribute("source"))
         self.ParentName = ParentName
         self._log("fimap PayloadObject loaded: %s" %(self.name), self.LOG_DEVEL)
 
@@ -516,10 +516,10 @@ class fiExecMethod(baseTools):
 class fiFile(baseTools):
     def __init__(self, xmlFile, config):
         self.initLog(config)
-        self.filepath = xmlFile.getAttribute("path")
-        self.postdata = xmlFile.getAttribute("post")
-        self.findstr  = xmlFile.getAttribute("find")
-        self.flags    = xmlFile.getAttribute("flags")
+        self.filepath = str(xmlFile.getAttribute("path"))
+        self.postdata = str(xmlFile.getAttribute("post"))
+        self.findstr  = str(xmlFile.getAttribute("find"))
+        self.flags    = str(xmlFile.getAttribute("flags"))
         self._log("fimap FileObject loaded: %s" %(self.filepath), self.LOG_DEVEL)
         
     def getFilepath(self):
