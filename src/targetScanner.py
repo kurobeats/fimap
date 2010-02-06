@@ -88,9 +88,9 @@ class targetScanner (baseClass.baseClass):
                 m = RE_SUCCESS_MSG.search(code)
                 if (m != None):
                     if (not isPost):
-                        self._log("Possible local file disclosure found! -> '%s' with Parameter '%s'. (%s)"%(tmpurl, k), self.LOG_ALWAYS, lang)
+                        self._log("Possible local file disclosure found! -> '%s' with Parameter '%s'. (%s)"%(tmpurl, k, lang), self.LOG_ALWAYS)
                     else:
-                        self._log("Possible local file disclosure found! -> '%s' with POST-Parameter '%s'. (%s)"%(tmpurl, k), self.LOG_ALWAYS, lang)
+                        self._log("Possible local file disclosure found! -> '%s' with POST-Parameter '%s'. (%s)"%(tmpurl, k, lang), self.LOG_ALWAYS)
                     #self.identifyReadFile(URL, Params, VulnParam)
                     self._writeToLog("READ ; %s ; %s"%(tmpurl, k))
                     disclosure_found = True
