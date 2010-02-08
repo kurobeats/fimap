@@ -70,3 +70,6 @@ But if you have a great patch ready and you think that I *have* to add it hardly
 == Is there a way to contact you? ==
   * E-Mail: `fimap.dev@gmail.com`
   * Jabber: `VanUber@jabber.ccc.de`
+----
+== Where do you come from? ==
+Europe.
