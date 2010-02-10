@@ -118,7 +118,7 @@ class targetScanner (baseClass.baseClass):
                             result.append((rep, self.readFiles(rep)))
         return(result)
 
-    def analyzeURLblindly(self, i, testfile, k, v, post=None, isPost=False):
+    def analyzeURLblindly(self, i, testfile, k, v, find, post=None, isPost=False):
         tmpurl = self.Target_URL
         tmppost = post
         rep = None
@@ -136,7 +136,7 @@ class targetScanner (baseClass.baseClass):
             self._log("Requesting: '%s' with POST('%s')..." %(tmpurl, tmppost), self.LOG_DEBUG)
         code = self.doPostRequest(tmpurl, tmppost)
         if (code != None):
-            if (code.find(v) != -1):
+            if (code.find(find) != -1):
                 self._log("Possible file inclusion found blindly! -> '%s' with Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
                 doBreak = True
                 if (not isPost):
@@ -158,7 +158,7 @@ class targetScanner (baseClass.baseClass):
                     self._log("Requesting: '%s' with POST('%s')..." %(tmpurl, postdata), self.LOG_DEBUG)
                 
                 code = self.doPostRequest(tmpurl, postdata)
-                if (code.find(v) != -1):
+                if (code.find(find) != -1):
                     if (not isPost):
                         self._log("Possible file inclusion found blindly! -> '%s' with Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
                     else:
@@ -186,7 +186,7 @@ class targetScanner (baseClass.baseClass):
                 
 
         if (len(ret) == 0 and self.MonkeyTechnique):
-            self._log("No bug found by relying on error messages. Trying to break it blindly...", self.LOG_DEBUG)
+            self._log("Sniper failed. Going blind...", self.LOG_INFO)
             files = xml2config.getBlindFiles()
             for fileobj in files:
                 post = fileobj.getPostData()
@@ -199,13 +199,13 @@ class targetScanner (baseClass.baseClass):
                         testfile = "/.." * i + f
                     rep = None
                     for k,V in self.params.items():
-                        rep, doBreak = self.analyzeURLblindly(i, testfile, k, V, self.config["p_post"], False)
+                        rep, doBreak = self.analyzeURLblindly(i, testfile, k, V, v, self.config["p_post"], False)
                         if (rep != None):
                             rep.setVulnKeyVal(V)
                             rep.setPostData(self.config["p_post"])
                             ret.append((rep, self.readFiles(rep)))
                     for k,V in self.postparams.items():
-                        rep, doBreak = self.analyzeURLblindly(i, testfile, k, V, self.config["p_post"], True)
+                        rep, doBreak = self.analyzeURLblindly(i, testfile, k, V, v, self.config["p_post"], True)
                         if (rep != None):
                             rep.setVulnKeyVal(V)
                             rep.setPostData(self.config["p_post"])

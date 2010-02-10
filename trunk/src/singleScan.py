@@ -20,7 +20,7 @@
 
 from baseClass import baseClass
 from targetScanner import targetScanner
-import sys
+import sys, time
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$03.09.2009 01:29:37$"
@@ -100,8 +100,15 @@ class singleScan(baseClass):
                                 fidx = fidx +1
                         self.drawBox(header, boxarr)
         except KeyboardInterrupt:
-            raise
-
+            if (self.quite): # We are in google mode.
+                print "\nCancelled current target..."
+                print "Press CTRL+C again in the next second to terminate fimap."
+                try:
+                    time.sleep(1)
+                except KeyboardInterrupt:
+                    raise
+            else: # We are in single mode. Simply raise the exception.
+                raise
     def localLog(self, txt):
         if (not self.quite):
             print txt
