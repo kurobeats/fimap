@@ -55,8 +55,7 @@ class googleScan:
                 results = self.getNextPage()
                 redo = False
               except KeyboardInterrupt:
-                print "You have terminated me :("
-                sys.exit(0)
+                raise
               except Exception, err:
                 print err
                 redo = True
