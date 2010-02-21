@@ -2,7 +2,7 @@
 
 = Introduction =
 If adding a payload is not enough, you can write a exploit-mode plugin
-which can so advanced stuff on the vulnerable server.
+which can do advanced stuff on the vulnerable server.
 
 This pages here will show you how to write a plugin for fimap.
 
