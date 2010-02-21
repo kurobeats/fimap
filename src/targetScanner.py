@@ -450,11 +450,14 @@ class targetScanner (baseClass.baseClass):
                 p = p.replace("__ANSWER__", answer)
                 
             if ((rep.getSurfix() == "" or rep.isNullbytePossible() or f.endswith(rep.getSurfix()))):
-                if (self.readFile(rep, f, p, POST=post)):
-                    ret.append(f)
-                    self.addXMLLog(rep, type, f)
+                if (rep.isUnix() and fileobj.isUnix() or rep.isWindows() and fileobj.isWindows()):
+                    if (self.readFile(rep, f, p, POST=post)):
+                        ret.append(f)
+                        self.addXMLLog(rep, type, f)
+                    else:
+                        pass
                 else:
-                    pass
+                    self._log("Skipping file '%s' because it's not suitable for our OS."%f, self.LOG_DEBUG)
             else:
                 self._log("Skipping file '%s'."%f, self.LOG_INFO)
 
@@ -470,11 +473,14 @@ class targetScanner (baseClass.baseClass):
                 post = post.replace("__QUIZ__", quiz)
                 p = p.replace("__ANSWER__", answer)
             if (rep.getPrefix() == "" and(rep.getSurfix() == "" or rep.isNullbytePossible() or f.endswith(rep.getSurfix()))):
-                if (self.readFile(rep, f, p, True, POST=post)):
-                    ret.append(f)
-                    self.addXMLLog(rep, type, f)
+                if (rep.isUnix() and fileobj.isUnix() or rep.isWindows() and fileobj.isWindows()):
+                    if (self.readFile(rep, f, p, True, POST=post)):
+                        ret.append(f)
+                        self.addXMLLog(rep, type, f)
+                    else:
+                        pass
                 else:
-                    pass
+                    self._log("Skipping absolute file '%s' because it's not suitable for our OS."%f, self.LOG_DEBUG)
             else:
                 self._log("Skipping absolute file '%s'."%f, self.LOG_INFO)
 
@@ -485,11 +491,14 @@ class targetScanner (baseClass.baseClass):
             f    = fileobj.getFilepath()
             type = fileobj.getFlags()
             if ((rep.getSurfix() == "" or rep.isNullbytePossible() or f.endswith(rep.getSurfix()))):
-                if (self.readFile(rep, f, p)):
-                    ret.append(f)
-                    self.addXMLLog(rep, type, f)
+                if (rep.isUnix() and fileobj.isUnix() or rep.isWindows() and fileobj.isWindows()):
+                    if (self.readFile(rep, f, p)):
+                        ret.append(f)
+                        self.addXMLLog(rep, type, f)
+                    else:
+                        pass
                 else:
-                    pass
+                   self._log("Skipping log file '%s' because it's not suitable for our OS."%f, self.LOG_DEBUG) 
             else:
                 self._log("Skipping log file '%s'."%f, self.LOG_INFO)
 
@@ -532,13 +541,16 @@ class targetScanner (baseClass.baseClass):
                     if ((not rep.isNullbytePossible() and not rep.getSurfix() == "") and f.endswith(rep.getSurfix())):
                         f = f[:-len(rep.getSurfix())]
                         rep.setSurfix("")
-
-                    if (self.readFile(rep, f, p, True)):
-                        ret.append(f)
-                        rep.setRemoteInjectable(True)
-                        self.addXMLLog(rep, type, f)
+                    
+                    if (rep.isUnix() and fileobj.isUnix() or rep.isWindows() and fileobj.isWindows()):
+                        if (self.readFile(rep, f, p, True)):
+                            ret.append(f)
+                            rep.setRemoteInjectable(True)
+                            self.addXMLLog(rep, type, f)
+                        else:
+                            pass
                     else:
-                        pass
+                        self._log("Skipping remote file '%s' because it's not suitable for our OS."%f, self.LOG_DEBUG)
                 else:
                     self._log("Skipping remote file '%s'."%f, self.LOG_INFO)
 
