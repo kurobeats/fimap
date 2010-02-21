@@ -80,8 +80,6 @@ def show_help(AndQuit=False):
     print "## Attack Kit:"
     print "   -x , --exploit                Starts an interactive session where you can"
     print "                                 select an target and do some action."
-    #print "   -f , --exploit-filter=GREP    You can define a grep-like filter for your"
-    #print "                                 exploit mode (-x)."
     print "## Disguise Kit:"
     print "   -A , --user-agent=UA          The User-Agent which should be sent."
     print "        --http-proxy=PROXY       Setup your proxy with this option. But read this facts:"

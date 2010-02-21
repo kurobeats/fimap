@@ -255,7 +255,7 @@ class targetScanner (baseClass.baseClass):
             r = report(URL, Params, VulnParam)
             r.setPost(isPost)
             r.setPostData(PostData)
-
+            
             for sp_err_msg in langClass.getIncludeDetectors():
                 RE_SCRIPT_PATH = re.compile(sp_err_msg)
                 s = RE_SCRIPT_PATH.search(code)
@@ -280,7 +280,7 @@ class targetScanner (baseClass.baseClass):
 
                 return(None)
             else:
-                script = s.group(1)
+                script = s.group('script')
                 if (script != None and script[1] == ":"): # Windows detection quick hack
                     scriptpath = script[:script.rfind("\\")]
                     r.setWindows()
