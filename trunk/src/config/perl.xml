@@ -9,7 +9,7 @@
 	</absolute_files>
 	
 	<remote_files>
-		<file path="http://www.apache.org/dyn/closer.cgi"	find="We suggest the following mirror site for your download"	flags="rR" />
+		<file path="http://www.apache.org/dyn/closer.cgi"	find="We suggest the following mirror site for your download"	flags="rR"  unix="1" windows="1"/>
 	</remote_files>
 	
 	<log_files>
