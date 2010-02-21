@@ -23,6 +23,7 @@ In this example we are going to write a "Hello Shell!" plugin so let's create a 
 So basicly we are:
   * Creating a folder named "hello_shell"
   * Creating a file inside the folder named "hello_shell.py"
+  * Creating an empty file inside the folder named "__init__.py"
 
 That's it! Your folder structure is ready!
 
@@ -103,6 +104,40 @@ def plugin_callback_handler(self, callbackstring, haxhelper):
 }}}
 
 As you can see its really easy!
+
+= Complete code =
+
+{{{
+from plugininterface import basePlugin
+
+class hello_shell(basePlugin):
+        
+    def plugin_init(self):
+        # The Constructor of the plugin
+        self.setPluginName("Hello Shell")
+        self.setPluginAutor("Iman Karim")
+        self.setPluginURL("http://fimap.googlecode.com")
+    
+    def plugin_exploit_modes_requested(self, langClass, isSystem, isUnix):
+        ret = []
+
+        if (isSystem): # Do we have shell access?
+            # attack will be a tuple (Label, Callbackstring)
+            attack = ("Hello Shell!", "hello_shell.sayhello")
+            ret.append(attack)
+
+        return(ret)
+
+    def plugin_callback_handler(self, callbackstring, haxhelper):
+        if (callbackstring == "hello_shell.sayhello"): # Is it our callback string?
+            if (haxhelper.isUnix()):
+                # We are in unix
+                print haxhelper.executeSystemCommand("echo 'Hello Shell!'")
+            else:
+                # We are in windows
+                print haxhelper.executeSystemCommand("echo Hello Shell!")   
+
+}}}
 
 = Final words =
 Check out the HaxHelper object for more information what you can do.
