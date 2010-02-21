@@ -130,6 +130,10 @@ class hello_shell(basePlugin):
         self.setPluginAutor("Iman Karim")
         self.setPluginURL("http://fimap.googlecode.com")
     
+    def plugin_loaded(self):
+        # We dont need it for this example.
+        pass
+
     def plugin_exploit_modes_requested(self, langClass, isSystem, isUnix):
         ret = []
 
