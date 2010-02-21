@@ -94,6 +94,15 @@ _None_
 
 
 = Some Examples =
+==== Execute a System Command ====
+{{{
+if (haxhelper.isUnix()):
+    haxhelper.executeSystemCommand("echo 'We are in unix!'")
+elif (haxhelper.isWindows()):
+    haxhelper.executeSystemCommand("echo We are in windows!")
+else:
+    pass # This should never happen.
+}}}
 ==== Concat Unix Commands ====
 {{{
 print haxhelper.concatCommands(("uname -a", "whoiam"))
