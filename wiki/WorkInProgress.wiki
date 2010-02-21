@@ -4,5 +4,6 @@
 
 || *Functionality* || *Description* || *Status* || *Done* ||
 || POST-Variable Scanning || Scan and attack using POST variables! || Code Finished || Yes! ||
+|| Target Windows || Scan and attack windows servers. || Works! || *Done* ||
 || Multi Language Scanning and Attacking || Scan and attack asp, jsp, pl, cgi and so on... || Tuning... || No ||
-|| Target Windows || Scan and attack windows servers. || Sleep || No ||
+|| Small Plugin Interface || A small interface for plugins. || Sleep || No ||
