@@ -10,7 +10,6 @@
 {{{
 imax@Develb0x:/st0rage/dev/fimap/src$ ./fimap.py -u "http://192.168.178.33/super.php?super=sexy"
 fimap v.08_svn by Iman Karim - Automatic LFI/RFI scanner and exploiter
-IMPLEMENT plugin_loaded !
 [INFO] 2 plugins loaded.
 SingleScan is testing URL: 'http://192.168.178.33/super.php?super=sexy'
 [OUT] Parsing URL 'http://192.168.178.33/super.php?super=sexy'...
