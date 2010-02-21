@@ -117,7 +117,7 @@ def plugin_callback_handler(self, callbackstring, haxhelper):
 
 As you can see its really easy!
 
-= Complete code =
+= Complete code (hello_shell.py) =
 
 {{{
 from plugininterface import basePlugin
