@@ -90,7 +90,7 @@ def plugin_exploit_modes_requested(self, langClass, isSystem, isUnix):
         ret = []
 
         if (isSystem): # Do we have shell access?
-            # attack will be a tuple (Label, Callbackstring)
+            # attack should be a tuple (Label, Callbackstring)
             attack = ("Hello Shell!", "hello_shell.sayhello")
             ret.append(attack)
 
