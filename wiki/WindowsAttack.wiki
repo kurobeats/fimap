@@ -1,5 +1,5 @@
 #summary Windows Attacking Example
-= fimap Logfile Windows Attacking Introdution =
+= fimap Windows Attacking Introdution =
 
 == 0. Example PHP Code ==
 {{{
