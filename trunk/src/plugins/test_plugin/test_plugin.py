@@ -38,8 +38,15 @@ class test_plugin(basePlugin):
         #    * haxhelper - A little class which makes it very easy to send an injected command.
         
         if (callbackstring == "example.sysinfo"):
+            print haxhelper.isUnix()
+            print haxhelper.isWindows()
+            print haxhelper.getLangName()
+            print haxhelper.canExecuteSystemCommands()
+            print haxhelper.concatCommands(("ver", "echo %USERNAME%"))
+            
             if (haxhelper.isUnix()):
                 # We are in unix
+                
                 print haxhelper.executeSystemCommand("cat /proc/cpuinfo")
                 print haxhelper.executeSystemCommand("uname -a")
             else:

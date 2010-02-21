@@ -182,7 +182,6 @@ class codeinjector(baseClass):
                         #pwd_cmd = item.generatePayload("pwd;whoami")
                         commands = (xml2config.getCurrentDirCode(isUnix), xml2config.getCurrentUserCode(isUnix))
                         pwd_cmd = item.generatePayload(xml2config.concatCommands(commands, isUnix))
-                        print pwd_cmd
                         tmp = self.__doHaxRequest(url, postdata, mode, pwd_cmd, langClass, suffix).strip()
                         curdir = tmp.split("\n")[0].strip()
                         curusr = tmp.split("\n")[1].strip()
