@@ -20,10 +20,22 @@ This folder contains all the plugins.
 Since we want to write a new one, we simply going to create a new folder.
 In this example we are going to write a "Hello Shell!" plugin so let's create a folder named "hello_shell". In this folder simply create your main class with the same name as the folder.
 
-So basicly we are:
-  * Creating a folder named "hello_shell"
-  * Creating a file inside the folder named "hello_shell.py"
-  * Creating an empty file inside the folder named "__init__.py"
+So basicly we go to the plugin folder and ...
+  * ... create a folder named `hello_shell`
+  * ... create a file inside the folder named `hello_shell.py`
+  * ... create an empty file inside the folder named `__init__.py`
+
+{{{
+  fimap
+   |
+   |-> plugins
+        |
+        |-> hello_shell
+             |
+             |-- __init__.py
+             |-- hello_shell.py
+}}}
+
 
 That's it! Your folder structure is ready!
 
