@@ -18,9 +18,7 @@
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
-
-
-
+import plugin
 import baseClass
 from codeinjector import codeinjector
 from crawler import crawler
@@ -252,7 +250,11 @@ if __name__ == "__main__":
             #    config["p_exploit_filter"] = v
 
         xmlsettings = language.XML2Config(config)
-        config["XML2CONFIG"] = xmlsettings                
+        config["XML2CONFIG"] = xmlsettings  
+        
+        #plugman = plugin.plugin_manager(config)
+        #config["PLUGINMANAGER"] = plugman
+                      
         if startExploiter:
             list_results()
 

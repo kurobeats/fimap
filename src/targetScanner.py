@@ -302,8 +302,9 @@ class targetScanner (baseClass.baseClass):
 
 
             if (r.isWindows()):
-                self._log("Windows servers are currently not supported. Skipping it...", self.LOG_WARN)
-                return(None)
+                self._log("Operating System is 'Windows'.", self.LOG_INFO)
+            else:
+                self._log("Operating System is 'Unix-Like'.", self.LOG_INFO)
 
 
             errmsg = m.group("incname")

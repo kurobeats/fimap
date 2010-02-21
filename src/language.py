@@ -71,9 +71,20 @@ class XML2Config(baseClass):
         self.blind_min      = 0
         self.blind_max      = 0
     
-        self.shellquiz_code     = None
-        self.kernelversion_code = None
+        self.commandConcat_unix      = None
+        self.shellquiz_code_unix     = None
+        self.kernelversion_code_unix = None
+        self.currentdir_code_unix    = None
+        self.currentuser_code_unix   = None
+        self.cd_code_unix            = None
     
+        self.commandConcat_win      = None
+        self.shellquiz_code_win     = None
+        self.kernelversion_code_win = None
+        self.currentdir_code_win    = None
+        self.currentuser_code_win   = None
+        self.cd_code_win            = None
+        
         self.__init_xmlresult()
    
         #sys.exit(0)
@@ -134,11 +145,36 @@ class XML2Config(baseClass):
                 self.blind_files.append(fiFile(f, self.config))
             
             methods_node = getXMLNode(self.XML_Rootitem, "methods")
-            quiz_node = getXMLNode(methods_node, "shellquiz")
-            self.shellquiz_code = base64.b64decode(quiz_node.getAttribute("source"))
             
-            kernel_node = getXMLNode(methods_node, "kernelversion")
-            self.kernelversion_code = str(kernel_node.getAttribute("source"))
+            unix_node = getXMLNode(methods_node, "unix")
+            self.commandConcat_unix = str(unix_node.getAttribute("concatcommand"))
+            
+            quiz_node = getXMLNode(unix_node, "shellquiz")
+            self.shellquiz_code_unix = base64.b64decode(quiz_node.getAttribute("source"))
+            kernel_node = getXMLNode(unix_node, "kernelversion")
+            self.kernelversion_code_unix = str(kernel_node.getAttribute("source"))
+            curdir_node = getXMLNode(unix_node, "currentdir")
+            self.currentdir_code_unix = str(curdir_node.getAttribute("source"))
+            curusr_node = getXMLNode(unix_node, "currentuser")
+            self.currentuser_code_unix = str(curusr_node.getAttribute("source"))
+            
+            cd_node = getXMLNode(unix_node, "cd")
+            self.cd_code_unix = str(cd_node.getAttribute("source"))
+
+            win_node = getXMLNode(methods_node, "windows")
+            self.commandConcat_win = str(win_node.getAttribute("concatcommand"))
+            
+            quiz_node = getXMLNode(win_node, "shellquiz")
+            self.shellquiz_code_win = base64.b64decode(quiz_node.getAttribute("source"))
+            kernel_node = getXMLNode(win_node, "kernelversion")
+            self.kernelversion_code_win = str(kernel_node.getAttribute("source"))
+            curdir_node = getXMLNode(win_node, "currentdir")
+            self.currentdir_code_win = str(curdir_node.getAttribute("source"))
+            curusr_node = getXMLNode(win_node, "currentuser")
+            self.currentuser_code_win = str(curusr_node.getAttribute("source"))
+            cd_node = getXMLNode(win_node, "cd")
+            self.cd_code_win = str(cd_node.getAttribute("source"))
+            
             
             self.__loadLanguageSets()
         else:
@@ -155,9 +191,12 @@ class XML2Config(baseClass):
                 self.langsets[langname] = langClass
                 self._log("Loaded XML-LD for '%s' at revision %d by %s" %(langname, langClass.getRevision(), langClass.getAutor()), self.LOG_DEBUG)
     
-    def generateShellQuiz(self):
+    def generateShellQuiz(self, isUnix=True):
         ret = None
-        exec(self.shellquiz_code)
+        if (isUnix):
+            exec(self.shellquiz_code_unix)
+        else:
+            exec(self.shellquiz_code_win)
         return(ret)
     
     def getAllLangSets(self):
@@ -180,8 +219,11 @@ class XML2Config(baseClass):
             ret.append((k, readfile_regex))
         return(ret)
     
-    def getKernelCode(self):
-        return(self.kernelversion_code)
+    def getKernelCode(self, isUnix=True):
+        if (isUnix):
+            return(self.kernelversion_code_unix)
+        else:
+            return(self.kernelversion_code_win)
     
     def getRelativeFiles(self, lang=None):
         ret = []
@@ -238,6 +280,37 @@ class XML2Config(baseClass):
     
     def getBlindMin(self):
         return(self.blind_min)
+    
+    def getCurrentDirCode(self, isUnix=True):
+        if (isUnix):
+            return(self.currentdir_code_unix)
+        else:
+            return(self.currentdir_code_win)
+        
+    def getCurrentUserCode(self, isUnix=True):
+        if (isUnix):
+            return(self.currentuser_code_unix)
+        else:
+            return(self.currentuser_code_win)
+    
+    def getConcatSymbol(self, isUnix=True):
+        if (isUnix):
+            return(self.commandConcat_unix)
+        else:
+            return(self.commandConcat_win)
+    
+    def concatCommands(self, commands, isUnix=True):
+        symbol = " %s " %(self.getConcatSymbol(isUnix))
+        return(symbol.join(commands))
+    
+    def generateChangeDirectoryCommand(self, Directory, isUnix=True):
+        code = self.cd_code_unix
+        
+        if (not isUnix):
+            code = self.cd_code_win
+            
+        code = code.replace("__DIR__", Directory)
+        return(code)
     
 class baseLanguage(baseTools):
     
@@ -516,6 +589,8 @@ class fiExecMethod(baseTools):
         self.execname   = xmlExecMethod.getAttribute("name")
         self.execsource = xmlExecMethod.getAttribute("source")
         self.dobase64   = xmlExecMethod.getAttribute("dobase64")=="1"
+        self.isunix     = xmlExecMethod.getAttribute("unix")=="1"
+        self.iswin      = xmlExecMethod.getAttribute("win")=="1"
         self._log("fimap ExecObject loaded: %s" %(self.execname), self.LOG_DEVEL)
         
     def getSource(self):
@@ -529,6 +604,12 @@ class fiExecMethod(baseTools):
             command = base64.b64encode(command)
         payload = self.getSource().replace("__PAYLOAD__", command)
         return(payload)
+    
+    def isUnix(self):
+        return(self.isunix)
+    
+    def isWindows(self):
+        return(self.iswin)
         
 class fiFile(baseTools):
     def __init__(self, xmlFile, config):
@@ -537,6 +618,8 @@ class fiFile(baseTools):
         self.postdata = str(xmlFile.getAttribute("post"))
         self.findstr  = str(xmlFile.getAttribute("find"))
         self.flags    = str(xmlFile.getAttribute("flags"))
+        self.isunix   = str(xmlFile.getAttribute("unix")) == "1"
+        self.iswin    = str(xmlFile.getAttribute("windows")) == "1"
         self._log("fimap FileObject loaded: %s" %(self.filepath), self.LOG_DEVEL)
         
     def getFilepath(self):
@@ -556,3 +639,9 @@ class fiFile(baseTools):
     
     def isInjected(self, content):
         return (content.find(self.findstr) != -1)
+    
+    def isUnix(self):
+        return(self.isunix)
+    
+    def isWindows(self):
+        return(self.iswin)

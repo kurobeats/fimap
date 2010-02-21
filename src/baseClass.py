@@ -133,6 +133,12 @@ class baseClass (object):
             self._setAttrib(elem_vuln, "kernel", "")
             self._setAttrib(elem_vuln, "language", rep.getLanguage())
             
+            os_ = "unix"
+            if (rep.isWindows()):
+                os_ = "win"
+            
+            self._setAttrib(elem_vuln, "os", os_)
+            
             if (rep.isRemoteInjectable()):
                 self._setAttrib(elem_vuln, "remote", "1")
             else:
@@ -397,6 +403,7 @@ class baseClass (object):
             self.config["p_useragent"] = ua
 
     def doGetRequest(self, URL, additionalHeaders=None):
+        self._log("GET: %s"%URL, self.LOG_DEVEL)
         self._log("TTL: %d"%baseClass.TIMEOUT, self.LOG_DEVEL)
         result, headers = self.doRequest(URL, self.config["p_useragent"], additionalHeaders=additionalHeaders)
         self._log("RESULT-HEADER: %s"%headers, self.LOG_DEVEL)
@@ -404,6 +411,8 @@ class baseClass (object):
         return result
 
     def doPostRequest(self, URL, Post, additionalHeaders=None):
+        self._log("URL: %s"%URL, self.LOG_DEVEL)
+        self._log("POST: %s"%Post, self.LOG_DEVEL)
         self._log("TTL: %d"%baseClass.TIMEOUT, self.LOG_DEVEL)
         result, headers = self.doRequest(URL, self.config["p_useragent"], Post, additionalHeaders)
         self._log("RESULT-HEADER: %s"%headers, self.LOG_DEVEL)
