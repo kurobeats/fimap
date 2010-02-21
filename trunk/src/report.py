@@ -75,6 +75,9 @@ class report:
 
     def isLinux(self):
         return(self.isLinux)
+    
+    def isUnix(self):
+        return(self.isLinux)
 
     def setVulnKeyVal(self, val):
         self.VulnKeyVal = val
