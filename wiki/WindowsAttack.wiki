@@ -3,7 +3,7 @@
 
 == 0. Example PHP Code ==
 {{{
-<? include($_GET["inc"]); ?>
+<? include($_GET["super"]); ?>
 }}}
 
 == 1. fimap result for it ==
