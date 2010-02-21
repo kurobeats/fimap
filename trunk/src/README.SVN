@@ -10,6 +10,17 @@ Solution 2.
 	Open your fimap_result.xml file with a text editor.
 		Search for: mode=
 		Replace it with: language='PHP' mode=
+		
+		
+		
+SECOND WARNING! <-------------------------------
+If this is the first SVN version which supports attacking windows servers, make a backup of your fimap_result.xml and fix your file:
+Solution 1. 
+	Delete your fimap_result.xml and let it create a new one (automaticly)
+Solution 2.
+	Open your fimap_result.xml file with a text editor.
+		Search for: mode=
+		Replace it with: os="unix" mode=
 
 
 Then your XML is ready for the new stuff.
