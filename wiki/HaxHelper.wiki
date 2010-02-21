@@ -58,7 +58,6 @@ _None_
   * commands: A array of system commands you want to concat. fimap will concat them exactly how the OS needs it. (In unix with ; in windows with &  -- Editable in the generic.xml)
 === Output ===
   * Returns a ready to go system command as String.
-    
 
 == HaxHelper.getPWDCommand() ==
 === Input ===
@@ -91,3 +90,33 @@ _None_
 _None_    
 === Output ===
   * Returns a system-command which tells us the kernel version.
+
+
+
+= Some Examples =
+==== Concat Unix Commands ====
+{{{
+print haxhelper.concatCommands(("uname -a", "whoiam"))
+> uname -a ; whoiam
+}}}
+
+==== Concat Windows Commands ====
+{{{
+print haxhelper.concatCommands(("ver", "echo %USERNAME%"))
+> ver & echo %USERNAME%
+}}}    
+
+==== Same as above just OS-Independent ====
+{{{
+uname_cmd = haxhelper.getUNAMECommand()
+whoami_cmd = haxhelper.getUsernameCommand()
+print haxhelper.concatCommands((uname_cmd, whoami_cmd))
+}}}
+
+==== Execute PHP code ====
+{{{
+if (haxhelper.getLangName() == "php"):
+    phpinfo = haxhelper.executeCode("<?php phpinfo(); ?>")
+else:
+    print "This is not PHP!"
+}}}
