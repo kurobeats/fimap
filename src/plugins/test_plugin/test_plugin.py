@@ -28,7 +28,6 @@ class test_plugin(basePlugin):
             attack = ("Show some info", "example.sysinfo")
             ret.append(attack)
         
-        
         return(ret)
         
     def plugin_callback_handler(self, callbackstring, haxhelper):

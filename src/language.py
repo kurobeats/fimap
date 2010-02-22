@@ -344,6 +344,7 @@ class baseLanguage(baseTools):
         self.quiz_function  = None
         self.print_function  = None
         self.eval_kickstarter = None
+        self.write_file = None
         
         self.detector_include    = []
         self.detector_readfile   = []
@@ -397,6 +398,13 @@ class baseLanguage(baseTools):
     
     def getQuizSource(self):
         return(self.quiz_function)
+    
+    def generateWriteFileCode(self, remotefilepath, mode, b64data):
+        code = self.write_file
+        code = code.replace("__FILE__", remotefilepath)
+        code = code.replace("__MODE__", mode)
+        code = code.replace("__B64_DATA__", b64data)
+        return(code)
     
     def generateQuiz(self):
         ret = None
@@ -514,6 +522,21 @@ class baseLanguage(baseTools):
                 self._log("XML-LD (%s) has no eval_kickstarter method defined."%(self.getName()), self.LOG_DEBUG)
                 self._log("Language will not be able to use logfile-injection."%(self.getName()), self.LOG_DEBUG)
             self.eval_kickstarter = str(eval_code)
+        
+        write_node = getXMLNode(methods_node, "write_file")
+        if (write_node == None):
+            self._log("XML-LD (%s) has no write_file method defined."%(self.getName()), self.LOG_DEBUG)
+            self._log("Language will not be able to write files.", self.LOG_DEBUG)
+        else:
+            isbase64  = write_node.getAttribute("isbase64")=="1"
+            write_code = write_node.getAttribute("source")
+            write_code = convertString(write_code, isbase64)
+            
+            if (write_code == None or write_code.strip() == ""):
+                self._log("XML-LD (%s) has no eval_kickstarter method defined."%(self.getName()), self.LOG_DEBUG)
+                self._log("Language will not be able to use logfile-injection."%(self.getName()), self.LOG_DEBUG)
+            self.write_file = str(write_code)
+        
         
         detectors_node = getXMLNode(self.XML_Rootitem, "detectors")
         include_patterns = getXMLNode(detectors_node, "include_patterns")

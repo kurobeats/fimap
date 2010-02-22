@@ -88,10 +88,10 @@ class singleScan(baseClass):
                         else:
                             fidx = 0
                             for file in files:
-                                if report.isWindows():
-                                    file = file[3:]
                                 payload = "%s%s%s"%(report.getPrefix(), file, report.getSurfix())
                                 if (file != payload):
+                                    if report.isWindows() and file[1]==":":
+                                        file = file[3:]
                                     txt = "                   [%d] %s -> %s"%(fidx, file, payload)
                                     #if (fidx == 0): txt = txt.strip()
                                     boxarr.append(txt)
