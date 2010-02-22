@@ -546,10 +546,18 @@ class fiPayload(baseTools):
         self.name = xmlPayload.getAttribute("name")
         self.doBase64 = (xmlPayload.getAttribute("dobase64") == "1")
         self.inshell  = (xmlPayload.getAttribute("inshell") == "1")
+        self.unix     = (xmlPayload.getAttribute("unix") == "1")
+        self.win      = (xmlPayload.getAttribute("win") == "1")
         self.inputlist = getXMLNodes(xmlPayload, "input")
         self.source = str(getXMLNode(xmlPayload, "code").getAttribute("source"))
         self.ParentName = ParentName
         self._log("fimap PayloadObject loaded: %s" %(self.name), self.LOG_DEVEL)
+
+    def isForWindows(self):
+        return(self.win)
+    
+    def isForUnix(self):
+        return(self.unix)
 
     def getParentName(self):
         return(self.ParentName)
