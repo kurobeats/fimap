@@ -64,6 +64,9 @@ class codeinjector(baseClass):
         language = vuln.getAttribute("language")
         isUnix = vuln.getAttribute("os") == "unix"
         
+        if (not isUnix):
+            shcode = shcode[3:]
+        
         xml2config = self.config["XML2CONFIG"]
         langClass = xml2config.getAllLangSets()[language]
         

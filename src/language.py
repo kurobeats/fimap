@@ -653,3 +653,9 @@ class fiFile(baseTools):
     
     def isWindows(self):
         return(self.iswin)
+    
+    def getBackSymbols(self):
+        if (self.isUnix()):
+            return("/..")
+        else:
+            return("\\..")

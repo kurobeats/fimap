@@ -3,6 +3,7 @@
 	<relative_files>
 		<file path="/etc/passwd" find="root:" flags="r" unix="1" windows="0"/>
 		<file path="/proc/self/environ" find="HTTP_USER_AGENT=" flags="rxA" unix="1" windows="0"/>
+		<file path="c:\boot.ini" find="boot" flags="rxA" unix="0" windows="1"/>
 	</relative_files>
 	
 	<absolute_files>
