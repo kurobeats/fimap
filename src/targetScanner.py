@@ -164,7 +164,7 @@ class targetScanner (baseClass.baseClass):
                     else:
                         self._log("Possible file inclusion found blindly! -> '%s' with POST-Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
                     doBreak = True
-                    rep = self.identifyVuln(self.Target_URL, self.params, k, blindmode=("/.." * i, True))
+                    rep = self.identifyVuln(self.Target_URL, self.params, k, post, isPost, blindmode=("/.." * i, True))
         else:
             # Previous result was none. Assuming that we can break here.
             self._log("Code == None. Skipping testing of the URL.", self.LOG_DEBUG)
