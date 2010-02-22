@@ -61,6 +61,7 @@ class plugininterface(baseClass):
         for p in self.plugins:
             p.plugin_callback_handler(attack, haxhelper)
 
+
 class basePlugin(baseClass):
     def _load(self):
         self.name  = None
