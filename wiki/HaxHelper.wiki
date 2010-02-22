@@ -91,7 +91,13 @@ _None_
 === Output ===
   * Returns a system-command which tells us the kernel version.
 
-
+== HaxHelper.uploadfile(localfile, remotefile, chunksize=1024) ==
+=== Input ===
+  * localfile: The absolute path of the file you want to send.
+  * remotefile: The absolute path where the file should be copied to.
+  * chunksize: The bytes to send per request. Set it to -1 to send the whole file in one request.
+=== Output ===
+  * Returns 0 if an error occured. Else you will receive the bytes which have been written.
 
 = Some Examples =
 ==== Execute a System Command ====
@@ -128,4 +134,10 @@ if (haxhelper.getLangName() == "php"):
     phpinfo = haxhelper.executeCode("<?php phpinfo(); ?>")
 else:
     print "This is not PHP!"
+}}}
+
+==== Write a file ====
+{{{
+bytes = haxhelper.uploadfile("/tmp/supercode.txt", "/tmp/supercode.sh", -1)
+print "%d bytes written!" %(bytes)
 }}}
