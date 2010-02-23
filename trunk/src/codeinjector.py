@@ -160,7 +160,7 @@ class codeinjector(baseClass):
                             self._log("Execution thru '%s' works!"%(name), self.LOG_INFO)
                             if (kernel == None):
                                 self._log("Requesting kernel version...", self.LOG_DEBUG)
-                                uname_cmd = item.generatePayload(xml2config.getKernelCode())
+                                uname_cmd = item.generatePayload(xml2config.getKernelCode(isUnix))
                                 kernel = self.__doHaxRequest(url, postdata, mode, uname_cmd, langClass, suffix).strip()
                                 self._log("Kernel received: %s" %(kernel), self.LOG_DEBUG)
                                 domain.setAttribute("kernel", kernel)
