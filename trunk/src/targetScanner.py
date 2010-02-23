@@ -336,15 +336,15 @@ class targetScanner (baseClass.baseClass):
                         pre = posixpath.join(r.getServerPath(), pre)
                         pre = posixpath.normpath(pre)
                         rootdir = "/"
-                        pre = posixpath.relpath(rootdir, pre)
+                        pre = self.relpath_unix(rootdir, pre)
                     else:
                         pre = ntpath.join(r.getServerPath(), pre)
                         pre = ntpath.normpath(pre)
                         if (pre[1] == ":"):
                             rootdir = pre[0:3]
-                        pre = ntpath.relpath(rootdir, pre)
+                        pre = self.relpath_win(rootdir, pre)
                 else:
-                    pre = posixpath.relpath("/", pre)
+                    pre = self.relpath_unix("/", pre)
                 if addSlash: pre = rootdir + pre
                 sur = tokens[1]
                 if (pre == "."): pre = ""

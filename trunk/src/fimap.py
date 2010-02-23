@@ -19,7 +19,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 from plugininterface import plugininterface
-import plugin
 import baseClass
 from codeinjector import codeinjector
 from crawler import crawler

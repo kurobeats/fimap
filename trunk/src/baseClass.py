@@ -23,6 +23,7 @@ from ftplib import FTP
 from ftplib import error_perm
 from config import settings
 import xml.dom.minidom
+import ntpath
 import baseTools
 import shutil
 import posixpath
@@ -352,20 +353,51 @@ class baseClass (object):
                 ret.append(a)
         return(ret)
 
-    def relpath(self, path, start=os.curdir, sep="/"):
+    def relpath_unix(self, path, start="."):
         # Relpath implementation directly ripped and modified from Python 2.6 source.
+        sep="/"
+        
         if not path:
             raise ValueError("no path specified")
+        
         start_list = posixpath.abspath(start).split(sep)
         path_list = posixpath.abspath(path).split(sep)
         # Work out how much of the filepath is shared by start and path.
         i = len(self.commonprefix([start_list, path_list]))
         rel_list = [".."] * (len(start_list)-i) + path_list[i:]
         if not rel_list:
-            return os.curdir
+            return "."
         return posixpath.join(*rel_list)
 
 
+    def relpath_win(self, path, start="."):
+        """Return a relative version of a path"""
+        sep="\\"
+
+        if not path:
+            raise ValueError("no path specified")
+        start_list = ntpath.abspath(start).split(sep)
+        path_list = ntpath.abspath(path).split(sep)
+        if start_list[0].lower() != path_list[0].lower():
+            unc_path, rest = ntpath.splitunc(path)
+            unc_start, rest = ntpath.splitunc(start)
+            if bool(unc_path) ^ bool(unc_start):
+                raise ValueError("Cannot mix UNC and non-UNC paths (%s and %s)"
+                                                                    % (path, start))
+            else:
+                raise ValueError("path is on drive %s, start on drive %s"
+                                                    % (path_list[0], start_list[0]))
+        # Work out how much of the filepath is shared by start and path.
+        for i in range(min(len(start_list), len(path_list))):
+            if start_list[i].lower() != path_list[i].lower():
+                break
+        else:
+            i += 1
+    
+        rel_list = ['..'] * (len(start_list)-i) + path_list[i:]
+        if not rel_list:
+            return "."
+        return ntpath.join(*rel_list)
 
     def commonprefix(self, m):
         "Given a list of pathnames, returns the longest common leading component"
