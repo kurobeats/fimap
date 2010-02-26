@@ -59,14 +59,33 @@ class plugininterface(baseClass):
     
     def broadcast_callback(self, attack, haxhelper):
         for p in self.plugins:
-            p.plugin_callback_handler(attack, haxhelper)
+            try:
+                p.plugin_callback_handler(attack, haxhelper)
+            except:
+                self._log("Plugin '%s' just crashed!"%(p.getPluginName()), self.LOG_ERROR)
+                self._log("Please send a bugreport to the Plugin Developer: %s <%s>"%(p.getPluginAutor(), p.getPluginEmail()), self.LOG_ERROR)
+                self._log("Push enter to see the stacktrace.", self.LOG_WARN)
+                raw_input()
+                print "%<--------------------------------------------"
+                raise
+            
 
+
+    def getAllPluginObjects(self):
+        return(self.plugins)
 
 class basePlugin(baseClass):
     def _load(self):
         self.name  = None
         self.autor = None
         self.URL   = None
+        self.email = None
+    
+    def setPluginEmail(self, email):
+        self.email = email
+        
+    def getPluginEmail(self):
+        return(self.email)
     
     def setPluginName(self, name):
         self.name = name

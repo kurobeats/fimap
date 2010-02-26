@@ -88,7 +88,9 @@ def show_help(AndQuit=False):
     print "        --show-my-ip             Shows your internet IP, current country and user-agent."
     print "                                 Useful if you want to test your vpn\\proxy config."
     print "## Other:"
+    print "        --plugins                List all loaded plugins and quit after that."
     print "        --test-rfi               A quick test to see if you have configured RFI nicely."
+    print "   -C , --enable-color           Enables a colorful output. Works only in linux!"
     print "   -v , --verbose=LEVEL          Verbose level you want to receive."
     print "                                 LEVEL=3 -> Debug"
     print "                                 LEVEL=2 -> Info(Default)"
@@ -178,6 +180,8 @@ if __name__ == "__main__":
     config["p_ttl"] = 30
     config["p_post"] = ""
     config["p_autolang"] = True
+    config["p_color"] = False
+    doPluginsShow = False
     doRFITest = False
     doInternetInfo = False
 
@@ -192,8 +196,9 @@ if __name__ == "__main__":
         longSwitches = ["url="          , "mass"        , "single"      , "list="       , "verbose="        , "help",
                         "user-agent="   , "query="      , "google"      , "pages="      , "credits"         , "exploit",
                         "harvest"       , "write="      , "depth="      , "greetings"   , "test-rfi"        , "skip-pages=",
-                        "show-my-ip"    , "enable-blind", "http-proxy=" , "ttl="        , "post="           , "no-auto-detect"]
-        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:", longSwitches)
+                        "show-my-ip"    , "enable-blind", "http-proxy=" , "ttl="        , "post="           , "no-auto-detect",
+                        "plugins"       , "enable-color"]
+        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:C", longSwitches)
 
         startExploiter = False
 
@@ -232,6 +237,8 @@ if __name__ == "__main__":
                 doRFITest = True
             if (k in ("-b", "--enable-blind")):
                 config["p_monkeymode"] = True
+            if (k in ("-C", "--enable-color")):
+                config["p_color"] = True
             if (k in ("--skip-pages",)):
                 config["p_skippages"] = int(v)
             if (k in("--credits",)):
@@ -246,6 +253,8 @@ if __name__ == "__main__":
                 config["p_post"] = v
             if (k in ("--no-auto-detect", )):
                 config["p_autolang"] = False
+            if (k in ("--plugins",)):
+                doPluginsShow = True
             #if (k in("-f", "--exploit-filter")):
             #    config["p_exploit_filter"] = v
 
@@ -263,6 +272,18 @@ if __name__ == "__main__":
         sys.exit(1)
 
 
+
+    if (doPluginsShow):
+        plugins = config["PLUGINMANAGER"].getAllPluginObjects()
+        if (len(plugins) > 0):
+            for plug in plugins:
+                print "[Plugin: %s] by %s (%s)" %(plug.getPluginName(), plug.getPluginAutor(), plug.getPluginEmail())
+        else:
+            print "No plugins :O"
+        sys.exit(0)
+        
+        
+        
     if (doRFITest):
         injector = codeinjector(config)
         injector.testRFI()

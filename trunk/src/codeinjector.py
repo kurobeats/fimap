@@ -157,7 +157,7 @@ class codeinjector(baseClass):
                         if code != None and code.find(shell_test_result) != -1:
                             sys_inject_works = True
                             working_shell = item
-                            self._log("Execution thru '%s' works!"%(name), self.LOG_INFO)
+                            self._log("Execution thru '%s' works!"%(name), self.LOG_ALWAYS)
                             if (kernel == None):
                                 self._log("Requesting kernel version...", self.LOG_DEBUG)
                                 uname_cmd = item.generatePayload(xml2config.getKernelCode(isUnix))
@@ -595,7 +595,11 @@ class HaxHelper:
         """ Execute a system command on the vulnerable system. Returns a String which contains it's result if all OK. False if we can't inject system commands. None if something went wrong. """
         if (self.canExecuteSystemCommands()):
             cmd = self.shell.generatePayload(command)
-            return(self.parent_codeinjector._doHaxRequest(self.url, self.postdata, self.mode, cmd, self.langClass, self.suffix).strip())
+            ret = self.parent_codeinjector._doHaxRequest(self.url, self.postdata, self.mode, cmd, self.langClass, self.suffix)
+            if (ret != None):
+                return(ret.strip())
+            else:
+                return(None)
         return(False)
     
     def executeCode(self, code):
