@@ -52,6 +52,7 @@ class hello_shell(basePlugin):
         self.setPluginName("Hello Shell")
         self.setPluginAutor("Iman Karim")
         self.setPluginURL("http://fimap.googlecode.com")
+        self.setPluginEmail("fimap.dev@gmail.com")
         
     def plugin_loaded(self):
         # This function will be called if all plugins are loaded.
@@ -129,6 +130,7 @@ class hello_shell(basePlugin):
         self.setPluginName("Hello Shell")
         self.setPluginAutor("Iman Karim")
         self.setPluginURL("http://fimap.googlecode.com")
+        self.setPluginEmail("fimap.dev@gmail.com")
     
     def plugin_loaded(self):
         # We dont need it for this example.
