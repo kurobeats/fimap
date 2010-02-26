@@ -346,6 +346,10 @@ class targetScanner (baseClass.baseClass):
                 else:
                     pre = self.relpath_unix("/", pre)
                 if addSlash: pre = rootdir + pre
+                
+                #Quick fix for increasing success :P
+                pre = "/" + pre
+                
                 sur = tokens[1]
                 if (pre == "."): pre = ""
                 r.setPrefix(pre)

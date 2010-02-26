@@ -6,6 +6,7 @@ class test_plugin(basePlugin):
         # The Constructor of the plugin
         self.setPluginName("Example Plugin")
         self.setPluginAutor("Iman Karim")
+        self.setPluginEmail("fimap.dev@gmail.com")
         self.setPluginURL("http://fimap.googlecode.com")
         
     def plugin_loaded(self):

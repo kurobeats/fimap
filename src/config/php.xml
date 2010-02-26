@@ -56,7 +56,7 @@
 		<include_patterns>
 			<pattern regex="\(include_path='.*?'\) in &lt;b&gt;(?P&lt;script&gt;.*?)&lt;/b&gt;* on line" />
 			<pattern regex="failed to open stream: No such file or directory \((?P&lt;script&gt;.*?)- Line" />
-			<pattern regex="An error occurred in script '(.*?)' on line \d?." />
+			<pattern regex="An error occurred in script '(?P&lt;script&gt;.*?)' on line \d?." />
 			<pattern regex="Failed opening '.*?' for inclusion in &lt;b&gt; (?P&lt;script&gt;.*?)&lt;/b&gt; on line" />
 			<pattern regex="Failed opening '.*?' for inclusion .*? in (&lt;b&gt; )?(?P&lt;script&gt;.*?) (&lt;b&gt; )?on line" />
 			<pattern regex="failed to open stream:.*?@(?P&lt;script&gt;.*?):" />

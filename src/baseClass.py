@@ -49,7 +49,7 @@ class baseClass (object):
     homeDir = os.path.expanduser("~")
     
     LOG_ERROR = 99
-    LOG_WARN  = 99
+    LOG_WARN  = 98
     LOG_DEVEL = 1
     LOG_DEBUG = 2
     LOG_INFO  = 3

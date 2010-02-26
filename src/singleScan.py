@@ -67,7 +67,11 @@ class singleScan(baseClass):
                             boxarr.append("  [PATH]     Not received (Blindmode)")
                         else:
                             boxarr.append("  [PATH]     %s"%report.getServerPath())
-
+                        if (report.isUnix()):
+                            boxarr.append("  [OS]       Unix")
+                        else:
+                            boxarr.append("  [OS]       Windows")
+                            
                         boxarr.append("  [TYPE]     %s"%report.getType())
                         if (not report.isBlindDiscovered()):
                             if (report.isNullbytePossible() == None):
