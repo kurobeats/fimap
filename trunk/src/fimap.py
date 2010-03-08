@@ -94,7 +94,7 @@ def show_help(AndQuit=False):
     print "                                 Useful if you want to test your vpn\\proxy config."
     print "## Plugins:"
     print "        --plugins                List all loaded plugins and quit after that."
-    print "   -I , --install-plugins    Shows some official exploit-mode plugins you can install."
+    print "   -I , --install-plugins        Shows some official exploit-mode plugins you can install."
     print "## Other:"
     print "        --test-rfi               A quick test to see if you have configured RFI nicely."
     print "   -C , --enable-color           Enables a colorful output. Works only in linux!"
@@ -297,7 +297,7 @@ if __name__ == "__main__":
             choice[idx] = (label, name, version, url)
             idx += 1
         pluginman = config["PLUGINMANAGER"]
-        
+        print "---LIST OF TRUSTED PLUGINS---"
         for k,(l,n,v,u) in choice.items():
             instver = pluginman.getPluginVersion(n)
             if (instver == None):
