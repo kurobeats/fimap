@@ -1,0 +1,54 @@
+Introduction
+------------
+This plugin is taking advantage of the Pymetasploit Python module
+to run Metasploit payloads in the target machine and gain further
+access to the server and network.
+
+
+Features
+--------
+This plugin uses Metasploit payloads for Unix and Windows boxes by using
+system calls provided by Fimap. It also creates listeners in your running
+msfconsole by using the XMLRPC interface.
+
+Unix payloads:
+- Perl Reverse shell
+  Creates another process executing a Perl onliner that will connect back
+  to your box.
+- Bash reverse shell
+  /dev/tcp trick to connect back to the attacker machine.
+  This method will cause Fimap to crash because the payload runs in foreground
+  and Fimap will timeout waiting for the result of the execution.
+- PHP reverse shell
+  A PHP script will be executed in the context of the web server. This script
+  will connect back to the attacker machine and spawn a shell.
+  This method will cause Fimap to crash because the payload runs in foreground
+  and Fimap will timeout waiting for the result of the execution.
+
+Windows payloads:
+- Meterpreter reverse shell
+  This payload uploads a Meterpreter binary encoded in Windows debug format and
+  executes it in the target machine.
+  This method will cause Fimap to crash because the payload runs in foreground
+  and Fimap will timeout waiting for the result of the execution. It can be fixed
+  by migrating the Meterpreter payload to another process once you have a session
+  in your msfconsole. At this point the plugin will clean the temporary files.
+
+Using this module
+------------------
+It will automatically detect if the target machine is a Windows or Unix box and
+will show you the available payloads for the given platform.
+
+Once you have selected your payload, it will ask you for the LHOST and LPORT
+variables that will be used to create the selected Metasploit payload.
+
+The last step is provide the password used when loading the XMLRPC interface in
+msfconsole. One important restriction is that msfconsole must be listening in
+localhost and the standard port.
+
+This is the right way to setup msfconsole to listen for XMLRPC requests where
+abc123 is your password.
+
+msf > load xmlrpc Pass=abc123 ServerType=Web
+
+At this point, your payload will be executed and it will connect back to your msfconsole.
