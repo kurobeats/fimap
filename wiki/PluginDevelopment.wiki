@@ -18,11 +18,12 @@ This howto will only work with the SVN version or the (future) release version 0
 If you take a look at the fimap directory, you will see a plugin folder.
 This folder contains all the plugins.
 Since we want to write a new one, we simply going to create a new folder.
-In this example we are going to write a "Hello Shell!" plugin so let's create a folder named "hello_shell". In this folder simply create your main class with the same name as the folder.
+In this example we are going to write a "Hello Shell!" plugin so let's create a folder named "hello_shell". In this folder simply create your main class with the same name as the folder and a empty file called 'plugin.xml'.
 
 So basicly we go to the plugin folder and ...
   * ... create a folder named `hello_shell`
   * ... create a file inside the folder named `hello_shell.py`
+  * ... create a file inside the folder named `plugin.xml`
   * ... create an empty file inside the folder named `__init__.py`
 
 {{{
@@ -34,6 +35,7 @@ So basicly we go to the plugin folder and ...
              |
              |-- __init__.py
              |-- hello_shell.py
+             |-- plugin.xml
 }}}
 
 
@@ -41,6 +43,21 @@ That's it! Your folder structure is ready!
 
 
 == Filling the code with the basics ==
+At first open your "plugin.xml" and paste this into it:
+{{{
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin 
+		name="Hello Shell"
+		startup="hello_shell" 
+		version="1"
+		autor="Iman Karim"
+		email="fimap.dev@gmail.com"
+		url="http://fimap.googlecode.com"
+/>
+}}}
+The only non trivial value in this xml file is the `startup` value. This should be the the same like your directory name (and your main class name without .py).
+That's it!
+
 Now open your "hello_shell.py" in your favorite editor and paste this:
 {{{
 from plugininterface import basePlugin
@@ -48,11 +65,8 @@ from plugininterface import basePlugin
 class hello_shell(basePlugin):
         
     def plugin_init(self):
-        # The Constructor of the plugin
-        self.setPluginName("Hello Shell")
-        self.setPluginAutor("Iman Karim")
-        self.setPluginURL("http://fimap.googlecode.com")
-        self.setPluginEmail("fimap.dev@gmail.com")
+        # This function is your `__init__` function.
+        print "Plugin Init!"
         
     def plugin_loaded(self):
         # This function will be called if all plugins are loaded.
@@ -118,8 +132,24 @@ def plugin_callback_handler(self, callbackstring, haxhelper):
 
 As you can see its really easy!
 
-= Complete code (hello_shell.py) =
 
+
+
+= Complete code =
+== File: plugin.xml ==
+{{{
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin 
+		name="Hello Shell"
+		startup="hello_shell" 
+		version="1"
+		autor="Iman Karim"
+		email="fimap.dev@gmail.com"
+		url="http://fimap.googlecode.com"
+/>
+}}}
+
+== File: hello_shell.py ==
 {{{
 from plugininterface import basePlugin
 
@@ -127,10 +157,7 @@ class hello_shell(basePlugin):
         
     def plugin_init(self):
         # The Constructor of the plugin
-        self.setPluginName("Hello Shell")
-        self.setPluginAutor("Iman Karim")
-        self.setPluginURL("http://fimap.googlecode.com")
-        self.setPluginEmail("fimap.dev@gmail.com")
+        pass
     
     def plugin_loaded(self):
         # We dont need it for this example.
