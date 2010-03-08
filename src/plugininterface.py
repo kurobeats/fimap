@@ -78,9 +78,9 @@ class plugininterface(baseClass):
                 print "%<--------------------------------------------"
                 raise
             
-    def getPluginVersion(self, PluginName):
+    def getPluginVersion(self, StartUpClass):
         for p in self.plugins:
-            if (p.getPluginName() == PluginName):
+            if (p.getPluginStartUpClass() == StartUpClass):
                 Version = p.getPluginVersion()
                 return(Version)
         return(None)
@@ -142,6 +142,9 @@ class basePlugin(baseClass):
 
     def getPluginVersion(self):
         return(self.xmlInfo.getVersion())
+    
+    def getPluginStartUpClass(self):
+        return(self.xmlInfo.getStartupClass())
 
     def printInfo(self):
         self._log("[%s version %d]"%(self.getPluginName(), self.getPluginVersion()), self.LOG_DEBUG)
