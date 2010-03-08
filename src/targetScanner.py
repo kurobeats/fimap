@@ -348,7 +348,8 @@ class targetScanner (baseClass.baseClass):
                 if addSlash: pre = rootdir + pre
                 
                 #Quick fix for increasing success :P
-                pre = "/" + pre
+                if (pre != "."):
+                    pre = "/" + pre
                 
                 sur = tokens[1]
                 if (pre == "."): pre = ""
@@ -492,12 +493,18 @@ class targetScanner (baseClass.baseClass):
             p    = fileobj.getFindStr()
             f    = fileobj.getFilepath()
             type = fileobj.getFlags()
+            canbreak = fileobj.isBreakable()
+            
             quiz = answer = None
             if (post != None):
                 quiz, answer = langClass.generateQuiz()
                 post = post.replace("__QUIZ__", quiz)
                 p = p.replace("__ANSWER__", answer)
-            if (rep.getPrefix() == "" and(rep.getSurfix() == "" or rep.isNullbytePossible() or f.endswith(rep.getSurfix()))):
+            if (rep.getPrefix() == "" and(rep.getSurfix() == "" or rep.isNullbytePossible() or f.endswith(rep.getSurfix()) or canbreak)):
+                if canbreak:
+                    #SUPERDUPER URL HAX!
+                    rep.setSurfix("&")
+                
                 if (rep.isUnix() and fileobj.isUnix() or rep.isWindows() and fileobj.isWindows()):
                     if (self.readFile(rep, f, p, True, POST=post)):
                         ret.append(f)
@@ -515,6 +522,7 @@ class targetScanner (baseClass.baseClass):
             p    = fileobj.getFindStr()
             f    = fileobj.getFilepath()
             type = fileobj.getFlags()
+            
             if ((rep.getSurfix() == "" or rep.isNullbytePossible() or f.endswith(rep.getSurfix()))):
                 if (rep.isUnix() and fileobj.isUnix() or rep.isWindows() and fileobj.isWindows()):
                     if (self.readFile(rep, f, p)):
@@ -562,10 +570,15 @@ class targetScanner (baseClass.baseClass):
                 p    = fileobj.getFindStr()
                 f    = fileobj.getFilepath()
                 type = fileobj.getFlags()
-                if (rep.getPrefix() == "" and(rep.getSurfix() == "" or rep.isNullbytePossible() or f.endswith(rep.getSurfix()))):
+                canbreak = fileobj.isBreakable()
+                
+                if (rep.getPrefix() == "" and(rep.getSurfix() == "" or rep.isNullbytePossible() or f.endswith(rep.getSurfix()) or canbreak)):
                     if ((not rep.isNullbytePossible() and not rep.getSurfix() == "") and f.endswith(rep.getSurfix())):
                         f = f[:-len(rep.getSurfix())]
                         rep.setSurfix("")
+                    elif (canbreak):
+                        #SUPERDUPER URL HAX!
+                        rep.setSurfix("&")
                     
                     if (rep.isUnix() and fileobj.isUnix() or rep.isWindows() and fileobj.isWindows()):
                         if (self.readFile(rep, f, p, True)):

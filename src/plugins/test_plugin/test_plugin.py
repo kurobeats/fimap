@@ -4,10 +4,7 @@ class test_plugin(basePlugin):
         
     def plugin_init(self):
         # The Constructor of the plugin
-        self.setPluginName("Example Plugin")
-        self.setPluginAutor("Iman Karim")
-        self.setPluginEmail("fimap.dev@gmail.com")
-        self.setPluginURL("http://fimap.googlecode.com")
+        pass
         
     def plugin_loaded(self):
         # This function will be called if all plugins are loaded.

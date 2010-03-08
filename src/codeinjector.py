@@ -214,7 +214,6 @@ class codeinjector(baseClass):
                                 print "\nCancelled by user."
                         print "See ya dude!"
                         print "Do not forget to close this security hole."
-                        sys.exit(0)
                     else:
                         haxhelper = HaxHelper(self, url, postdata, mode, langClass, suffix, isUnix, sys_inject_works, item)
                         plugman.broadcast_callback(attack, haxhelper)

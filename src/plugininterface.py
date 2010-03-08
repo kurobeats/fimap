@@ -20,6 +20,7 @@
 
 from baseClass import baseClass
 import os, sys
+import xml.dom.minidom
 
 class plugininterface(baseClass):
     def _load(self):
@@ -33,17 +34,25 @@ class plugininterface(baseClass):
         for dir in os.listdir(self.plugin_dir):
             dirpath = os.path.join(self.plugin_dir, dir)
             if (os.path.isdir(dirpath)):
-                self._log("Trying to load plugin '%s'..." %dir, self.LOG_DEBUG)
-                loadedClass = None
-                loader  = "from plugins.%s import %s\n" %(dir, dir)
-                loader += "loadedClass = %s.%s(self.config)"%(dir, dir)
-                try:
-                    exec(loader)
-                    loadedClass.plugin_init()
-                    self.plugins.append(loadedClass)
-                    x +=1
-                except:
-                    raise
+                pluginxml = os.path.join(dirpath, "plugin.xml")
+                if (os.path.exists(pluginxml)):
+                    info = pluginXMLInfo(pluginxml)
+                    plugin = info.getStartupClass()
+                    self._log("Trying to load plugin '%s'..." %dir, self.LOG_DEBUG)
+                    loadedClass = None
+                    loader  = "from plugins.%s import %s\n" %(plugin, plugin)
+                    loader += "loadedClass = %s.%s(self.config)"%(plugin, plugin)
+                    try:
+                        exec(loader)
+                        loadedClass.addXMLInfo(info)
+                        loadedClass.plugin_init()
+                        loadedClass.printInfo()
+                        self.plugins.append(loadedClass)
+                        x +=1
+                    except:
+                        raise
+                else:
+                    self._log("Plugin doesn't have a plugin.xml file! -> '%s'..." %dir, self.LOG_WARN)
         for p in self.plugins:
             p.plugin_loaded()
 
@@ -69,41 +78,76 @@ class plugininterface(baseClass):
                 print "%<--------------------------------------------"
                 raise
             
-
+    def getPluginVersion(self, PluginName):
+        for p in self.plugins:
+            if (p.getPluginName() == PluginName):
+                Version = p.getPluginVersion()
+                return(Version)
+        return(None)
 
     def getAllPluginObjects(self):
         return(self.plugins)
 
-class basePlugin(baseClass):
-    def _load(self):
-        self.name  = None
-        self.autor = None
-        self.URL   = None
-        self.email = None
+class pluginXMLInfo:
+    def __init__(self, xmlfile):
+        self.xmlFile = xmlfile
+      
+        if (os.path.exists(xmlfile)):
+            XML_plugin = xml.dom.minidom.parse(xmlfile)
+            XML_Rootitem = XML_plugin.firstChild
+            self.name         = str(XML_Rootitem.getAttribute("name"))
+            self.startupclass = str(XML_Rootitem.getAttribute("startup"))
+            self.autor        = str(XML_Rootitem.getAttribute("autor"))
+            self.email        = str(XML_Rootitem.getAttribute("email"))
+            self.version      = int(XML_Rootitem.getAttribute("version"))
+            self.url          = str(XML_Rootitem.getAttribute("url"))
+
+    def getVersion(self):
+        return(self.version)
     
-    def setPluginEmail(self, email):
-        self.email = email
-        
-    def getPluginEmail(self):
-        return(self.email)
+    def getStartupClass(self):
+        return(self.startupclass)
     
-    def setPluginName(self, name):
-        self.name = name
-    
-    def getPluginName(self):
-        return(self.name)
-        
-    def setPluginAutor(self, autor):
-        self.autor = autor
-    
-    def getPluginAutor(self):
+    def getAutor(self):
         return(self.autor)
     
-    def setPluginURL(self, URL):
-        self.URL = URL
-        
+    def getEmail(self):
+        return(self.email)
+    
+    def getURL(self):
+        return(self.url)
+    
+    def getName(self):
+        return(self.name)
+    
+class basePlugin(baseClass):
+    
+    def addXMLInfo(self, xmlinfo):
+        self.xmlInfo = xmlinfo
+    
+    def _load(self):
+        pass
+    
+    def getPluginEmail(self):
+        return(self.xmlInfo.getEmail())
+    
+    def getPluginName(self):
+        return(self.xmlInfo.getName())
+    
+    def getPluginAutor(self):
+        return(self.xmlInfo.getAutor())
+    
     def getPluginURL(self):
-        return(self.URL)
+        return(self.xmlInfo.getURL())
+
+    def getPluginVersion(self):
+        return(self.xmlInfo.getVersion())
+
+    def printInfo(self):
+        self._log("[%s version %d]"%(self.getPluginName(), self.getPluginVersion()), self.LOG_DEBUG)
+        self._log("    Autor: %s"%(self.getPluginAutor()), self.LOG_DEBUG)
+        self._log("    Email: %s"%(self.getPluginEmail()), self.LOG_DEBUG)
+        self._log("    URL  : %s"%(self.getPluginURL()), self.LOG_DEBUG)
 
     # EVENTS
     

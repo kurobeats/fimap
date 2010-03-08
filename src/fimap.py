@@ -28,6 +28,7 @@ from massScan import massScan
 from singleScan import singleScan
 import language
 import sys,os
+import tarfile
 # To change this template, choose Tools | Templates
 # and open the template in the editor.
 
@@ -38,6 +39,8 @@ __version__ = "08_svn"
 config = {}
 
 head =  "fimap v.%s by Iman Karim - Automatic LFI/RFI scanner and exploiter"%__version__ 
+
+pluginlist = "http://fimap.googlecode.com/svn/wiki/PluginList.wiki"
 
 def show_help(AndQuit=False):
     print "Usage: ./fimap.py [options]"
@@ -87,8 +90,10 @@ def show_help(AndQuit=False):
     print "                                   * It's experimental"
     print "        --show-my-ip             Shows your internet IP, current country and user-agent."
     print "                                 Useful if you want to test your vpn\\proxy config."
-    print "## Other:"
+    print "## Plugins:"
     print "        --plugins                List all loaded plugins and quit after that."
+    print "   -I , --install-plugins    Shows some official exploit-mode plugins you can install."
+    print "## Other:"
     print "        --test-rfi               A quick test to see if you have configured RFI nicely."
     print "   -C , --enable-color           Enables a colorful output. Works only in linux!"
     print "   -v , --verbose=LEVEL          Verbose level you want to receive."
@@ -184,6 +189,7 @@ if __name__ == "__main__":
     doPluginsShow = False
     doRFITest = False
     doInternetInfo = False
+    doInstallPlugins = False
 
     print head
 
@@ -197,8 +203,8 @@ if __name__ == "__main__":
                         "user-agent="   , "query="      , "google"      , "pages="      , "credits"         , "exploit",
                         "harvest"       , "write="      , "depth="      , "greetings"   , "test-rfi"        , "skip-pages=",
                         "show-my-ip"    , "enable-blind", "http-proxy=" , "ttl="        , "post="           , "no-auto-detect",
-                        "plugins"       , "enable-color"]
-        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:C", longSwitches)
+                        "plugins"       , "enable-color", "install-new-plugins"]
+        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:CI", longSwitches)
 
         startExploiter = False
 
@@ -255,6 +261,8 @@ if __name__ == "__main__":
                 config["p_autolang"] = False
             if (k in ("--plugins",)):
                 doPluginsShow = True
+            if (k in ("-I", "--install-new-plugins")):
+                doInstallPlugins = True
             #if (k in("-f", "--exploit-filter")):
             #    config["p_exploit_filter"] = v
 
@@ -271,6 +279,58 @@ if __name__ == "__main__":
         print (err)
         sys.exit(1)
 
+    if (doInstallPlugins):
+        print "Requesting list of plugins..."
+        tester = codeinjector(config)
+        result = tester.doGetRequest(pluginlist)
+        
+        choice = {}
+        idx = 1
+        for line in result.split("\n"):
+            tokens = line.split("|")
+            label = tokens[0].strip()
+            name = tokens[1].strip()
+            version = int(tokens[2].strip())
+            url = tokens[3].strip()
+            choice[idx] = (label, name, version, url)
+            idx += 1
+        pluginman = config["PLUGINMANAGER"]
+        
+        for k,(l,n,v,u) in choice.items():
+            instver = pluginman.getPluginVersion(n)
+            if (instver == None):
+                print "[%d] %s - At version %d not installed" %(k, l, v)
+            elif (instver < v):
+                print "[%d] %s - At version %d has an UPDATE" %(k, l, v)
+            else:    
+                print "[%d] %s - At version %d is up-to-date and installed" %(k, l, v)
+        nr = None    
+        while (True):
+            nr = raw_input("Choose a plugin to install: ")
+            if (nr != "q"):
+                print "Downloading plugin '%s' (%s)..." %(n, u)
+                plugin = tester.doGetRequest(u)
+                if (plugin != None):
+                    tmpFile = "/tmp/f.tar.gz"
+                    f = open(tmpFile, "wb")
+                    f.write(plugin)
+                    f.close()
+                    
+                    print "Unpacking plugin..."
+                    try:
+                        tar = tarfile.open(tmpFile, 'r:gz')
+                        for item in tar:
+                            tar.extract(item)
+                        print 'Done.'
+                    except:
+                        print "Unpacking failed!"
+
+                else:
+                    print "Failed to download plugin package!"
+            else:
+                break
+        
+        sys.exit(0)
 
 
     if (doPluginsShow):
