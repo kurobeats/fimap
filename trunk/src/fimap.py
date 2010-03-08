@@ -20,7 +20,7 @@
 #
 from plugininterface import plugininterface
 from plugininterface import pluginXMLInfo
-import baseClass
+import baseClass, baseTools
 from codeinjector import codeinjector
 from crawler import crawler
 import getopt
@@ -297,71 +297,71 @@ if __name__ == "__main__":
             choice[idx] = (label, name, version, url)
             idx += 1
         pluginman = config["PLUGINMANAGER"]
-        print "---LIST OF TRUSTED PLUGINS---"
+        
+        tools = baseTools.baseTools()
+        header = "LIST OF TRUSTED PLUGINS"
+        boxarr = []
         for k,(l,n,v,u) in choice.items():
             instver = pluginman.getPluginVersion(n)
             if (instver == None):
-                print "[%d] %s - At version %d not installed." %(k, l, v)
+                boxarr.append("[%d] %s - At version %d not installed." %(k, l, v))
             elif (instver < v):
-                print "[%d] %s - At version %d has an UPDATE." %(k, l, v)
+                boxarr.append("[%d] %s - At version %d has an UPDATE." %(k, l, v))
             else:    
-                print "[%d] %s - At version %d is up-to-date and installed." %(k, l, v)
-        print "[q] Cancel and Quit."
+                boxarr.append("[%d] %s - At version %d is up-to-date and installed." %(k, l, v))
+        boxarr.append("[q] Cancel and Quit.")
+        tools.drawBox(header, boxarr, False)
         nr = None    
-        while (True):
-            nr = raw_input("Choose a plugin to install: ")
-            if (nr != "q"):
-                (l,n,v,u) = choice[int(nr)]
-                print "Downloading plugin '%s' (%s)..." %(n, u)
-                plugin = tester.doGetRequest(u)
-                if (plugin != None):
-                    tmpFile = tempfile.mkstemp()[1] + ".tar.gz"
-                    f = open(tmpFile, "wb")
-                    f.write(plugin)
-                    f.close()
-                    
-                    print "Unpacking plugin..."
-                    try:
-                        tar = tarfile.open(tmpFile, 'r:gz')
-                        tmpdir = tempfile.mkdtemp()
-                        tar.extractall(tmpdir)
-                        pluginxml = os.path.join(tmpdir, n, "plugin.xml")
-                        pluginsdir = os.path.join(sys.path[0], "plugins")
-                         
-                        
-                        if (os.path.exists(pluginxml)):
-                            info = pluginXMLInfo(pluginxml)
-                            ver = pluginman.getPluginVersion(info.getStartupClass())
-                            if (ver != None):
-                                inp = ""
-                                if (ver > info.getVersion()):
-                                    inp = raw_input("Do you really want to downgrade this plugin? [y/N]")
-                                elif (ver == info.getVersion()):
-                                    inp = raw_input("Do you really want to reinstall this plugin? [y/N]")
-
-                                if (inp == "Y" or inp == "y"):
-                                    dir = info.getStartupClass()
-                                    deldir = os.path.join(pluginsdir, dir)
-                                    print "Deleting old plugin directory..."
-                                    shutil.rmtree(deldir)
-                                else:
-                                    print "OK aborting..." 
-                                    break
-                            tar.extractall(os.path.join(pluginsdir))
-                            print "Plugin '%s' installed successfully!" %(info.getName())
-                        else:
-                            print "Plugin doesn't have a plugin.xml! (%s)" %pluginxml
-                            break
-                        
-                    except:
-                        print "Unpacking failed!"
-                        #sys.exit(0)
-                else:
-                    print "Failed to download plugin package!"
+    
+        nr = raw_input("Choose a plugin to install: ")
+        if (nr != "q"):
+            (l,n,v,u) = choice[int(nr)]
+            print "Downloading plugin '%s' (%s)..." %(n, u)
+            plugin = tester.doGetRequest(u)
+            if (plugin != None):
+                tmpFile = tempfile.mkstemp()[1] + ".tar.gz"
+                f = open(tmpFile, "wb")
+                f.write(plugin)
+                f.close()
                 
-                sys.exit(0)
+                print "Unpacking plugin..."
+                try:
+                    tar = tarfile.open(tmpFile, 'r:gz')
+                    tmpdir = tempfile.mkdtemp()
+                    tar.extractall(tmpdir)
+                    pluginxml = os.path.join(tmpdir, n, "plugin.xml")
+                    pluginsdir = os.path.join(sys.path[0], "plugins")
+                     
+                    
+                    if (os.path.exists(pluginxml)):
+                        info = pluginXMLInfo(pluginxml)
+                        ver = pluginman.getPluginVersion(info.getStartupClass())
+                        if (ver != None):
+                            inp = ""
+                            if (ver > info.getVersion()):
+                                inp = raw_input("Do you really want to downgrade this plugin? [y/N]")
+                            elif (ver == info.getVersion()):
+                                inp = raw_input("Do you really want to reinstall this plugin? [y/N]")
+
+                            if (inp == "Y" or inp == "y"):
+                                dir = info.getStartupClass()
+                                deldir = os.path.join(pluginsdir, dir)
+                                print "Deleting old plugin directory..."
+                                shutil.rmtree(deldir)
+                            else:
+                                print "OK aborting..." 
+                                sys.exit(0)
+                        tar.extractall(os.path.join(pluginsdir))
+                        print "Plugin '%s' installed successfully!" %(info.getName())
+                    else:
+                        print "Plugin doesn't have a plugin.xml! (%s)" %pluginxml
+                        sys.exit(1)
+                    
+                except:
+                    print "Unpacking failed!"
+                    #sys.exit(0)
             else:
-                break
+                print "Failed to download plugin package!"
         
         sys.exit(0)
 

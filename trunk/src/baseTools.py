@@ -79,7 +79,9 @@ class baseTools(object):
         return(ret)
     
     
-    def drawBox(self, header, textarray):
+    def drawBox(self, header, textarray, usecolor=None):
+        if (usecolor != None):
+            self.use_color = usecolor
         maxLen = self.__getLongestLine(textarray, header) + 5
         headspacelen = (maxLen/2 - len(header)/2)
         print self.boxsymbol* (maxLen+1)
