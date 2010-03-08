@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin 
+		name="msf_bindings"
+		startup="msf" 
+		version="1"
+		autor="Xavier Garcia"
+		email="xavi.garcia@gmail.com"
+		url="http://fimap.googlecode.com"
+/>
