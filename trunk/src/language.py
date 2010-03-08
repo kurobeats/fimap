@@ -674,6 +674,9 @@ class fiFile(baseTools):
     def isUnix(self):
         return(self.isunix)
     
+    def isBreakable(self):
+        return(self.filepath.find("://") == -1)
+    
     def isWindows(self):
         return(self.iswin)
     

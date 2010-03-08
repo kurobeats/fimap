@@ -49,4 +49,3 @@ settings["dynamic_rfi"]["local"]["local_path"] = None   # A non existing file on
 settings["dynamic_rfi"]["local"]["http_map"]   = None   # The http url of the file without prefix where the file is reachable from the web. Example: http://localhost/payload
 
 
-

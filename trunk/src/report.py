@@ -166,7 +166,7 @@ class report:
             else:
                 ret = "Relative with appendix '%s'" %(self.getAppendix())
         else:
-            return("Unknown")
+            return("Unknown (%s | %s | %s)" %(self.getPrefix(), self.isRelativeInjection(), self.isAbsoluteInjection()))
 
         if (self.isRemoteInjectable()):
             ret = ret + " + Remote injection"
