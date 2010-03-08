@@ -33,7 +33,7 @@ class plugininterface(baseClass):
         x = 0
         for dir in os.listdir(self.plugin_dir):
             dirpath = os.path.join(self.plugin_dir, dir)
-            if (os.path.isdir(dirpath)):
+            if (os.path.isdir(dirpath) and dir[0] != "."):
                 pluginxml = os.path.join(dirpath, "plugin.xml")
                 if (os.path.exists(pluginxml)):
                     info = pluginXMLInfo(pluginxml)
