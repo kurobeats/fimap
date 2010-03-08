@@ -19,6 +19,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 from plugininterface import plugininterface
+from plugininterface import pluginXMLInfo
 import baseClass
 from codeinjector import codeinjector
 from crawler import crawler
@@ -28,7 +29,8 @@ from massScan import massScan
 from singleScan import singleScan
 import language
 import sys,os
-import tarfile
+import tarfile, tempfile
+import shutil
 # To change this template, choose Tools | Templates
 # and open the template in the editor.
 
@@ -299,19 +301,21 @@ if __name__ == "__main__":
         for k,(l,n,v,u) in choice.items():
             instver = pluginman.getPluginVersion(n)
             if (instver == None):
-                print "[%d] %s - At version %d not installed" %(k, l, v)
+                print "[%d] %s - At version %d not installed." %(k, l, v)
             elif (instver < v):
-                print "[%d] %s - At version %d has an UPDATE" %(k, l, v)
+                print "[%d] %s - At version %d has an UPDATE." %(k, l, v)
             else:    
-                print "[%d] %s - At version %d is up-to-date and installed" %(k, l, v)
+                print "[%d] %s - At version %d is up-to-date and installed." %(k, l, v)
+        print "[q] Cancel and Quit."
         nr = None    
         while (True):
             nr = raw_input("Choose a plugin to install: ")
             if (nr != "q"):
+                (l,n,v,u) = choice[int(nr)]
                 print "Downloading plugin '%s' (%s)..." %(n, u)
                 plugin = tester.doGetRequest(u)
                 if (plugin != None):
-                    tmpFile = "/tmp/f.tar.gz"
+                    tmpFile = tempfile.mkstemp()[1] + ".tar.gz"
                     f = open(tmpFile, "wb")
                     f.write(plugin)
                     f.close()
@@ -319,14 +323,43 @@ if __name__ == "__main__":
                     print "Unpacking plugin..."
                     try:
                         tar = tarfile.open(tmpFile, 'r:gz')
-                        for item in tar:
-                            tar.extract(item)
-                        print 'Done.'
+                        tmpdir = tempfile.mkdtemp()
+                        tar.extractall(tmpdir)
+                        pluginxml = os.path.join(tmpdir, n, "plugin.xml")
+                        pluginsdir = os.path.join(sys.path[0], "plugins")
+                         
+                        
+                        if (os.path.exists(pluginxml)):
+                            info = pluginXMLInfo(pluginxml)
+                            ver = pluginman.getPluginVersion(info.getStartupClass())
+                            if (ver != None):
+                                inp = ""
+                                if (ver > info.getVersion()):
+                                    inp = raw_input("Do you really want to downgrade this plugin? [y/N]")
+                                elif (ver == info.getVersion()):
+                                    inp = raw_input("Do you really want to reinstall this plugin? [y/N]")
+
+                                if (inp == "Y" or inp == "y"):
+                                    dir = info.getStartupClass()
+                                    deldir = os.path.join(pluginsdir, dir)
+                                    print "Deleting old plugin directory..."
+                                    shutil.rmtree(deldir)
+                                else:
+                                    print "OK aborting..." 
+                                    break
+                            tar.extractall(os.path.join(pluginsdir))
+                            print "Plugin '%s' installed successfully!" %(info.getName())
+                        else:
+                            print "Plugin doesn't have a plugin.xml! (%s)" %pluginxml
+                            break
+                        
                     except:
                         print "Unpacking failed!"
-
+                        #sys.exit(0)
                 else:
                     print "Failed to download plugin package!"
+                
+                sys.exit(0)
             else:
                 break
         
