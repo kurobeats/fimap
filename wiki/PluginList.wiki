@@ -1,1 +1,1 @@
-msf binding by Xavier Garcia <xavi.garcia@gmail.com> | 1 | http://85.214.27.38/fimap_plugins/msf_v1.tar.gz
+msf binding by Xavier Garcia <xavi.garcia@gmail.com> | MSF bindings | 1 | http://85.214.27.38/fimap_plugins/msf_v1.tar.gz
