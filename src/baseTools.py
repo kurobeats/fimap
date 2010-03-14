@@ -1,6 +1,7 @@
 import urllib, httplib, copy, urllib2
 import string,random,os,socket, os.path
-
+import xml.dom.minidom
+import shutil
 class baseTools(object):
     LOG_ERROR = 99
     LOG_WARN  = 98
@@ -109,3 +110,21 @@ class baseTools(object):
             if (len(ln) > maxLen):
                 maxLen = len(ln)
         return(maxLen)
+    
+    def getAttributeFromFirstNode(self, xmlfile, attrib):
+        if (os.path.exists(xmlfile)):
+            XML_plugin = xml.dom.minidom.parse(xmlfile)
+            XML_Rootitem = XML_plugin.firstChild
+            value = int(XML_Rootitem.getAttribute(attrib))
+            return(value)
+        else:
+            return False
+        
+    def suggest_update(self, orginal_file, replacement_file):
+        print orginal_file
+        print replacement_file
+        inp = raw_input("Do you want to update? [y/N]")
+        if (inp == "Y" or inp == "y"):
+            print "Updating..."
+            os.unlink(orginal_file)
+            shutil.copy(replacement_file, orginal_file)

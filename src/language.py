@@ -58,10 +58,11 @@ class XML2Config(baseClass):
 
     def _load(self):
         self.langsets = {}
-        self.xmlfile = os.path.join(sys.path[0], "config", "generic.xml")
+        self.xml_file = os.path.join(sys.path[0], "config", "generic.xml")
         self.XML_Generic = None
         self.XML_Rootitem = None
 
+        self.version = -1
 
         self.relative_files = []
         self.absolute_files = []
@@ -90,10 +91,12 @@ class XML2Config(baseClass):
         #sys.exit(0)
     
     def __init_xmlresult(self):
-        xmlfile = self.xmlfile
+        xmlfile = self.xml_file
         if (os.path.exists(xmlfile)):
             self.XML_Generic = xml.dom.minidom.parse(xmlfile)
             self.XML_Rootitem = self.XML_Generic.firstChild
+            
+            self.version = int(self.XML_Rootitem.getAttribute("revision"))
             
             rel_node = getXMLNode(self.XML_Rootitem, "relative_files")
             rel_files = getXMLNodes(rel_node, "file")
@@ -180,7 +183,10 @@ class XML2Config(baseClass):
         else:
             print "generic.xml file not found! This file is very important!"
             sys.exit(1)
-        
+    
+    def getRealFile(self):
+        return(self.xml_file)
+      
     def __loadLanguageSets(self):
         langnodes = getXMLNode(self.XML_Rootitem, "languagesets")
         for c in langnodes.childNodes:
@@ -190,6 +196,9 @@ class XML2Config(baseClass):
                 langClass = baseLanguage(langname, langfile, self.config)
                 self.langsets[langname] = langClass
                 self._log("Loaded XML-LD for '%s' at revision %d by %s" %(langname, langClass.getRevision(), langClass.getAutor()), self.LOG_DEBUG)
+    
+    def getVersion(self):
+        return(self.version)
     
     def generateShellQuiz(self, isUnix=True):
         ret = None
@@ -317,9 +326,10 @@ class baseLanguage(baseTools):
     def __init__(self, langname, langfile, config):
         self.initLog(config)
         langfile = os.path.join(sys.path[0], "config", langfile)
+        self.RealFile     = langfile
         self.XML_Langfile = None
         self.XML_Rootitem = None
-        
+
         if (os.path.exists(langfile)):
             self.XML_Langfile = xml.dom.minidom.parse(langfile)
             self.XML_Rootitem = self.XML_Langfile.firstChild
@@ -354,8 +364,14 @@ class baseLanguage(baseTools):
     
         self.__populate()
     
+    def getLangFile(self):
+        return(self.RealFile)
+    
     def getName(self):
         return(self.LanguageName)
+    
+    def getVersion(self):
+        return(self.XMLRevision)
     
     def getRevision(self):
         return(self.XMLRevision)
