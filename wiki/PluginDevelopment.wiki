@@ -19,6 +19,7 @@ If you take a look at the fimap directory, you will see a plugin folder.
 This folder contains all the plugins.
 Since we want to write a new one, we simply going to create a new folder.
 In this example we are going to write a "Hello Shell!" plugin so let's create a folder named "hello_shell". In this folder simply create your main class with the same name as the folder and a empty file called 'plugin.xml'.
+Due technical reasons the plugin filename should be a valid python variable name which means no space or special characters.
 
 So basicly we go to the plugin folder and ...
   * ... create a folder named `hello_shell`
