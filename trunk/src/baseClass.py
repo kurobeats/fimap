@@ -28,6 +28,7 @@ import baseTools
 import shutil
 import posixpath
 import os.path
+import sys
 
 DEFAULT_AGENT = "fimap.googlecode.com"
 
@@ -100,7 +101,8 @@ class baseClass (object):
         return(self.XML_Result.toprettyxml(indent="  "))
 
     def _load(self):
-        raise "Implement this!"
+        # Should be implemented
+        pass
 
     def _log(self, txt, LVL):
         self.tools._log(txt, LVL)
@@ -202,6 +204,41 @@ class baseClass (object):
                 p = c.getAttribute("path")
                 if (f == file and p == path):
                     return(True)
+
+    def testIfXMLIsOldSchool(self):
+        already_warned = False
+        for c in self.XML_RootItem.childNodes:
+            if (c.nodeName != "#text"):
+                if (c.nodeName == "URL"):
+                    for cc in c.childNodes:
+                        toss_warn = False
+                        if (cc.nodeName == "vuln"):
+                            if (cc.getAttribute("language") == None or cc.getAttribute("language") == ""):
+                                self._setAttrib(cc, "language", "PHP")
+                                toss_warn = True
+                            if (cc.getAttribute("os") == None or cc.getAttribute("os") == ""):
+                                self._setAttrib(cc, "os", "unix")
+                                toss_warn = True
+                        
+                        if (toss_warn and not already_warned):
+                            self._log("You have an old fimap_result.xml file!", self.LOG_WARN)
+                            self._log("I am going to make it sexy for you now very quickly...", self.LOG_WARN)
+                            already_warned = True
+        if (already_warned):
+            # XML has changed
+            backupfile = os.path.join(self.homeDir, "fimap_result.backup")
+            if (os.path.exists(backupfile)):
+                self._log("WARNING: I wanted to backup your old fimap_result to: %s" %(backupfile), self.LOG_WARN)
+                self._log("But this file already exists! Please define a backup path:", self.LOG_WARN)
+                backupfile = raw_input("Backup path: ")
+            print "Creating backup of your original XML to '%s'..." %(backupfile)
+            shutil.copy(self.xmlfile, backupfile)
+            print "Committing changes to orginal XML..."
+            self.saveXML()
+            print "All done."
+            print "Please rerun fimap."
+            sys.exit(0)
+        
 
     def saveXML(self):
         self._log("Saving results to '%s'..."%self.xmlfile, self.LOG_DEBUG)
