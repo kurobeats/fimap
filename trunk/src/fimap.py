@@ -43,6 +43,7 @@ config = {}
 head =  "fimap v.%s by Iman Karim - Automatic LFI/RFI scanner and exploiter"%__version__ 
 
 pluginlist = "http://fimap.googlecode.com/svn/wiki/PluginList.wiki"
+defupdateurl = "http://fimap.googlecode.com/svn/trunk/src/config/"
 
 def show_help(AndQuit=False):
     print "Usage: ./fimap.py [options]"
@@ -82,7 +83,7 @@ def show_help(AndQuit=False):
     print "                                 options you can choose if fimap isn't sure which lang it is."
     print "## Attack Kit:"
     print "   -x , --exploit                Starts an interactive session where you can"
-    print "                                 select an target and do some action."
+    print "                                 select a target and do some action."
     print "## Disguise Kit:"
     print "   -A , --user-agent=UA          The User-Agent which should be sent."
     print "        --http-proxy=PROXY       Setup your proxy with this option. But read this facts:"
@@ -94,8 +95,11 @@ def show_help(AndQuit=False):
     print "                                 Useful if you want to test your vpn\\proxy config."
     print "## Plugins:"
     print "        --plugins                List all loaded plugins and quit after that."
-    print "   -I , --install-plugins        Shows some official exploit-mode plugins you can install."
+    print "   -I , --install-plugins        Shows some official exploit-mode plugins you can install "
+    print "                                 and\\or upgrade."
     print "## Other:"
+    print "        --update-def             Checks and updates your definition files found in the"
+    print "                                 config directory."
     print "        --test-rfi               A quick test to see if you have configured RFI nicely."
     print "   -C , --enable-color           Enables a colorful output. Works only in linux!"
     print "   -v , --verbose=LEVEL          Verbose level you want to receive."
@@ -193,6 +197,7 @@ if __name__ == "__main__":
     doRFITest = False
     doInternetInfo = False
     doInstallPlugins = False
+    doUpdateDef = False
 
     print head
 
@@ -206,7 +211,7 @@ if __name__ == "__main__":
                         "user-agent="   , "query="      , "google"      , "pages="      , "credits"         , "exploit",
                         "harvest"       , "write="      , "depth="      , "greetings"   , "test-rfi"        , "skip-pages=",
                         "show-my-ip"    , "enable-blind", "http-proxy=" , "ttl="        , "post="           , "no-auto-detect",
-                        "plugins"       , "enable-color", "install-new-plugins"]
+                        "plugins"       , "enable-color", "update-def"  , "install-plugins"]
         optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:CI", longSwitches)
 
         startExploiter = False
@@ -264,8 +269,10 @@ if __name__ == "__main__":
                 config["p_autolang"] = False
             if (k in ("--plugins",)):
                 doPluginsShow = True
-            if (k in ("-I", "--install-new-plugins")):
+            if (k in ("-I", "--install-plugins")):
                 doInstallPlugins = True
+            if (k in ("--update-def",)):
+                doUpdateDef = True
             #if (k in("-f", "--exploit-filter")):
             #    config["p_exploit_filter"] = v
 
@@ -281,6 +288,57 @@ if __name__ == "__main__":
     except getopt.GetoptError, err:
         print (err)
         sys.exit(1)
+
+    if (doUpdateDef):
+        xmlconfig = config["XML2CONFIG"]
+        tools = baseTools.baseTools()
+        tester = codeinjector(config)
+        print "Checking for definition file updates..."
+        #print "Testing 'generic.xml'..."
+        generic_xml_ver = xmlconfig.getVersion()
+        
+        # Get generic.xml from SVN repository and parse out its version.
+        generic_xml_online = tester.doGetRequest(defupdateurl + "generic.xml")
+        tmpFile = tempfile.mkstemp()[1] + ".xml"
+        f = open(tmpFile, "w")
+        f.write(generic_xml_online)
+        f.close()
+        generic_xml_ver_online = tools.getAttributeFromFirstNode(tmpFile, "revision")
+
+        if (generic_xml_ver < generic_xml_ver_online):
+            print "'generic.xml' (v.%s) is older than the online version (v.%s)!" %(generic_xml_ver, generic_xml_ver_online)
+            tools.suggest_update(xmlconfig.getRealFile(), tmpFile)
+        else:
+            print "'generic.xml' is up-to-date." 
+        
+        print "Testing language sets defined in 'generic.xml'..."
+        langsets = xmlconfig.getAllLangSets()
+        for name, langclass in langsets.items():
+            fname = os.path.basename(langclass.getLangFile())
+            #print "Testing language '%s' for updates..." %(fname)
+            langurl = defupdateurl + fname
+            # Download and save XML from SVN repository.
+            xml_content = tester.doGetRequest(langurl)
+            if (xml_content != None):
+                tmpFile = tempfile.mkstemp()[1] + ".xml"
+                f = open(tmpFile, "w")
+                f.write(xml_content)
+                f.close()
+                # Parse out version number.
+                version_online = tools.getAttributeFromFirstNode(tmpFile, "revision")
+                # Get installed version.
+                version = langclass.getVersion()
+                if (version < version_online):
+                    print "'%s' (v.%s) is older than the online version (v.%s)!" %(fname, version, version_online)
+                    tools.suggest_update(langclass.getLangFile(), tmpFile)
+                else:
+                    print "'%s' is up-to-date." %(fname)
+            else:
+                print "Failed to check '%s'!" %(fname)
+            
+        
+        sys.exit(1)
+        
 
     if (doInstallPlugins):
         print "Requesting list of plugins..."
@@ -373,7 +431,7 @@ if __name__ == "__main__":
             for plug in plugins:
                 print "[Plugin: %s] by %s (%s)" %(plug.getPluginName(), plug.getPluginAutor(), plug.getPluginEmail())
         else:
-            print "No plugins :O"
+            print "No plugins :T"
         sys.exit(0)
         
     # Upgrade XML if needed...
