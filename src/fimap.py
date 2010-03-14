@@ -169,6 +169,7 @@ def show_report():
         for k,v in baseClass.new_stuff.items():
             print "\t- %d (probably) usable FI-Bugs on '%s'."%(v, k)
 
+
 if __name__ == "__main__":
     config["p_url"] = None
     config["p_mode"] = 0 # 0=single ; 1=mass ; 2=google ; 3=crawl
@@ -375,7 +376,9 @@ if __name__ == "__main__":
             print "No plugins :O"
         sys.exit(0)
         
-        
+    # Upgrade XML if needed...
+    bc = baseClass.baseClass(config)
+    bc.testIfXMLIsOldSchool()
         
     if (doRFITest):
         injector = codeinjector(config)
