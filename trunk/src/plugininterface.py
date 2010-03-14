@@ -70,8 +70,10 @@ class plugininterface(baseClass):
         for p in self.plugins:
             try:
                 p.plugin_callback_handler(attack, haxhelper)
+            except KeyboardInterrupt:
+                print "\nReceived unhandled KeyboardInterrupt by plugin!"
             except:
-                self._log("Plugin '%s' just crashed!"%(p.getPluginName()), self.LOG_ERROR)
+                self._log("\nPlugin '%s' just crashed!"%(p.getPluginName()), self.LOG_ERROR)
                 self._log("Please send a bugreport to the Plugin Developer: %s <%s>"%(p.getPluginAutor(), p.getPluginEmail()), self.LOG_ERROR)
                 self._log("Push enter to see the stacktrace.", self.LOG_WARN)
                 raw_input()
