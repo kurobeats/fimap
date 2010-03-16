@@ -68,8 +68,7 @@ Once I am happy with it you guys are welcome join the development team.
 But if you have a great patch ready and you think that I *have* to add it hardly, send it to me! :)
 ----
 == Is there a way to contact you? ==
-  * E-Mail: `fimap.dev@gmail.com`
-  * Jabber: `VanUber@jabber.ccc.de`
+  * E-Mail\Jabber: `fimap.dev@gmail.com`
 ----
 == Where do you come from? ==
 Europe.
