@@ -25,7 +25,7 @@ settings = {}
 
 settings["dynamic_rfi"] = {}
 
-settings["dynamic_rfi"]["mode"] = "off" # Set to "ftp" or "local" to use Dynamic_RFI. Set it to "off" to disable it and rely on settings["filesrmt"] files.
+settings["dynamic_rfi"]["mode"] = "ftp" # Set to "ftp" or "local" to use Dynamic_RFI. Set it to "off" to disable it and rely on settings["filesrmt"] files.
 
 ###############
 #!!!# WARNING #

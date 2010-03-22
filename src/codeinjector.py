@@ -356,37 +356,38 @@ class codeinjector(baseClass):
             print "Testing language %s..." %(langName)
             c, r = langObj.generateQuiz()
             if (settings["dynamic_rfi"]["mode"] == "local"):
-                print "Testing Local->RFI configuration...",
+                print "Testing Local->RFI configuration..."
                 code = self.executeRFI(settings["dynamic_rfi"]["local"]["http_map"], "", "", c)
                 if (code == c):
                     print "Dynamic RFI works!"
                     for ext in langObj.getExtentions():
-                        print "Testing %s interpreter..." %(ext),
-                        settings["dynamic_rfi"]["ftp"]["ftp_path"] = settings["dynamic_rfi"]["local"]["local_path"] + ext
+                        print "Testing %s interpreter..." %(ext)
+                        #settings["dynamic_rfi"]["ftp"]["ftp_path"] = settings["dynamic_rfi"]["local"]["local_path"] + ext
                         code = self.executeRFI(settings["dynamic_rfi"]["local"]["http_map"] + ext, "", ext, c)
-                        if (code == c):
-                            print "Yep it's disabled."
-                        elif (code == r):
+                        if (code == r):
                             print "WARNING! Files which ends with %s will be interpreted! Fix that!"%(ext)
+                        else:
+                            pass # Seems to be not interpreted...
                 else:
                     print "Failed! Something went wrong..."
     
     
             elif (settings["dynamic_rfi"]["mode"] == "ftp"):
-                print "Testing FTP->RFI configuration...",
+                print "Testing FTP->RFI configuration..."
                 code = self.executeRFI(settings["dynamic_rfi"]["ftp"]["http_map"], "", "", c)
                 if (code != None):
                     code = code.strip()
                     if (code == c):
                         print "Dynamic RFI works!"
                         for ext in langObj.getExtentions():
-                            print "Testing %s interpreter..."%(ext),
-                            settings["dynamic_rfi"]["ftp"]["ftp_path"] = settings["dynamic_rfi"]["ftp"]["ftp_path"] + ext
+                            print "Testing %s interpreter..."%(ext)
+                            #settings["dynamic_rfi"]["ftp"]["ftp_path"] = settings["dynamic_rfi"]["ftp"]["ftp_path"] + ext
                             code = self.executeRFI(settings["dynamic_rfi"]["ftp"]["http_map"] + ext, "", ext, c)
-                            if (code == c):
-                                print "Yep it's disabled."
-                            elif (code == r):
+                            if (code == r):
                                 print "WARNING! Files which ends with %s will be interpreted! Fix that!"%(ext)
+                            else:
+                                pass # Seems to be not interpreted...
+                                
     
                     else:
                         print "Failed! Something went wrong..."
