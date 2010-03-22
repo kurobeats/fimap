@@ -36,7 +36,7 @@ import shutil
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$30.08.2009 19:57:21$"
-__version__ = "08_svn"
+__version__ = "09_svn"
 
 config = {}
 
@@ -101,6 +101,8 @@ def show_help(AndQuit=False):
     print "        --update-def             Checks and updates your definition files found in the"
     print "                                 config directory."
     print "        --test-rfi               A quick test to see if you have configured RFI nicely."
+    print "        --merge-xml=XMLFILE      Use this if you have another fimap XMLFILE you want to"
+    print "                                 include to your own fimap_result.xml."
     print "   -C , --enable-color           Enables a colorful output. Works only in linux!"
     print "   -v , --verbose=LEVEL          Verbose level you want to receive."
     print "                                 LEVEL=3 -> Debug"
