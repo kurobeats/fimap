@@ -193,11 +193,13 @@ if __name__ == "__main__":
     config["p_post"] = ""
     config["p_autolang"] = True
     config["p_color"] = False
+    config["p_mergexml"] = None
     doPluginsShow = False
     doRFITest = False
     doInternetInfo = False
     doInstallPlugins = False
     doUpdateDef = False
+    doMergeXML = False
 
     print head
 
@@ -211,7 +213,7 @@ if __name__ == "__main__":
                         "user-agent="   , "query="      , "google"      , "pages="      , "credits"         , "exploit",
                         "harvest"       , "write="      , "depth="      , "greetings"   , "test-rfi"        , "skip-pages=",
                         "show-my-ip"    , "enable-blind", "http-proxy=" , "ttl="        , "post="           , "no-auto-detect",
-                        "plugins"       , "enable-color", "update-def"  , "install-plugins"]
+                        "plugins"       , "enable-color", "update-def"  , "merge-xml="  , "install-plugins"]
         optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:CI", longSwitches)
 
         startExploiter = False
@@ -273,6 +275,9 @@ if __name__ == "__main__":
                 doInstallPlugins = True
             if (k in ("--update-def",)):
                 doUpdateDef = True
+            if (k in ("--merge-xml",)):
+                doMergeXML = True
+                config["p_mergexml"] = v
             #if (k in("-f", "--exploit-filter")):
             #    config["p_exploit_filter"] = v
 
@@ -432,6 +437,12 @@ if __name__ == "__main__":
                 print "[Plugin: %s] by %s (%s)" %(plug.getPluginName(), plug.getPluginAutor(), plug.getPluginEmail())
         else:
             print "No plugins :T"
+        sys.exit(0)
+    
+    if (doMergeXML):
+        tester = codeinjector(config)
+        newVulns, newDomains = tester.mergeXML(config["p_mergexml"])
+        print "%d new vulnerabilitys added from %d new domains." %(newVulns, newDomains)
         sys.exit(0)
         
     # Upgrade XML if needed...

@@ -196,6 +196,14 @@ class baseClass (object):
         elem = self.findDomainNode(Domain)
         return(elem.getElementsByTagName("vuln"))
 
+    def existsDomain(self, domain):
+        for c in self.XML_RootItem.childNodes:
+            if (c.nodeName != "#text"):
+                c.getAttribute("hostname")
+                if (c.getAttribute("hostname") == domain):
+                    return(True)
+        return(False)
+
     def existsXMLEntry(self, domain, file, path):
         elem = self.findDomainNode(domain)
         for c in elem.childNodes:
@@ -204,6 +212,7 @@ class baseClass (object):
                 p = c.getAttribute("path")
                 if (f == file and p == path):
                     return(True)
+        return(False)
 
     def testIfXMLIsOldSchool(self):
         already_warned = False
@@ -239,6 +248,36 @@ class baseClass (object):
             print "Please rerun fimap."
             sys.exit(0)
         
+    def mergeXML(self, newXML):
+        newVulns = newDomains = 0
+        doSave = False
+        XML_newPlugin = xml.dom.minidom.parse(newXML)
+        XML_newRootitem = XML_newPlugin.firstChild
+        for c in XML_newRootitem.childNodes:
+            if (c.nodeName != "#text" and c.nodeName == "URL"):
+                hostname = str(c.getAttribute("hostname"))
+                for cc in c.childNodes:
+                    addit = True
+                    if (cc.nodeName != "#text" and cc.nodeName == "vuln"):
+                        new_path = str(cc.getAttribute("path"))
+                        new_file = str(cc.getAttribute("file"))
+
+                        if (not self.existsXMLEntry(hostname, new_file, new_path)):
+                            doSave = True
+                            print "Adding new informations from domain '%s'..." %(hostname)
+                            domainNode = self.findDomainNode(hostname)
+                            self._appendXMLChild(domainNode, cc)
+                            newVulns += 1
+                            if (not self.existsDomain(hostname)):
+                                self._appendXMLChild(self.XML_RootItem, domainNode)
+                                newDomains += 1
+                             
+        if (doSave):
+            print "Saving XML...",
+            self.saveXML()
+            print "All done."
+        return(newVulns, newDomains)
+                    
 
     def saveXML(self):
         self._log("Saving results to '%s'..."%self.xmlfile, self.LOG_DEBUG)
