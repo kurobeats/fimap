@@ -71,6 +71,11 @@ def show_help(AndQuit=False):
     print "        --skip-pages=X           Skip the first X pages from the Googlescanner."
     print "   -p , --pages=COUNT            Define the COUNT of pages to search (-g)."
     print "                                 Default is 10."
+    print "        --results=COUNT          The count of results the Googlescanner should get per page."
+    print "                                 Possible values: 10, 25, 50 or 100(default)."
+    print "        --googlesleep=TIME       The time in seconds the Googlescanner should wait"
+    print "                                 befor each request. fimap will count the time between two requests"
+    print "                                 and will sleep if it's needed to reach your cooldown. Default is 5."
     print "   -w , --write=LIST             The LIST which will be written if you have choosen"
     print "                                 harvest mode (-H). This file will be opened in APPEND mode."
     print "   -d , --depth=CRAWLDEPTH       The CRAWLDEPTH (recurse level) you want to crawl your target site"
@@ -196,6 +201,8 @@ if __name__ == "__main__":
     config["p_autolang"] = True
     config["p_color"] = False
     config["p_mergexml"] = None
+    config["p_results_per_query"] = 100
+    config["p_googlesleep"] = 5; 
     doPluginsShow = False
     doRFITest = False
     doInternetInfo = False
@@ -215,7 +222,8 @@ if __name__ == "__main__":
                         "user-agent="   , "query="      , "google"      , "pages="      , "credits"         , "exploit",
                         "harvest"       , "write="      , "depth="      , "greetings"   , "test-rfi"        , "skip-pages=",
                         "show-my-ip"    , "enable-blind", "http-proxy=" , "ttl="        , "post="           , "no-auto-detect",
-                        "plugins"       , "enable-color", "update-def"  , "merge-xml="  , "install-plugins"]
+                        "plugins"       , "enable-color", "update-def"  , "merge-xml="  , "install-plugins" , "results=",
+                        "googlesleep="]
         optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:CI", longSwitches)
 
         startExploiter = False
@@ -239,6 +247,10 @@ if __name__ == "__main__":
                 config["p_verbose"] = int(v)
             if (k in ("-p", "--pages")):
                 config["p_pages"] = int(v)
+            if (k in ("--results",)):
+                config["p_results_per_query"] = int(v)
+            if (k in ("--googlesleep",)):
+                config["p_googlesleep"] = int(v)
             if (k in ("-A", "--user-agent")):
                 config["p_useragent"] = v
             if (k in ("--http-proxy",)):
