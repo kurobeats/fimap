@@ -21,6 +21,7 @@
 from singleScan import singleScan
 from targetScanner import targetScanner
 from xgoogle.search import GoogleSearch
+import datetime
 import sys,time
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
@@ -30,8 +31,9 @@ class googleScan:
 
     def __init__(self, config):
         self.config = config
-        self.gs = GoogleSearch(self.config["p_query"], page=self.config["p_skippages"])
-        self.gs.results_per_page = 50
+        self.gs = GoogleSearch(self.config["p_query"], page=self.config["p_skippages"], random_agent=True)
+        self.gs.results_per_page = self.config["p_results_per_query"];
+        self.cooldown = self.config["p_googlesleep"];
         if (self.config["p_skippages"] > 0):
             print "Google Scanner will skip the first %d pages..."%(self.config["p_skippages"])
 
@@ -46,12 +48,23 @@ class googleScan:
 
         pagecnt = 0
         curtry = 0
+        
+        last_request_time = datetime.datetime.now()
 
         while(pagecnt < self.config["p_pages"]):
             pagecnt = pagecnt +1
             redo = True
             while (redo):
               try:
+                current_time = datetime.datetime.now()
+                diff = current_time - last_request_time
+                diff = int(diff.seconds)
+                if (diff < self.cooldown):
+                    if (diff > 0): 
+                        print "Commencing %ds google cooldown..." %(self.cooldown - diff)
+                        time.sleep(self.cooldown - diff)
+                    
+                last_request_time = datetime.datetime.now()
                 results = self.getNextPage()
                 redo = False
               except KeyboardInterrupt:
