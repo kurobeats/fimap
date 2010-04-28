@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<fimap language="php" revision="0" force_inclusion_test="0" autor="Iman Karim (ikarim2s@smail.inf.fh-brs.de)" >
+<fimap language="php" revision="1" force_inclusion_test="0" autor="Iman Karim (ikarim2s@smail.inf.fh-brs.de)" >
 	<snipe regex="Failed opening( required)* '(?P&lt;incname&gt;[\d\w/\.\-:\\]*?%s[\d\w/\.\-\\]*?)' (for inclusion)*" />
 	
 	<relative_files>
@@ -61,6 +61,8 @@
 			<pattern regex="Failed opening '.*?' for inclusion .*? in (&lt;b&gt; )?(?P&lt;script&gt;.*?) (&lt;b&gt; )?on line" />
 			<pattern regex="failed to open stream:.*?@(?P&lt;script&gt;.*?):" />
 			<pattern regex="in file &lt;b&gt;(?P&lt;script&gt;.*?)&lt;/b&gt;" />
+			<pattern regex="failed to open stream: No such file or directory in (?P&lt;script&gt;.*?) on line" />
+			<pattern regex="failed to open stream: No such file or directory in &lt;b&gt;(?P&lt;script&gt;.*?)&lt;/b&gt; on line" />
 		</include_patterns>
 		
 		<readfile_patterns>
