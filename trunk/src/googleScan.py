@@ -59,7 +59,7 @@ class googleScan:
                 current_time = datetime.datetime.now()
                 diff = current_time - last_request_time
                 diff = int(diff.seconds)
-                print diff
+
                 if (diff <= self.cooldown):
                     if (diff > 0): 
                         print "Commencing %ds google cooldown..." %(self.cooldown - diff)
