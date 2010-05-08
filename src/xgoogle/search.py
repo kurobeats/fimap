@@ -101,9 +101,9 @@ class GoogleSearch(object):
         search_info = self._extract_info(page)
         if not self.results_info:
             self.results_info = search_info
-            if self.num_results == 0:
-                self.eor = True
-                return []
+            #if self.num_results == 0:
+            #    self.eor = True
+            #    return []
         results = self._extract_results(page)
         if not results:
             self.eor = True
