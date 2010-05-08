@@ -59,13 +59,15 @@ class googleScan:
                 current_time = datetime.datetime.now()
                 diff = current_time - last_request_time
                 diff = int(diff.seconds)
-                if (diff < self.cooldown):
+                print diff
+                if (diff <= self.cooldown):
                     if (diff > 0): 
                         print "Commencing %ds google cooldown..." %(self.cooldown - diff)
                         time.sleep(self.cooldown - diff)
                     
                 last_request_time = datetime.datetime.now()
                 results = self.getNextPage()
+                
                 redo = False
               except KeyboardInterrupt:
                 raise
@@ -77,7 +79,8 @@ class googleScan:
                 if (curtry > self.config["p_maxtries"]):
                     print "MAXIMAL COUNT OF (RE)TRIES REACHED!"
                     sys.exit(1)
-
+            
+              
             curtry = 0
               
 
