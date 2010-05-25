@@ -96,15 +96,18 @@ class GoogleSearch(object):
         """ Gets a page of results """
         if self.eor:
             return []
-
+        MAX_VALUE = 1000000
         page = self._get_results_page()
-        search_info = self._extract_info(page)
+        #search_info = self._extract_info(page)
+        results = self._extract_results(page)
+        search_info = {'from': self.results_per_page*self._page,
+                       'to': self.results_per_page*self._page + len(results),
+                       'total': MAX_VALUE}
         if not self.results_info:
             self.results_info = search_info
-            #if self.num_results == 0:
-            #    self.eor = True
-            #    return []
-        results = self._extract_results(page)
+            if self.num_results == 0:
+                self.eor = True
+                return []
         if not results:
             self.eor = True
             return []
@@ -116,6 +119,7 @@ class GoogleSearch(object):
         self._page += 1
         self._last_from = search_info['from']
         return results
+
 
     def _maybe_raise(self, cls, *arg):
         if self.debug:
