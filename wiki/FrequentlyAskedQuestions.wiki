@@ -56,6 +56,14 @@ YES! They will find you and bust you!
 == Why the hell then can this tool spawn a shell if I am not allowed to use it? ==
 It's because this tool should provide you a realistic and easy way to test how secure your server really is. Maybe you host different sites for different customers - in that case you can see how vulnerable your whole system is if one of your customer "codes" an inclusion-bug. You can see how deep the impact is if your customers have spent too few time and love to the security.
 ----
+== Will the results of a fimap scan be stored somewhere? ==
+Yes man! It would be crap if not.
+Basicly there are 2 files. 
+
+~/fimap.log which will save all bugs found by fimap while scanning - regardless if the bug is useful to attack or not.
+
+~/fimap_results.xml is the storage of fimap where all valuable bugs will be stored in a sexy computer friendly format for later attacking. If you have found some LFI/RFI bugs you might want to start fimap with the *-x* parameter!
+----
 == I have found a bug! How should I report it? ==
 First of all download the SVN version and verify that your bug still exists in the SVN snapshot. If it's fixed thanks for your time!
 If not feel free to file a new bug in the issues tracker here!
