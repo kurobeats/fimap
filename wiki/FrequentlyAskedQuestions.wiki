@@ -62,10 +62,8 @@ If not feel free to file a new bug in the issues tracker here!
 I usually fix bugs very quickly so if you are annoyed of a bug it's in your interest to report it :)
 ----
 == Can I join development? ==
-Sure! But currently I want to code fimap how I like it. It's currently (January 2010) 4 month old and I am still not happy with some points of fimap. 
-Once I am happy with it you guys are welcome join the development team. 
+Contact me if you want to join this epic project *now*!
 
-But if you have a great patch ready and you think that I *have* to add it hardly, send it to me! :)
 ----
 == Is there a way to contact you? ==
   * E-Mail\Jabber: `fimap.dev@gmail.com`
