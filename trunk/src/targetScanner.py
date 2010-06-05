@@ -252,6 +252,8 @@ class targetScanner (baseClass.baseClass):
             code = self.doPostRequest(tmpurl, PostHax)
             if (code == None):
                 self._log("Identification of vulnerability failed. (code == None)", self.LOG_ERROR)
+                return None
+                
             m = RE_SUCCESS_MSG.search(code)
             if (m == None):
                 self._log("Identification of vulnerability failed. (m == None)", self.LOG_ERROR)
