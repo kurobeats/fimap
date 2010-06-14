@@ -57,9 +57,15 @@ def show_help(AndQuit=False):
     print "   -H , --harvest                Mode to harvest a URL recursivly for new URLs."
     print "                                 Needs a root url (-u) to start crawling there."
     print "                                 Also needs (-w) to write a URL list for mass mode."
+    print "## Techniques:"
+    #dot-truncation
     print "   -b , --enable-blind           Enables blind FI-Bug testing when no error messages are printed."
     print "                                 Note that this mode will cause lots of requests compared to the"
     print "                                 default method. Can be used with -s, -m or -g. Experimental."
+    print "   -D , --dot-truncation         Enables dot truncation technique to get rid of the suffix if"
+    print "                                 the default mode (nullbyte poison) failed. This mode can cause"
+    print "                                 tons of requests depending how you configure it."
+    print "                                 Can be used with -s, -m or -g. Experimental."
     print "## Variables:"
     print "   -u , --url=URL                The URL you want to test."
     print "                                 Needed in single mode (-s)."
@@ -195,6 +201,7 @@ if __name__ == "__main__":
     config["p_maxtries"] = 5
     config["p_skippages"] = 0
     config["p_monkeymode"] = False
+    config["p_doDotTruncation"] = False
     config["p_proxy"] = None
     config["p_ttl"] = 30
     config["p_post"] = ""
@@ -223,8 +230,8 @@ if __name__ == "__main__":
                         "harvest"       , "write="      , "depth="      , "greetings"   , "test-rfi"        , "skip-pages=",
                         "show-my-ip"    , "enable-blind", "http-proxy=" , "ttl="        , "post="           , "no-auto-detect",
                         "plugins"       , "enable-color", "update-def"  , "merge-xml="  , "install-plugins" , "results=",
-                        "googlesleep="]
-        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:CI", longSwitches)
+                        "googlesleep="  , "dot-truncation"]
+        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:CID", longSwitches)
 
         startExploiter = False
 
@@ -267,6 +274,8 @@ if __name__ == "__main__":
                 doRFITest = True
             if (k in ("-b", "--enable-blind")):
                 config["p_monkeymode"] = True
+            if (k in ("-D", "--dot-truncation")):
+                config["p_doDotTruncation"] = True
             if (k in ("-C", "--enable-color")):
                 config["p_color"] = True
             if (k in ("--skip-pages",)):
