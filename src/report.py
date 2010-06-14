@@ -32,7 +32,8 @@ class report:
         self.VulnKey = VulnKey
         self.VulnKeyVal = None
         self.Params = Params
-        self.NullbytePoison = None
+        self.SuffixBreakable = None
+        self.SuffixBreakTechName = None
         self.ServerPath = None
         self.ServerScript = None
         self.RemoteInjectable = False
@@ -141,12 +142,19 @@ class report:
     def getParams(self):
         return(self.Params)
 
-    def setNullBytePossible(self, NullByte):
-        self.NullbytePoison = NullByte
+    def setSuffixBreakable(self, isPossible):
+        self.SuffixBreakable = isPossible
 
-    def isNullbytePossible(self):
-        return(self.NullbytePoison)
+    def isSuffixBreakable(self):
+        return(self.SuffixBreakable)
 
+    def setSuffixBreakTechName(self, name):
+        self.SuffixBreakTechName = name
+        
+    def getSuffixBreakTechName(self):
+        return(self.SuffixBreakTechName)
+    
+    
     def getType(self):
         ret = ""
 
