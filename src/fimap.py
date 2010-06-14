@@ -467,6 +467,22 @@ if __name__ == "__main__":
         injector = codeinjector(config)
         injector.testRFI()
         sys.exit(0)
+    else:
+        # Test RFI settings stupidly.
+        from config import settings
+        if settings["dynamic_rfi"]["mode"] == "local":
+            if settings["dynamic_rfi"]["local"]["local_path"] == None or settings["dynamic_rfi"]["local"]["http_map"] == None:
+                print "Invalid Dynamic_RFI config!"
+                print "local_path and\\or http_map is not defined for local mode!"
+                print "Fix that in config.py"
+                sys.exit(1)
+        elif settings["dynamic_rfi"]["mode"] == "local":
+            if settings["dynamic_rfi"]["ftp"]["ftp_host"] == None or settings["dynamic_rfi"]["ftp"]["ftp_user"] == None or settings["dynamic_rfi"]["ftp"]["ftp_pass"] == None or settings["dynamic_rfi"]["ftp"]["ftp_path"] == None or settings["dynamic_rfi"]["ftp"]["http_map"] == None:
+                print "Invalid Dynamic_RFI config!"
+                print "One of your FTP config values is missing!"
+                print "Fix that in config.py"
+                sys.exit(1)
+            
 
     if (config["p_proxy"] != None):
         print "Using HTTP-Proxy '%s'." %(config["p_proxy"])

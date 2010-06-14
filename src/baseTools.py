@@ -121,8 +121,8 @@ class baseTools(object):
             return False
         
     def suggest_update(self, orginal_file, replacement_file):
-        print orginal_file
-        print replacement_file
+        #print orginal_file
+        #print replacement_file
         inp = raw_input("Do you want to update? [y/N]")
         if (inp == "Y" or inp == "y"):
             print "Updating..."
