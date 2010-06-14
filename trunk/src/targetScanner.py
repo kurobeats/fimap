@@ -384,7 +384,7 @@ class targetScanner (baseClass.baseClass):
                         r.setSuffixBreakTechName("Null-Byte")
 
                 if (sur != "" and not r.isSuffixBreakable() and self.config["p_doDotTruncation"]):
-                    if (r.isUnix and self.config["p_dot_trunc_only_win"]):
+                    if (r.isUnix() and self.config["p_dot_trunc_only_win"]):
                         self._log("Not trying dot-truncation because it's a unix server and you have not enabled it.", self.LOG_INFO)
                     else:
                         self._log("Trying Dot Truncation to get rid of the suffix...", self.LOG_INFO)
