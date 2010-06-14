@@ -26,6 +26,8 @@ import re,os
 import os.path
 import posixpath
 import ntpath
+import difflib
+import time
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$30.08.2009 19:59:44$"
@@ -43,7 +45,7 @@ class targetScanner (baseClass.baseClass):
 
         self._log("Parsing URL '%s'..."%(self.Target_URL), self.LOG_ALWAYS)
 
-        if (self.Target_URL.find("?") == -1):
+        if (self.Target_URL.count("?") == 0):
             self._log("Target URL doesn't have any params.", self.LOG_DEBUG);
         else:
             data = self.Target_URL.split("?")[1]
@@ -374,6 +376,46 @@ class targetScanner (baseClass.baseClass):
                         r.setSurfix("%00")
                         r.setNullBytePossible(True)
 
+                if (not r.NullbytePoison and self.config["p_doDotTruncation"]):
+                    self._log("Trying Dot Truncation to get rid of the suffix...", self.LOG_INFO)
+                    dot_trunc_start = 700
+                    dot_trunc_end   = 800
+                    dot_trunc_step  = 50
+                    max_diff        = 0.095
+
+                    self._log("Preparing Dot Truncation comparation string...", self.LOG_DEBUG)
+                    tmpurl = URL
+                    
+                    code1 = self.doGetRequest(URL)
+   
+                    vulnParamBlock = "%s=%s%s"%(VulnParam, Params[VulnParam], r.getAppendix())
+                    desturl = tmpurl.replace("%s=%s"%(VulnParam,Params[VulnParam]), vulnParamBlock)
+                    self._log("Test URL will be: " + desturl, self.LOG_DEVEL)
+                    
+                    success = False
+                    
+                    seqmatcher = difflib.SequenceMatcher()
+                    
+                    for i in range (dot_trunc_start, dot_trunc_end, dot_trunc_step):
+                        tmpurl = desturl
+                        desturl = desturl.replace(vulnParamBlock, "%s%s"%(vulnParamBlock, "." * i))
+                        content = self.doGetRequest(desturl)
+                        if (content == None):
+                            self._log("Dot Truncation testing failed :(", self.LOG_WARN)
+                            break
+                        
+                        seqmatcher.set_seqs(code1, content)
+                        ratio = seqmatcher.ratio()
+                        if (1-max_diff <= ratio <= 1):
+                            self._log("Dot Truncation successfull with: %d dots ; %f ratio)!" %(i, ratio), self.LOG_INFO)
+                            r.setSurfix("." * i)
+                            r.setNullBytePossible(True)
+                            success = True
+                            break
+                        else:
+                            self._log("No luck with (%s)..." %(i), self.LOG_DEBUG)
+                    if (not success):
+                        self._log("Dot Truncation not possible :(", self.LOG_INFO)
 
             if (scriptpath == ""):
                 # Failed to get scriptpath with easy method :(
