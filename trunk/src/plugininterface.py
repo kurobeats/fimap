@@ -56,7 +56,7 @@ class plugininterface(baseClass):
         for p in self.plugins:
             p.plugin_loaded()
 
-        self._log("%d plugins loaded." %(x), self.LOG_INFO)
+        self._log("%d plugins loaded." %(x), self.LOG_DEBUG)
         
     def requestPluginActions(self, langClass, isSystem, isUnix):
         ret = []

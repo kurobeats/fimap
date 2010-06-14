@@ -58,10 +58,9 @@ def show_help(AndQuit=False):
     print "                                 Needs a root url (-u) to start crawling there."
     print "                                 Also needs (-w) to write a URL list for mass mode."
     print "## Techniques:"
-    #dot-truncation
     print "   -b , --enable-blind           Enables blind FI-Bug testing when no error messages are printed."
     print "                                 Note that this mode will cause lots of requests compared to the"
-    print "                                 default method. Can be used with -s, -m or -g. Experimental."
+    print "                                 default method. Can be used with -s, -m or -g."
     print "   -D , --dot-truncation         Enables dot truncation technique to get rid of the suffix if"
     print "                                 the default mode (nullbyte poison) failed. This mode can cause"
     print "                                 tons of requests depending how you configure it."
@@ -92,6 +91,11 @@ def show_help(AndQuit=False):
     print "        --no-auto-detect         Use this switch if you don't want to let fimap automaticly detect"
     print "                                 the target language in blind-mode. In that case you will get some"
     print "                                 options you can choose if fimap isn't sure which lang it is."
+    print "        --dot-trunc-min=700      The count of dots to begin with in dot-truncation mode."
+    print "        --dot-trunc-max=2000     The count of dots to end with in dot-truncation mode."
+    print "        --dot-trunc-step=50      The step size for each round in dot-truncation mode."
+    print "        --dot-trunc-ratio=0.095  The maximum ratio to detect if dot truncation was successfull."
+    print "        --dot-trunc-also-unix    Use this if dot-truncation should also be tested on unix servers."
     print "## Attack Kit:"
     print "   -x , --exploit                Starts an interactive session where you can"
     print "                                 select a target and do some action."
@@ -202,6 +206,11 @@ if __name__ == "__main__":
     config["p_skippages"] = 0
     config["p_monkeymode"] = False
     config["p_doDotTruncation"] = False
+    config["p_dot_trunc_min"] = 700
+    config["p_dot_trunc_max"] = 2000
+    config["p_dot_trunc_step"] = 50
+    config["p_dot_trunc_ratio"] = 0.095
+    config["p_dot_trunc_only_win"] = True  
     config["p_proxy"] = None
     config["p_ttl"] = 30
     config["p_post"] = ""
@@ -230,7 +239,8 @@ if __name__ == "__main__":
                         "harvest"       , "write="      , "depth="      , "greetings"   , "test-rfi"        , "skip-pages=",
                         "show-my-ip"    , "enable-blind", "http-proxy=" , "ttl="        , "post="           , "no-auto-detect",
                         "plugins"       , "enable-color", "update-def"  , "merge-xml="  , "install-plugins" , "results=",
-                        "googlesleep="  , "dot-truncation"]
+                        "googlesleep="  , "dot-truncation", "dot-trunc-min=", "dot-trunc-max=", "dot-trunc-step=", "dot-trunc-ratio=",
+                        "dot-trunc-also-unix"]
         optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:CID", longSwitches)
 
         startExploiter = False
@@ -301,6 +311,16 @@ if __name__ == "__main__":
             if (k in ("--merge-xml",)):
                 doMergeXML = True
                 config["p_mergexml"] = v
+            if (k in ("--dot-trunc-min",)):
+                config["p_dot_trunc_min"] = int(v)
+            if (k in ("--dot-trunc-max",)):
+                config["p_dot_trunc_max"] = int(v)
+            if (k in ("--dot-trunc-step",)):
+                config["p_dot_trunc_step"] = int(v)
+            if (k in ("--dot-trunc-ratio",)):
+                config["p_dot_trunc_ratio"] = float(v)
+            if (k in ("--dot-trunc-also-unix",)):
+                config["p_dot_trunc_only_win"] = False 
             #if (k in("-f", "--exploit-filter")):
             #    config["p_exploit_filter"] = v
 

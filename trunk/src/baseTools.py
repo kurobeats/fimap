@@ -2,6 +2,8 @@ import urllib, httplib, copy, urllib2
 import string,random,os,socket, os.path
 import xml.dom.minidom
 import shutil
+from time import gmtime, strftime
+
 class baseTools(object):
     LOG_ERROR = 99
     LOG_WARN  = 98
@@ -63,10 +65,11 @@ class baseTools(object):
     def _log(self, txt, LVL):
         if (4-self.config["p_verbose"] < LVL):
             logline = "[%s] %s" %(self.log_lvl[LVL][0], txt)
+            t = strftime("%H:%M:%S", gmtime())
             if (self.use_color):
-                print self.__getColorLine(logline, self.log_lvl[LVL][1])
+                print "[%s] %s" %(t, self.__getColorLine(logline, self.log_lvl[LVL][1]))
             else:
-                print logline
+                print "[%s] %s" %(t, logline)
     
     def __setColor(self, txt, style):
         ret = self.CONST_COL + txt

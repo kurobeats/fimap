@@ -57,38 +57,38 @@ class singleScan(baseClass):
                         header = "[%d] Possible File Inclusion"%(idx)
                         if (report.getLanguage() != None):
                             header = "[%d] Possible %s-File Inclusion"%(idx, report.getLanguage())
-                        boxarr.append("  [URL]      %s"%report.getURL())
+                        boxarr.append("  [URL]        %s"%report.getURL())
                         if (report.getPostData() != None and report.getPostData() != ""): boxarr.append("  [POST]     %s"%report.getPostData())
                         if (report.isPost):
-                            boxarr.append("  [POSTPARM] %s"%report.getVulnKey())
+                            boxarr.append("  [POSTPARM]   %s"%report.getVulnKey())
                         else:
-                            boxarr.append("  [PARAM]    %s"%report.getVulnKey())
+                            boxarr.append("  [PARAM]      %s"%report.getVulnKey())
                         if (report.isBlindDiscovered()):
-                            boxarr.append("  [PATH]     Not received (Blindmode)")
+                            boxarr.append("  [PATH]       Not received (Blindmode)")
                         else:
-                            boxarr.append("  [PATH]     %s"%report.getServerPath())
+                            boxarr.append("  [PATH]       %s"%report.getServerPath())
                         if (report.isUnix()):
-                            boxarr.append("  [OS]       Unix")
+                            boxarr.append("  [OS]         Unix")
                         else:
-                            boxarr.append("  [OS]       Windows")
+                            boxarr.append("  [OS]         Windows")
                             
-                        boxarr.append("  [TYPE]     %s"%report.getType())
+                        boxarr.append("  [TYPE]       %s"%report.getType())
                         if (not report.isBlindDiscovered()):
-                            if (report.isNullbytePossible() == None):
-                                boxarr.append("  [NULLBYTE] No Need. It's clean.")
+                            if (report.isSuffixBreakable() == None):
+                                boxarr.append("  [TRUNCATION] No Need. It's clean.")
                             else:
-                                if (report.isNullbytePossible()):
-                                    boxarr.append("  [NULLBYTE] Works. :)")
+                                if (report.isSuffixBreakable()):
+                                    boxarr.append("  [TRUNCATION] Works with '%s'. :)" %(report.getSuffixBreakTechName()))
                                 else:
-                                    boxarr.append("  [NULLBYTE] Doesn't work. :(")
+                                    boxarr.append("  [TRUNCATION] Doesn't work. :(")
                         else:
-                            if (report.isNullbytePossible()):
-                                boxarr.append("  [NULLBYTE] Is needed.")
+                            if (report.isSuffixBreakable()):
+                                boxarr.append("  [TRUNCATION] Is needed.")
                             else:
-                                boxarr.append("  [NULLBYTE] Not tested.")
+                                boxarr.append("  [TRUNCATION] Not tested.")
                         boxarr.append("  [READABLE FILES]")
                         if (len(files) == 0):
-                            boxarr.append("                   No Readable files found :(")
+                            boxarr.append("                     No Readable files found :(")
                         else:
                             fidx = 0
                             for file in files:
