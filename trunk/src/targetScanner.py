@@ -346,6 +346,11 @@ class targetScanner (baseClass.baseClass):
                         pre = ntpath.normpath(pre)
                         if (pre[1] == ":"):
                             rootdir = pre[0:3]
+                        elif (pre[0:1] == "\\"):
+                            self._log("The inclusion points to a network path! Skipping vulnerability.", self.LOG_WARN)
+                            return(None)
+                    
+                        
                         pre = self.relpath_win(rootdir, pre)
                 else:
                     pre = self.relpath_unix("/", pre)
