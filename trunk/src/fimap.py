@@ -64,6 +64,7 @@ def show_help(AndQuit=False):
     print "   -D , --dot-truncation         Enables dot truncation technique to get rid of the suffix if"
     print "                                 the default mode (nullbyte poison) failed. This mode can cause"
     print "                                 tons of requests depending how you configure it."
+    print "                                 By default this mode only tests windows servers."
     print "                                 Can be used with -s, -m or -g. Experimental."
     print "## Variables:"
     print "   -u , --url=URL                The URL you want to test."
