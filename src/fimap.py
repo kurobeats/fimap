@@ -155,12 +155,15 @@ def show_credits():
 
 
 def show_greetings():
-    print "## Greetings:"
-    print " - Rita, because you are the best girl on earth."
-    print "## Circle of awesome people:"
+    print "## Greetings to the Circle of Awesome People:"
+    print "(alphabetically)"
     print " - Exorzist"
+    print " - IngoWer"
     print " - Invisible"
     print " - Ruun"
+    print " - Yasmin"
+    print " - Whole Netherlands"
+    print "## You guys and lads are epic and unreplacable."
     sys.exit(0)
 
 def show_ip():
