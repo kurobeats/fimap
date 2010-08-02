@@ -272,7 +272,7 @@ class targetScanner (baseClass.baseClass):
             r.setPostData(PostData)
             
             for sp_err_msg in langClass.getIncludeDetectors():
-                RE_SCRIPT_PATH = re.compile(sp_err_msg)
+                RE_SCRIPT_PATH = re.compile(sp_err_msg, re.S)
                 s = RE_SCRIPT_PATH.search(code)
                 if (s != None): break
             if (s == None):
