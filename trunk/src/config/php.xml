@@ -64,6 +64,7 @@
 			<pattern regex="in file &lt;b&gt;(?P&lt;script&gt;.*?)&lt;/b&gt;" />
 			<pattern regex="failed to open stream: No such file or directory in (?P&lt;script&gt;.*?) on line" />
 			<pattern regex="failed to open stream: No such file or directory in &lt;b&gt;(?P&lt;script&gt;.*?)&lt;/b&gt; on line" />
+			<pattern regex="Failed opening .*? for inclusion .*?on (?P&lt;script&gt;.*?) " />
 		</include_patterns>
 		
 		<readfile_patterns>

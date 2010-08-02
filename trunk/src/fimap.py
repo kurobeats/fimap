@@ -162,8 +162,8 @@ def show_greetings():
     print " - Invisible"
     print " - Ruun"
     print " - Yasmin"
-    print " - Whole Netherlands"
-    print "## You guys and lads are epic and unreplacable."
+    print " Special Greetings to the whole Netherlands"
+    print "## You guys and lads are epic."
     sys.exit(0)
 
 def show_ip():
@@ -351,6 +351,11 @@ if __name__ == "__main__":
         
         # Get generic.xml from SVN repository and parse out its version.
         generic_xml_online = tester.doGetRequest(defupdateurl + "generic.xml")
+
+	if generic_xml_online == None:
+		print "Failed to check generic_xml. Are you online?"
+		sys.exit(1)
+
         tmpFile = tempfile.mkstemp()[1] + ".xml"
         f = open(tmpFile, "w")
         f.write(generic_xml_online)
@@ -396,6 +401,10 @@ if __name__ == "__main__":
         print "Requesting list of plugins..."
         tester = codeinjector(config)
         result = tester.doGetRequest(pluginlist)
+
+	if result == None:
+		print "Failed to request plugins! Are you online?"
+		sys.exit(1)
         
         choice = {}
         idx = 1
