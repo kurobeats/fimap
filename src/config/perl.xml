@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fimap language="perl" revision="0" force_inclusion_test="1" autor="Iman Karim (ikarim2s@smail.inf.fh-brs.de)" >
-	<snipe regex="Can't locate (?P&lt;incname&gt;[\d\w/\.\-]*?%s[\d\w/\.\-]*?) in .*? at.*?line \d+?\." />
+	<snipe regex="Can't locate (?P&lt;script&gt;[\d\w/\.\-]*?%s[\d\w/\.\-]*?) in .*? at.*?line \d+?\." />
 	
 	<relative_files>
 	</relative_files>

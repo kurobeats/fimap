@@ -352,9 +352,9 @@ if __name__ == "__main__":
         # Get generic.xml from SVN repository and parse out its version.
         generic_xml_online = tester.doGetRequest(defupdateurl + "generic.xml")
 
-	if generic_xml_online == None:
-		print "Failed to check generic_xml. Are you online?"
-		sys.exit(1)
+    	if generic_xml_online == None:
+            print "Failed to check generic_xml. Are you online?"
+	    sys.exit(1)
 
         tmpFile = tempfile.mkstemp()[1] + ".xml"
         f = open(tmpFile, "w")
@@ -402,9 +402,9 @@ if __name__ == "__main__":
         tester = codeinjector(config)
         result = tester.doGetRequest(pluginlist)
 
-	if result == None:
-		print "Failed to request plugins! Are you online?"
-		sys.exit(1)
+    	if result == None:
+        	print "Failed to request plugins! Are you online?"
+	        sys.exit(1)
         
         choice = {}
         idx = 1
