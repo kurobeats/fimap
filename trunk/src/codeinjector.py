@@ -199,9 +199,10 @@ class codeinjector(baseClass):
                                 if (isUnix):
                                     ls_cmd = "ls -m"
                                 else:
-                                    ls_cmd = "dir"
+                                    ls_cmd = "dir /B"
+                                self._log("Epic Tab-completation enabled!", self.LOG_INFO)
                             except:
-                                self._log("Failed to setup readline module!", self.LOG_WARN)
+                                self._log("Epicly failed to setup readline module!", self.LOG_WARN)
                                 self._log("Falling back to default exploit-shell.", self.LOG_WARN)
                         
                         
