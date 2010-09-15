@@ -242,12 +242,36 @@ if __name__ == "__main__":
 
     print head
 
+
     if (len(sys.argv) == 1):
         #show_help(True)
         print "Use -h for some help."
         sys.exit(0)
 
     try:
+
+        # Ape style lockfile. But it works! :)
+        lockFound = False
+        curlockfile = None
+        for f in os.listdir(tempfile.gettempdir()):
+            if f.startswith("fimap_") and f.endswith("_lockfile"):
+                lockFound = True
+                curlockfile = f
+                break
+        
+        if (lockFound):
+            print "Another fimap instance is already running!"
+            print "If you think this is not correct please delete the following file:"
+            print os.path.join(tempfile.gettempdir(), curlockfile)
+            sys.exit(0)
+        else:
+            print "Creating lockfile."
+            lockfile = tempfile.NamedTemporaryFile(prefix="fimap_", suffix="_lockfile")
+            
+        
+        
+        
+        
         longSwitches = ["url="          , "mass"        , "single"      , "list="       , "verbose="        , "help",
                         "user-agent="   , "query="      , "google"      , "pages="      , "credits"         , "exploit",
                         "harvest"       , "write="      , "depth="      , "greetings"   , "test-rfi"        , "skip-pages=",
