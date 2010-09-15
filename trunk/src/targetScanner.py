@@ -43,7 +43,7 @@ class targetScanner (baseClass.baseClass):
     def prepareTarget(self, url):
         self.Target_URL = url
 
-        self._log("Parsing URL '%s'..."%(self.Target_URL), self.LOG_ALWAYS)
+        self._log("Inspecting URL '%s'..."%(self.Target_URL), self.LOG_ALWAYS)
 
         if (self.Target_URL.count("?") == 0):
             self._log("Target URL doesn't have any params.", self.LOG_DEBUG);
