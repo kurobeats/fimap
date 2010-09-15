@@ -40,7 +40,8 @@ __version__ = "09_svn"
 
 config = {}
 
-head =  "fimap v.%s by Iman Karim - Automatic LFI/RFI scanner and exploiter"%__version__ 
+head =  "\nfimap v.%s by Iman Karim (fimap.dev@gmail.com)\n"%__version__ +\
+        "~ Automatic LFI/RFI scanner and exploiter ~\n" 
 
 pluginlist = "http://fimap.googlecode.com/svn/wiki/PluginList.wiki"
 defupdateurl = "http://fimap.googlecode.com/svn/trunk/src/config/"
@@ -100,6 +101,7 @@ def show_help(AndQuit=False):
     print "## Attack Kit:"
     print "   -x , --exploit                Starts an interactive session where you can"
     print "                                 select a target and do some action."
+    print "   -T , --tab-complete           Enables TAB-Completation in exploit mode. Needs readline module."
     print "## Disguise Kit:"
     print "   -A , --user-agent=UA          The User-Agent which should be sent."
     print "        --http-proxy=PROXY       Setup your proxy with this option. But read this facts:"
@@ -160,10 +162,13 @@ def show_greetings():
     print " - Exorzist"
     print " - IngoWer"
     print " - Invisible"
+    print " - MarcosKhan"
+    print " - Rita"
     print " - Ruun"
+    print " - Sticks"
+    print " - Satyros"
     print " - Yasmin"
     print " Special Greetings to the whole Netherlands"
-    print "## You guys and lads are epic."
     sys.exit(0)
 
 def show_ip():
@@ -222,7 +227,8 @@ if __name__ == "__main__":
     config["p_color"] = False
     config["p_mergexml"] = None
     config["p_results_per_query"] = 100
-    config["p_googlesleep"] = 5; 
+    config["p_googlesleep"] = 5;
+    config["p_tabcomplete"] = False;
     doPluginsShow = False
     doRFITest = False
     doInternetInfo = False
@@ -244,8 +250,8 @@ if __name__ == "__main__":
                         "show-my-ip"    , "enable-blind", "http-proxy=" , "ttl="        , "post="           , "no-auto-detect",
                         "plugins"       , "enable-color", "update-def"  , "merge-xml="  , "install-plugins" , "results=",
                         "googlesleep="  , "dot-truncation", "dot-trunc-min=", "dot-trunc-max=", "dot-trunc-step=", "dot-trunc-ratio=",
-                        "dot-trunc-also-unix"]
-        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:CID", longSwitches)
+                        "tab-complete"  , "dot-trunc-also-unix"]
+        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:CIDT", longSwitches)
 
         startExploiter = False
 
@@ -325,6 +331,8 @@ if __name__ == "__main__":
                 config["p_dot_trunc_ratio"] = float(v)
             if (k in ("--dot-trunc-also-unix",)):
                 config["p_dot_trunc_only_win"] = False 
+            if (k in ("-T", "--tab-complete")):
+                config["p_tabcomplete"] = True
             #if (k in("-f", "--exploit-filter")):
             #    config["p_exploit_filter"] = v
 
@@ -335,7 +343,11 @@ if __name__ == "__main__":
         config["PLUGINMANAGER"] = plugman
                       
         if startExploiter:
-            list_results()
+            try:
+                list_results()
+            except KeyboardInterrupt:
+                print "\n\nYou killed me brutally. Wtf!\n\n"
+                sys.exit(0)
 
     except getopt.GetoptError, err:
         print (err)
