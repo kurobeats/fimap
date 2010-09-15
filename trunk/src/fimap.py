@@ -265,7 +265,6 @@ if __name__ == "__main__":
             print os.path.join(tempfile.gettempdir(), curlockfile)
             sys.exit(0)
         else:
-            print "Creating lockfile."
             lockfile = tempfile.NamedTemporaryFile(prefix="fimap_", suffix="_lockfile")
             
         
