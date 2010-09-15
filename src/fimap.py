@@ -40,8 +40,10 @@ __version__ = "09_svn"
 
 config = {}
 
-head =  "\nfimap v.%s by Iman Karim (fimap.dev@gmail.com)\n"%__version__ +\
-        "~ Automatic LFI/RFI scanner and exploiter ~\n" 
+
+head =  "fimap v.%s\n"%__version__
+head +=  ":: Automatic LFI/RFI scanner and exploiter\n"
+head +=  ":: by Iman Karim (fimap.dev@gmail.com)\n"
 
 pluginlist = "http://fimap.googlecode.com/svn/wiki/PluginList.wiki"
 defupdateurl = "http://fimap.googlecode.com/svn/trunk/src/config/"
@@ -102,6 +104,8 @@ def show_help(AndQuit=False):
     print "   -x , --exploit                Starts an interactive session where you can"
     print "                                 select a target and do some action."
     print "   -T , --tab-complete           Enables TAB-Completation in exploit mode. Needs readline module."
+    print "                                 Use this if you want to be able to tab-complete thru remote"
+    print "                                 files\dirs. Eats an extra request for every 'cd' command."
     print "## Disguise Kit:"
     print "   -A , --user-agent=UA          The User-Agent which should be sent."
     print "        --http-proxy=PROXY       Setup your proxy with this option. But read this facts:"
