@@ -40,9 +40,17 @@ class report:
         self.isLinux = True
         self.BlindDiscovered = False
         self.PostData = None
-        self.isPost = False
+        self.isPost = 0
         self.language = None
+        self.VulnHeaderKey = None
+        self.HeaderDict = None
         
+
+    def setVulnHeaderKey(self, headerkey):
+        self.VulnHeaderKey = headerkey
+        
+    def setHeader(self, header):
+        self.HeaderDict = header
 
     def setLanguage(self, lang):
         self.language = lang
@@ -61,6 +69,14 @@ class report:
         
     def getPostData(self):
         return(self.PostData)
+    
+    def getVulnHeader(self):
+        if (self.VulnHeaderKey == None):
+            return("")
+        return(self.VulnHeaderKey)
+    
+    def getHeader(self):
+        return(self.HeaderDict)
     
     def isPost(self):
         return(self.isPost)

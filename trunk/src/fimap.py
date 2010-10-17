@@ -69,6 +69,7 @@ def show_help(AndQuit=False):
     print "                                 tons of requests depending how you configure it."
     print "                                 By default this mode only tests windows servers."
     print "                                 Can be used with -s, -m or -g. Experimental."
+    print "   -M , --multiply-term=X        Multiply terminal symbols like '.' and '/' in the path by X."
     print "## Variables:"
     print "   -u , --url=URL                The URL you want to test."
     print "                                 Needed in single mode (-s)."
@@ -91,6 +92,8 @@ def show_help(AndQuit=False):
     print "                                 in harvest mode (-H). Default is 1."
     print "   -P , --post=POSTDATA          The POSTDATA you want to send. All variables inside"
     print "                                 will also be scanned for file inclusion bugs."
+    print "        --cookie=COOKIE          Define the cookie which should be send with each request."
+    print "                                 Also the cookie will be scanned for file inclusion bugs." 
     print "        --ttl=SECONDS            Define the TTL (in seconds) for requests. Default is 30 seconds."
     print "        --no-auto-detect         Use this switch if you don't want to let fimap automaticly detect"
     print "                                 the target language in blind-mode. In that case you will get some"
@@ -231,8 +234,10 @@ if __name__ == "__main__":
     config["p_color"] = False
     config["p_mergexml"] = None
     config["p_results_per_query"] = 100
-    config["p_googlesleep"] = 5;
-    config["p_tabcomplete"] = False;
+    config["p_googlesleep"] = 5
+    config["p_tabcomplete"] = False
+    config["p_multiply_term"] = 1
+    config["header"] = {}
     doPluginsShow = False
     doRFITest = False
     doInternetInfo = False
@@ -277,8 +282,8 @@ if __name__ == "__main__":
                         "show-my-ip"    , "enable-blind", "http-proxy=" , "ttl="        , "post="           , "no-auto-detect",
                         "plugins"       , "enable-color", "update-def"  , "merge-xml="  , "install-plugins" , "results=",
                         "googlesleep="  , "dot-truncation", "dot-trunc-min=", "dot-trunc-max=", "dot-trunc-step=", "dot-trunc-ratio=",
-                        "tab-complete"  , "dot-trunc-also-unix"]
-        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:CIDT", longSwitches)
+                        "tab-complete"  , "cookie="     , "dot-trunc-also-unix", "multiply-term="]
+        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:CIDTM:", longSwitches)
 
         startExploiter = False
 
@@ -360,6 +365,10 @@ if __name__ == "__main__":
                 config["p_dot_trunc_only_win"] = False 
             if (k in ("-T", "--tab-complete")):
                 config["p_tabcomplete"] = True
+            if (k in ("-M", "--multiply-term")):
+                config["p_multiply_term"] = int(v)
+            if (k in ("--cookie",)):
+                config["header"]["Cookie"] = v
             #if (k in("-f", "--exploit-filter")):
             #    config["p_exploit_filter"] = v
 

