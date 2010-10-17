@@ -31,8 +31,6 @@ import language
 import sys,os
 import tarfile, tempfile
 import shutil
-# To change this template, choose Tools | Templates
-# and open the template in the editor.
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$30.08.2009 19:57:21$"
@@ -93,7 +91,8 @@ def show_help(AndQuit=False):
     print "   -P , --post=POSTDATA          The POSTDATA you want to send. All variables inside"
     print "                                 will also be scanned for file inclusion bugs."
     print "        --cookie=COOKIE          Define the cookie which should be send with each request."
-    print "                                 Also the cookie will be scanned for file inclusion bugs." 
+    print "                                 Also the cookies will be scanned for file inclusion bugs." 
+    print "                                 Multiple cookies should be concat with ';'."
     print "        --ttl=SECONDS            Define the TTL (in seconds) for requests. Default is 30 seconds."
     print "        --no-auto-detect         Use this switch if you don't want to let fimap automaticly detect"
     print "                                 the target language in blind-mode. In that case you will get some"
@@ -597,7 +596,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if (config["p_monkeymode"] == True):
-        print "Experimental blind FI-error checking enabled."
+        print "Blind FI-error checking enabled."
 
 
 

