@@ -23,6 +23,8 @@ from ftplib import FTP
 from ftplib import error_perm
 from config import settings
 import xml.dom.minidom
+from base64 import b64encode
+import pickle
 import ntpath
 import baseTools
 import shutil
@@ -136,6 +138,12 @@ class baseClass (object):
             self._setAttrib(elem_vuln, "kernel", "")
             self._setAttrib(elem_vuln, "language", rep.getLanguage())
             
+            headers_pickle = pickle.dumps(rep.getHeader())
+            headers_pickle = b64encode(headers_pickle)
+            self._setAttrib(elem_vuln, "header_dict", headers_pickle)
+            
+            self._setAttrib(elem_vuln, "header_vuln_key", rep.getVulnHeader())
+            
             os_ = "unix"
             if (rep.isWindows()):
                 os_ = "win"
@@ -152,10 +160,7 @@ class baseClass (object):
             else:
                 self._setAttrib(elem_vuln, "blind", "0")
 
-            if (rep.isPost):
-                self._setAttrib(elem_vuln, "ispost", "1")
-            else:
-                self._setAttrib(elem_vuln, "ispost", "0")
+            self._setAttrib(elem_vuln, "ispost", str(rep.isPost))
                 
             self._appendXMLChild(elem, elem_vuln)
             self._appendXMLChild(self.XML_RootItem, elem)
@@ -512,6 +517,7 @@ class baseClass (object):
 
     def doGetRequest(self, URL, additionalHeaders=None):
         self._log("GET: %s"%URL, self.LOG_DEVEL)
+        self._log("HEADER: %s"%str(additionalHeaders), self.LOG_DEVEL)
         self._log("TTL: %d"%baseClass.TIMEOUT, self.LOG_DEVEL)
         result, headers = self.doRequest(URL, self.config["p_useragent"], additionalHeaders=additionalHeaders)
         self._log("RESULT-HEADER: %s"%headers, self.LOG_DEVEL)
@@ -519,10 +525,11 @@ class baseClass (object):
         return result
 
     def doPostRequest(self, URL, Post, additionalHeaders=None):
-        self._log("URL: %s"%URL, self.LOG_DEVEL)
-        self._log("POST: %s"%Post, self.LOG_DEVEL)
+        self._log("URL   : %s"%URL, self.LOG_DEVEL)
+        self._log("POST  : %s"%Post, self.LOG_DEVEL)
+        self._log("HEADER: %s"%str(additionalHeaders), self.LOG_DEVEL)
         self._log("TTL: %d"%baseClass.TIMEOUT, self.LOG_DEVEL)
-        result, headers = self.doRequest(URL, self.config["p_useragent"], Post, additionalHeaders)
+        result, headers = self.doRequest(URL, self.config["p_useragent"], Post, additionalHeaders=additionalHeaders)
         self._log("RESULT-HEADER: %s"%headers, self.LOG_DEVEL)
         self._log("RESULT-HTML: %s"%result, self.LOG_DEVEL)
         return result
@@ -550,9 +557,9 @@ class baseClass (object):
                     b.headers.update(additionalHeaders)
 
                 if postData:
-                    result, headers = b.get_page(URL, postData)
+                    result, headers = b.get_page(URL, postData, additionalheader=additionalHeaders)
                 else:
-                    result, headers = b.get_page(URL)
+                    result, headers = b.get_page(URL, additionalheader=additionalHeaders)
 
             finally:
                 del(b)
@@ -599,13 +606,17 @@ class Browser(object):
             'Accept-Language': 'en-us,en;q=0.5'}
         self.proxy = proxystring
 
-    def get_page(self, url, data=None):
+    def get_page(self, url, data=None, additionalheader = None):
         proxy_support = urllib2.ProxyHandler({})
         if (self.proxy != None):
             proxy_support = urllib2.ProxyHandler({'http': self.proxy, 'https': self.proxy})
         handlers = [proxy_support]
 
         opener = urllib2.build_opener(*handlers)
+
+        if additionalheader != None:
+            for key, head in additionalheader.items():
+                opener.addheaders.append((key, head))
 
         ret = None
         headers = None

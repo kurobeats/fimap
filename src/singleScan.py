@@ -59,10 +59,19 @@ class singleScan(baseClass):
                             header = "[%d] Possible %s-File Inclusion"%(idx, report.getLanguage())
                         boxarr.append("  [URL]        %s"%report.getURL())
                         if (report.getPostData() != None and report.getPostData() != ""): boxarr.append("  [POST]     %s"%report.getPostData())
-                        if (report.isPost):
+                        if (report.isPost == 1):
                             boxarr.append("  [POSTPARM]   %s"%report.getVulnKey())
-                        else:
+                        elif (report.isPost == 2):
+                            modkeys = ",".join(report.getHeader().keys())
+                            boxarr.append("  [HEAD SENT]  %s"%(modkeys))
+                            boxarr.append("  [VULN HEAD]  %s"%report.getVulnHeader())
+                            boxarr.append("  [VULN PARA]  %s"%report.getVulnKey())
+                            
+                        elif (report.isPost == 0):
                             boxarr.append("  [PARAM]      %s"%report.getVulnKey())
+                        
+                        
+                        
                         if (report.isBlindDiscovered()):
                             boxarr.append("  [PATH]       Not received (Blindmode)")
                         else:
