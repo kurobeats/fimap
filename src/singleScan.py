@@ -57,23 +57,22 @@ class singleScan(baseClass):
                         header = "[%d] Possible File Inclusion"%(idx)
                         if (report.getLanguage() != None):
                             header = "[%d] Possible %s-File Inclusion"%(idx, report.getLanguage())
+                        boxarr.append("::REQUEST::")
                         boxarr.append("  [URL]        %s"%report.getURL())
-                        if (report.getPostData() != None and report.getPostData() != ""): boxarr.append("  [POST]     %s"%report.getPostData())
-                        if (report.isPost == 1):
+                        if (report.getPostData() != None and report.getPostData() != ""): boxarr.append("  [POST]       %s"%report.getPostData())
+                        if (report.getHeader() != None and report.getHeader().keys() > 0):
+                            modkeys = ",".join(report.getHeader().keys())
+                            boxarr.append("  [HEAD SENT]  %s"%(modkeys))
+                        
+                        boxarr.append("::VULN INFO::")
+                        if (report.isPost == 0):
+                            boxarr.append("  [GET PARAM]  %s"%report.getVulnKey())
+                        elif (report.isPost == 1):
                             boxarr.append("  [POSTPARM]   %s"%report.getVulnKey())
                         elif (report.isPost == 2):
                             boxarr.append("  [VULN HEAD]  %s"%report.getVulnHeader())
                             boxarr.append("  [VULN PARA]  %s"%report.getVulnKey())
 
-                        if (report.getHeader() != None and report.getHeader().keys() > 0):
-                            modkeys = ",".join(report.getHeader().keys())
-                            boxarr.append("  [HEAD SENT]  %s"%(modkeys))
-                            
-                        elif (report.isPost == 0):
-                            boxarr.append("  [PARAM]      %s"%report.getVulnKey())
-                        
-                        
-                        
                         if (report.isBlindDiscovered()):
                             boxarr.append("  [PATH]       Not received (Blindmode)")
                         else:
