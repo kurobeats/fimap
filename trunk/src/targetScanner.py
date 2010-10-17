@@ -620,18 +620,19 @@ class targetScanner (baseClass.baseClass):
             if (rfi_mode == "local"): self._log("Testing remote inclusion dynamicly with local server...", self.LOG_INFO)
             if (rep.getPrefix() == ""):
                 fl = up = None
+                quiz, answer = langClass.generateQuiz()
                 if (rfi_mode == "ftp"):
                     fl = settings["dynamic_rfi"]["ftp"]["ftp_path"] + rep.getAppendix()
-                    up = self.FTPuploadFile(settings["php_info"][0], rep.getAppendix())
+                    up = self.FTPuploadFile(quiz, rep.getAppendix())
                     # Discard the suffix if there is a forced directory structure.
                     if (not up["http"].endswith(rep.getAppendix())):
                         rep.setSurfix("")
                     
                 elif(rfi_mode == "local"):
-                    up = self.putLocalPayload(settings["php_info"][0], rep.getAppendix())
+                    up = self.putLocalPayload(quiz, rep.getAppendix())
                     if (not up["http"].endswith(rep.getAppendix())):
                         rep.setSurfix("")
-                if (self.readFile(rep, up["http"], settings["php_info"][1], True)):
+                if (self.readFile(rep, up["http"], answer, True)):
                     ret.append(up["http"])
                     rep.setRemoteInjectable(True)
                     self.addXMLLog(rep, "rxR", up["http"])
