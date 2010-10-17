@@ -316,7 +316,8 @@ class targetScanner (baseClass.baseClass):
                                         ret.append((rep, self.readFiles(rep)))
                                         head_done[key] = True
 
-                        if (doBreak): return(ret) # <-- Return if we found one blindly readable file.
+                        if (doBreak): 
+                            return(ret) # <-- Return if we found one blindly readable file.
                     
         return(ret)
 
