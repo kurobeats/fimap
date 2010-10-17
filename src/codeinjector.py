@@ -68,8 +68,12 @@ class codeinjector(baseClass):
         
         vulnheaderkey           = vuln.getAttribute("header_vuln_key")
         header_dict_b64         = vuln.getAttribute("header_dict")
-        header_dict_pickle      = b64decode(header_dict_b64) 
-        header_dict             = pickle.loads(header_dict_pickle)
+        header_dict = {}
+
+        if (header_dict_b64 != ""):
+            header_dict_pickle      = b64decode(header_dict_b64) 
+            header_dict             = pickle.loads(header_dict_pickle)
+
         
         if (not isUnix and shcode[1]==":"):
             shcode = shcode[3:]
