@@ -39,7 +39,7 @@ Usage: ./fimap.py [options]
                                  Possible values: 10, 25, 50 or 100(default).
         --googlesleep=TIME       The time in seconds the Googlescanner should wait befor each
                                  request to google. fimap will count the time between two requests
-                                 and will sleep if it's needed to reach your cooldown. Default is 5.
+                                 and will sleep if its needed to reach your cooldown. Default is 5.
    -w , --write=LIST             The LIST which will be written if you have choosen
                                  harvest mode (-H). This file will be opened in APPEND mode.
    -d , --depth=CRAWLDEPTH       The CRAWLDEPTH (recurse level) you want to crawl your target site
@@ -50,9 +50,9 @@ Usage: ./fimap.py [options]
                                  Also the cookies will be scanned for file inclusion bugs.
                                  Concatenate multiple cookies with the ';' character.
         --ttl=SECONDS            Define the TTL (in seconds) for requests. Default is 30 seconds.
-        --no-auto-detect         Use this switch if you don't want to let fimap automaticly detect
+        --no-auto-detect         Use this switch if you dont want to let fimap automaticly detect
                                  the target language in blind-mode. In that case you will get some
-                                 options you can choose if fimap isn't sure which lang it is.
+                                 options you can choose if fimap isnt sure which lang it is.
         --dot-trunc-min=700      The count of dots to begin with in dot-truncation mode.
         --dot-trunc-max=2000     The count of dots to end with in dot-truncation mode.
         --dot-trunc-step=50      The step size for each round in dot-truncation mode.
@@ -63,14 +63,14 @@ Usage: ./fimap.py [options]
                                  select a target and do some action.
    -T , --tab-complete           Enables TAB-Completation in exploit mode. Needs readline module.
                                  Use this if you want to be able to tab-complete thru remote
-                                 files\dirs. Eats an extra request for every 'cd' command.
+                                 files\dirs. Eats an extra request for every "cd" command.
 ## Disguise Kit:
    -A , --user-agent=UA          The User-Agent which should be sent.
         --http-proxy=PROXY       Setup your proxy with this option. But read this facts:
                                    * The googlescanner will ignore the proxy to get the URLs,
                                      but the pentest\attack itself will go thru proxy.
                                    * PROXY should be in format like this: 127.0.0.1:8080
-                                   * It's experimental
+                                   * Its experimental
         --show-my-ip             Shows your internet IP, current country and user-agent.
                                  Useful if you want to test your vpn\proxy config.
 ## Plugins:
