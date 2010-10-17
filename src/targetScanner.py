@@ -168,14 +168,20 @@ class targetScanner (baseClass.baseClass):
         code = self.doPostRequest(tmpurl, tmppost, additionalHeaders=headDict)
         if (code != None):
             if (code.find(find) != -1):
-                self._log("Possible file inclusion found blindly! -> '%s' with Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
-                doBreak = True
                 if (haxMode == 0):
+                    self._log("Possible file inclusion found blindly! -> '%s' with Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
                     rep = self.identifyVuln(self.Target_URL, self.params, k, post, None, haxMode, (goBackSymbols * i, False), isUnix, headerDict = headDict)
+                    
                 elif (haxMode == 1):
+                    self._log("Possible file inclusion found blindly! -> '%s' with POST-Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
                     rep = self.identifyVuln(self.Target_URL, self.postparams, k, post, None, haxMode, (goBackSymbols * i, False), isUnix, headerDict = headDict)
+                    
                 elif (haxMode == 2):
+                    self._log("Possible file inclusion found blindly! -> '%s' with Header(%s)-Parameter '%s'." %(tmpurl, headerKey, k), self.LOG_ALWAYS)
                     rep = self.identifyVuln(self.Target_URL, self.header, k, post, None, haxMode, (goBackSymbols * i, False), isUnix, headerKey, headerDict = headDict)
+                
+                doBreak = True
+
             else:
                 tmpurl = self.Target_URL
                 tmpfile = testfile + "%00"
@@ -201,11 +207,11 @@ class targetScanner (baseClass.baseClass):
                     doBreak = True
                 else:
                     if (code.find(find) != -1):
-                        if (isPost == 0):
+                        if (haxMode == 0):
                             self._log("Possible file inclusion found blindly! -> '%s' with Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
-                        elif (isPost == 1):
+                        elif (haxMode == 1):
                             self._log("Possible file inclusion found blindly! -> '%s' with POST-Parameter '%s'." %(tmpurl, k), self.LOG_ALWAYS)
-                        elif (isPost == 2):
+                        elif (haxMode == 2):
                             self._log("Possible file inclusion found blindly! -> '%s' with Header(%s)-Parameter '%s'." %(tmpurl, headerKey, k), self.LOG_ALWAYS)
                         doBreak = True
                         rep = self.identifyVuln(self.Target_URL, self.params, k, post, None, haxMode, (goBackSymbols * i, True), isUnix, headerKey, headerDict = headDict)
@@ -267,6 +273,7 @@ class targetScanner (baseClass.baseClass):
                                 rep.setVulnKeyVal(V)
                                 rep.setPostData(self.config["p_post"])
                                 rep.setPost(0)
+                                rep.setHeader(deepcopy(self.config["header"]))
                                 ret.append((rep, self.readFiles(rep)))
                         for k,V in self.postparams.items():
                             rep, doBreak = self.analyzeURLblindly(i, testfile, k, V, v, backSym, self.config["p_post"], 1, fileobj.isUnix(), deepcopy(self.config["header"]))
@@ -274,6 +281,7 @@ class targetScanner (baseClass.baseClass):
                                 rep.setVulnKeyVal(V)
                                 rep.setPostData(self.config["p_post"])
                                 rep.setPost(1)
+                                rep.setHeader(deepcopy(self.config["header"]))
                                 ret.append((rep, self.readFiles(rep)))
                         for key,params in self.header.items():
                             for k,val in params.items():
@@ -283,10 +291,9 @@ class targetScanner (baseClass.baseClass):
                                     rep.setVulnHeaderKey(key)
                                     rep.setPostData(self.config["p_post"])
                                     rep.setPost(2)
+                                    rep.setHeader(deepcopy(self.config["header"]))
                                     ret.append((rep, self.readFiles(rep)))
-                        
-                        if (rep != None):
-                            rep.setHeader(self.config["header"])
+                            
                         if (doBreak): return(ret)
         return(ret)
 
@@ -600,6 +607,7 @@ class targetScanner (baseClass.baseClass):
                     langClass = xml2config.getAllLangSets()[rep.getLanguage()]
                 else:
                     self._log("Autodetect failed!", self.LOG_ERROR)
+                    self._log("Start fimap with --no-auto-detect if you know which language it is.", self.LOG_ERROR)
                     return([])
             else:
                 self._log("Unknown language! You have told me to let you choose - here we go.", self.LOG_WARN)

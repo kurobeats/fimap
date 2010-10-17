@@ -62,10 +62,12 @@ class singleScan(baseClass):
                         if (report.isPost == 1):
                             boxarr.append("  [POSTPARM]   %s"%report.getVulnKey())
                         elif (report.isPost == 2):
-                            modkeys = ",".join(report.getHeader().keys())
-                            boxarr.append("  [HEAD SENT]  %s"%(modkeys))
                             boxarr.append("  [VULN HEAD]  %s"%report.getVulnHeader())
                             boxarr.append("  [VULN PARA]  %s"%report.getVulnKey())
+
+                        if (report.getHeader() != None and report.getHeader().keys() > 0):
+                            modkeys = ",".join(report.getHeader().keys())
+                            boxarr.append("  [HEAD SENT]  %s"%(modkeys))
                             
                         elif (report.isPost == 0):
                             boxarr.append("  [PARAM]      %s"%report.getVulnKey())
