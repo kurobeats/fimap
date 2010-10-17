@@ -484,8 +484,8 @@ class targetScanner (baseClass.baseClass):
                         PostHax = PostData.replace("%s=%s"%(VulnParam,Params[VulnParam]), "%s=%s%%00"%(VulnParam, rndStr))
                     elif (haxMode == 2):
                         tmphead = deepcopy(self.config["header"][headerKey])
-                        tmphead = tmphead.replace("%s=%s"%(VulnParam,Params[headerKey][VulnParam]), "%s=%s"%(VulnParam, rndStr))
-                        headerDict[headerKey] = tmphead
+                        tmphead = tmphead.replace("%s=%s"%(VulnParam,Params[headerKey][VulnParam]), "%s=%s%%00"%(VulnParam, rndStr))
+                        head[headerKey] = tmphead
                         r.setVulnHeaderKey(headerKey)
                         
                     code = self.doPostRequest(tmpurl, PostHax, additionalHeaders = head)
@@ -518,19 +518,27 @@ class targetScanner (baseClass.baseClass):
                         self._log("Ratio: %f"%(max_diff), self.LOG_DEVEL)
                         desturl = URL
                         PostHax = PostData
-                        head = headDict                 
-                        code1 = self.doPostRequest(URL, PostData)
+                        
+                        head = deepcopy(self.config["header"])
+                        
+                        code1 = self.doPostRequest(URL, PostData, additionalHeaders=head)
        
-                        vulnParamBlock = "%s=%s%s"%(VulnParam, Params[VulnParam], r.getAppendix())
+                        vulnParamBlock = None
+                        
+                        if (haxMode in (0,1)):
+                            vulnParamBlock = "%s=%s%s"%(VulnParam, Params[VulnParam], r.getAppendix())
+                        else:
+                            vulnParamBlock = "%s=%s%s"%(VulnParam, Params[headerKey][VulnParam], r.getAppendix())
                         
                         if (haxMode == 0):
                             desturl = desturl.replace("%s=%s"%(VulnParam,Params[VulnParam]), vulnParamBlock)
                         elif (haxMode == 1):
                             PostHax = PostHax.replace("%s=%s"%(VulnParam,Params[VulnParam]), vulnParamBlock)
                         elif (haxMode == 2):
-                            tmphead = head[headerKey]
-                            tmphead = tmphead.replace("%s=%s"%(VulnParam,Params[VulnParam]), vulnParamBlock)
-                            head[headerKey] = tmphead
+                            tmphead = deepcopy(self.config["header"][headerKey])
+                            tmphead = tmphead.replace("%s=%s"%(VulnParam,Params[headerKey][VulnParam]), vulnParamBlock)
+                            headerDict[headerKey] = tmphead
+                            r.setVulnHeaderKey(headerKey)
                         
                         self._log("Test URL will be: " + desturl, self.LOG_DEBUG)
                         
@@ -541,13 +549,13 @@ class targetScanner (baseClass.baseClass):
                         for i in range (dot_trunc_start, dot_trunc_end, dot_trunc_step):
                             tmpurl = desturl
                             tmppost = PostHax
-                            tmphead = head
+                            tmphead = deepcopy(headerDict)
                             if (haxMode == 0):
                                 tmpurl = tmpurl.replace(vulnParamBlock, "%s%s"%(vulnParamBlock, "." * i))
                             elif (haxMode == 1):
                                 tmppost = tmppost.replace(vulnParamBlock, "%s%s"%(vulnParamBlock, "." * i))
                             elif (haxMode == 2):
-                                tmp = head[headerKey]
+                                tmp = tmphead[headerKey]
                                 tmp = tmp.replace(vulnParamBlock, "%s%s"%(vulnParamBlock, "." * i))
                                 tmphead[headerKey] = tmp
                                 
