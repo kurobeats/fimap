@@ -97,6 +97,9 @@ def show_help(AndQuit=False):
     print "        --no-auto-detect         Use this switch if you don't want to let fimap automaticly detect"
     print "                                 the target language in blind-mode. In that case you will get some"
     print "                                 options you can choose if fimap isn't sure which lang it is."
+    print "        --bmin=BLIND_MIN         Define here the minimum count of directories fimap should walk thru"
+    print "                                 in blind mode. The default number is defined in the generic.xml"
+    print "        --bmax=BLIND_MAX         Define here the maximum count of directories fimap should walk thru."
     print "        --dot-trunc-min=700      The count of dots to begin with in dot-truncation mode."
     print "        --dot-trunc-max=2000     The count of dots to end with in dot-truncation mode."
     print "        --dot-trunc-step=50      The step size for each round in dot-truncation mode."
@@ -243,6 +246,8 @@ if __name__ == "__main__":
     doInstallPlugins = False
     doUpdateDef = False
     doMergeXML = False
+    blind_min = None
+    blind_max = None
 
     print head
 
@@ -281,7 +286,7 @@ if __name__ == "__main__":
                         "show-my-ip"    , "enable-blind", "http-proxy=" , "ttl="        , "post="           , "no-auto-detect",
                         "plugins"       , "enable-color", "update-def"  , "merge-xml="  , "install-plugins" , "results=",
                         "googlesleep="  , "dot-truncation", "dot-trunc-min=", "dot-trunc-max=", "dot-trunc-step=", "dot-trunc-ratio=",
-                        "tab-complete"  , "cookie="     , "dot-trunc-also-unix", "multiply-term="]
+                        "tab-complete"  , "cookie="     , "bmin="        , "bmax="      , "dot-trunc-also-unix", "multiply-term="]
         optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:CIDTM:", longSwitches)
 
         startExploiter = False
@@ -368,11 +373,26 @@ if __name__ == "__main__":
                 config["p_multiply_term"] = int(v)
             if (k in ("--cookie",)):
                 config["header"]["Cookie"] = v
+            if (k in ("--bmin",)):
+                blind_min = int(v)
+            if (k in ("--bmax",)):
+                blind_max = int(v)
             #if (k in("-f", "--exploit-filter")):
             #    config["p_exploit_filter"] = v
 
         xmlsettings = language.XML2Config(config)
+        
+        # Setup possibly changed engine settings.
+        if (blind_min != None):
+            xmlsettings.blind_min = blind_min
+            print "Overwriting 'blind_min' setting to %s..." %(blind_min)
+        if (blind_max != None):
+            xmlsettings.blind_max = blind_max
+            print "Overwriting 'blind_max' setting to %s..." %(blind_max)
+        
         config["XML2CONFIG"] = xmlsettings  
+        
+        
         
         plugman = plugininterface(config)
         config["PLUGINMANAGER"] = plugman
