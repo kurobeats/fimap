@@ -54,7 +54,7 @@ Analyzing form 'Unnamed Form #1' for file inclusion bugs.
 #[1] Possible PHP-File Inclusion                          #
 ###########################################################
 #::REQUEST                                                #
-#  [URL]        http://localhost/~imax/fail/test.php    #
+#  [URL]        http://localhost/~imax/fail/test.php      #
 #  [POST]       go=&action=index.html&submit=Go           #
 #  [HEAD SENT]                                            #
 #::VULN INFO                                              #
