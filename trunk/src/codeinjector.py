@@ -250,8 +250,11 @@ class codeinjector(baseClass):
                             print "Failed to setup shell! The resulting string was empty!"
                             break
                         
-                        curdir = tmp.split("\n")[0].strip()
-                        curusr = tmp.split("\n")[1].strip()
+                        curdir = "<null_dir>"
+                        curusr = "<null_user>"
+                        if len(tmp.split("\n")) >= 2:
+                            curdir = tmp.split("\n")[0].strip()
+                            curusr = tmp.split("\n")[1].strip()
                         
                         if (ls_cmd != None):
                             dir_content = ",".join(tmp.split("\n")[2:])
