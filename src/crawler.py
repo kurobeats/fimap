@@ -64,6 +64,9 @@ class crawler:
         return(cnt)
 
     def crawl_url(self, url, level=0):
+        if (url.count("/") == 2): # If the user provides 'http://www.google.com' append an / to it.
+            url += "/" 
+        
         code = self.__simpleGetRequest(url)
         domain = self.getDomain(url, True)
 

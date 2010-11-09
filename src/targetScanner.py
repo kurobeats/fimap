@@ -47,9 +47,9 @@ class targetScanner (baseClass.baseClass):
         self.Target_URL = url
 
         self._log("Inspecting URL '%s'..."%(self.Target_URL), self.LOG_ALWAYS)
-
+        self._log("Analyzing provided GET params...", self.LOG_DEBUG);
         if (self.Target_URL.count("?") == 0):
-            self._log("Target URL doesn't have any params.", self.LOG_DEBUG);
+            self._log("Target URL doesn't have any GET params.", self.LOG_DEBUG);
         else:
             data = self.Target_URL.split("?")[1]
             if (data.find("&") == -1):
@@ -58,6 +58,7 @@ class targetScanner (baseClass.baseClass):
                 for ln in data.split("&"):
                     self.__addToken(self.params, ln)
 
+        self._log("Analyzing provided POST params...", self.LOG_DEBUG);
         post = self.config["p_post"]
         if (post != ""):
             if (post.find("&") == -1):
@@ -65,7 +66,10 @@ class targetScanner (baseClass.baseClass):
             else:
                 for ln in post.split("&"):
                     self.__addToken(self.postparams, ln)
-
+        else:
+            self._log("No POST params provided.", self.LOG_DEBUG);
+            
+        self._log("Analyzing provided headers...", self.LOG_DEBUG);
         header = self.config["header"]
         if (len(header) > 0):
             for key, headerString in header.items():
@@ -75,7 +79,8 @@ class targetScanner (baseClass.baseClass):
                 else:
                     for ln in headerString.split(";"):
                         self.__addToken(self.header[key], ln)
-                        
+        else:
+            self._log("No headers provided.", self.LOG_DEBUG);
 
         return(len(self.params)>0 or len(self.postparams)>0 or len(self.header)>0)
 
@@ -99,8 +104,12 @@ class targetScanner (baseClass.baseClass):
             self._log("Requesting: '%s'..." %(tmpurl), self.LOG_DEBUG)
             code = self.doGetRequest(tmpurl, additionalHeaders=headDict)
         else:
-            self._log("Requesting: '%s' with POST('%s')..." %(tmpurl, post), self.LOG_DEBUG)
+            self._log("Requesting: '%s' with POST('%s')..." %(tmpurl, tmppost), self.LOG_DEBUG)
             code = self.doPostRequest(tmpurl, tmppost, additionalHeaders=headDict)
+
+        if (len(headDict)>0):
+            for k,v in headDict.items():
+                self._log("  Header: '%s' -> %s"%(k, v), self.LOG_DEBUG)
 
         xml2config = self.config["XML2CONFIG"]
         READFILE_ERR_MSG = xml2config.getAllReadfileRegex()

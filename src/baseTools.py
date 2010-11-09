@@ -32,7 +32,7 @@ class baseTools(object):
     
     
     BOX_HEADER_STYLE = (1, 1) 
-   
+    BOX_SPLITTER_STYLE = (3, 0)
     def getRandomStr(self):
         chars = string.letters + string.digits
         ret = ""
@@ -105,7 +105,14 @@ class baseTools(object):
         size = len(txt)
         if (realsize != -1): size = realsize
         suffix = " " * (maxlen - size-1)
-        print self.boxsymbol + txt + suffix + self.boxsymbol
+        if (self.use_color):
+            coloredtxt = txt
+            if (txt.startswith("::")): # Informative Inline Message
+                coloredtxt = self.__getColorLine(txt, self.BOX_SPLITTER_STYLE)
+            
+            print self.boxsymbol + coloredtxt + suffix + self.boxsymbol
+        else:
+            print self.boxsymbol + txt + suffix + self.boxsymbol
 
     def __getLongestLine(self, textarray, header):
         maxLen = len(header)
@@ -131,3 +138,4 @@ class baseTools(object):
             print "Updating..."
             os.unlink(orginal_file)
             shutil.copy(replacement_file, orginal_file)
+            

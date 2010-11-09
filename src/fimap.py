@@ -20,6 +20,7 @@
 #
 from plugininterface import plugininterface
 from plugininterface import pluginXMLInfo
+import autoawesome
 import baseClass, baseTools
 from codeinjector import codeinjector
 from crawler import crawler
@@ -34,8 +35,7 @@ import shutil
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$30.08.2009 19:57:21$"
-__version__ = "09_svn"
-
+__version__ = "09_svn (For the Swarm)"
 config = {}
 
 
@@ -58,6 +58,10 @@ def show_help(AndQuit=False):
     print "   -H , --harvest                Mode to harvest a URL recursivly for new URLs."
     print "                                 Needs a root url (-u) to start crawling there."
     print "                                 Also needs (-w) to write a URL list for mass mode."
+    print "   -4 , --autoawesome            With the AutoAwesome mode fimap will fetch all"
+    print "                                 forms and headers found on the site you defined"
+    print "                                 and tries to find file inclusion bugs thru them. Needs an"
+    print "                                 URL (-u)."
     print "## Techniques:"
     print "   -b , --enable-blind           Enables blind FI-Bug testing when no error messages are printed."
     print "                                 Note that this mode will cause lots of requests compared to the"
@@ -211,7 +215,7 @@ def show_report():
 
 if __name__ == "__main__":
     config["p_url"] = None
-    config["p_mode"] = 0 # 0=single ; 1=mass ; 2=google ; 3=crawl
+    config["p_mode"] = 0 # 0=single ; 1=mass ; 2=google ; 3=crawl ; 4=autoawesome
     config["p_list"] = None
     config["p_verbose"] = 2
     config["p_useragent"] = "fimap.googlecode.com/v%s" %__version__
@@ -286,8 +290,9 @@ if __name__ == "__main__":
                         "show-my-ip"    , "enable-blind", "http-proxy=" , "ttl="        , "post="           , "no-auto-detect",
                         "plugins"       , "enable-color", "update-def"  , "merge-xml="  , "install-plugins" , "results=",
                         "googlesleep="  , "dot-truncation", "dot-trunc-min=", "dot-trunc-max=", "dot-trunc-step=", "dot-trunc-ratio=",
-                        "tab-complete"  , "cookie="     , "bmin="        , "bmax="      , "dot-trunc-also-unix", "multiply-term="]
-        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:CIDTM:", longSwitches)
+                        "tab-complete"  , "cookie="     , "bmin="        , "bmax="      , "dot-trunc-also-unix", "multiply-term=",
+                        "autoawesome"]
+        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:CIDTM:4", longSwitches)
 
         startExploiter = False
 
@@ -302,6 +307,8 @@ if __name__ == "__main__":
                 config["p_mode"] = 2
             if (k in ("-H", "--harvest")):
                 config["p_mode"] = 3
+            if (k in ("-4", "--autoawesome")):
+                config["p_mode"] = 4
             if (k in ("-l", "--list")):
                 config["p_list"] = v
             if (k in ("-q", "--query")):
@@ -614,7 +621,9 @@ if __name__ == "__main__":
     if (config["p_write"] == None and config["p_mode"] == 3):
         print "Output file to write the URLs to is needed in Harvest Mode. (-w)"
         sys.exit(1)
-
+    if (config["p_url"] == None and config["p_mode"] == 4):
+        print "Root URL required for AutoAwesome. (-u)"
+        sys.exit(1)
     if (config["p_monkeymode"] == True):
         print "Blind FI-error checking enabled."
 
@@ -645,6 +654,12 @@ if __name__ == "__main__":
             print "Crawler is harvesting URLs from start URL: '%s' with depth: %d and writing results to: '%s'" %(config["p_url"], config["p_depth"], config["p_write"])
             c = crawler(config)
             c.crawl()
+            
+        elif(config["p_mode"] == 4):
+            print "AutoAwesome mode engaging URL '%s'..." %(config["p_url"])
+            awe = autoawesome.autoawesome(config)
+            awe.setURL(config["p_url"])
+            awe.scan()
 
     except KeyboardInterrupt:
         print "\n\nYou have terminated me :("
