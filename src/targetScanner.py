@@ -108,8 +108,8 @@ class targetScanner (baseClass.baseClass):
             code = self.doPostRequest(tmpurl, tmppost, additionalHeaders=headDict)
 
         if (len(headDict)>0):
-            for k,v in headDict.items():
-                self._log("  Header: '%s' -> %s"%(k, v), self.LOG_DEBUG)
+            for ck,v in headDict.items():
+                self._log("  Header: '%s' -> %s"%(ck, v), self.LOG_DEBUG)
 
         xml2config = self.config["XML2CONFIG"]
         READFILE_ERR_MSG = xml2config.getAllReadfileRegex()
