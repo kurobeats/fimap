@@ -43,14 +43,21 @@ class autoawesome(baseClass):
         
         extHeader = ""
         code, headers = self.doRequest(self.URL, self.config["p_useragent"], self.config["p_post"], self.config["header"], self.config["p_ttl"])
-        for head in headers:
-            if head[0] in ("set-cookie", "set-cookie2"):
-                cookie = head[1]
-                c = Cookie.SimpleCookie()
-                c.load(cookie)
-                for k,v in c.items():
-                    extHeader += "%s=%s; " %(k, c[k].value)
         
+        if (headers != None):
+            for head in headers:
+                if head[0] in ("set-cookie", "set-cookie2"):
+                    cookie = head[1]
+                    c = Cookie.SimpleCookie()
+                    c.load(cookie)
+                    for k,v in c.items():
+                        extHeader += "%s=%s; " %(k, c[k].value)
+        
+        if (code == None):
+            print "Code == None!"
+            print "Does the target exist?!"
+            print "AutoAwesome mode failed. -> Aborting."
+            sys.exit(1)
         
         if (extHeader != ""):
             print "Cookies retrieved. Using them for further requests."
