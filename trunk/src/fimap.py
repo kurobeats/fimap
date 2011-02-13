@@ -109,6 +109,8 @@ def show_help(AndQuit=False):
     print "        --dot-trunc-step=50      The step size for each round in dot-truncation mode."
     print "        --dot-trunc-ratio=0.095  The maximum ratio to detect if dot truncation was successfull."
     print "        --dot-trunc-also-unix    Use this if dot-truncation should also be tested on unix servers."
+    print "        --force-os=OS            Forces fimap to test only files for the OS."
+    print "                                 OS can be 'unix' or 'windows'"
     print "## Attack Kit:"
     print "   -x , --exploit                Starts an interactive session where you can"
     print "                                 select a target and do some action."
@@ -135,6 +137,8 @@ def show_help(AndQuit=False):
     print "        --merge-xml=XMLFILE      Use this if you have another fimap XMLFILE you want to"
     print "                                 include to your own fimap_result.xml."
     print "   -C , --enable-color           Enables a colorful output. Works only in linux!"
+    print "        --force-run              Ignore the instance check and just run fimap even if a lockfile"
+    print "                                 exists. WARNING: This may erase your fimap_results.xml file!"
     print "   -v , --verbose=LEVEL          Verbose level you want to receive."
     print "                                 LEVEL=3 -> Debug"
     print "                                 LEVEL=2 -> Info(Default)"
@@ -244,6 +248,8 @@ if __name__ == "__main__":
     config["p_tabcomplete"] = False
     config["p_multiply_term"] = 1
     config["header"] = {}
+    config["force-run"] = False
+    config["force-os"]  = None
     doPluginsShow = False
     doRFITest = False
     doInternetInfo = False
@@ -263,22 +269,9 @@ if __name__ == "__main__":
 
     try:
 
-        # Ape style lockfile. But it works! :)
-        lockFound = False
-        curlockfile = None
-        for f in os.listdir(tempfile.gettempdir()):
-            if f.startswith("fimap_") and f.endswith("_lockfile"):
-                lockFound = True
-                curlockfile = f
-                break
         
-        if (lockFound):
-            print "Another fimap instance is already running!"
-            print "If you think this is not correct please delete the following file:"
-            print os.path.join(tempfile.gettempdir(), curlockfile)
-            sys.exit(0)
-        else:
-            lockfile = tempfile.NamedTemporaryFile(prefix="fimap_", suffix="_lockfile")
+        
+        
             
         
         
@@ -291,7 +284,7 @@ if __name__ == "__main__":
                         "plugins"       , "enable-color", "update-def"  , "merge-xml="  , "install-plugins" , "results=",
                         "googlesleep="  , "dot-truncation", "dot-trunc-min=", "dot-trunc-max=", "dot-trunc-step=", "dot-trunc-ratio=",
                         "tab-complete"  , "cookie="     , "bmin="        , "bmax="      , "dot-trunc-also-unix", "multiply-term=",
-                        "autoawesome"]
+                        "autoawesome"   , "force-run"   , "force-os="]
         optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:CIDTM:4", longSwitches)
 
         startExploiter = False
@@ -384,10 +377,37 @@ if __name__ == "__main__":
                 blind_min = int(v)
             if (k in ("--bmax",)):
                 blind_max = int(v)
+            if (k in ("--force-run",)):
+                config["force-run"] = True
+            if (k in ("--force-os",)):
+                config["force-os"] = v
             #if (k in("-f", "--exploit-filter")):
             #    config["p_exploit_filter"] = v
 
         xmlsettings = language.XML2Config(config)
+        
+        
+        # Ape style lockfile. But it works! :)
+        lockFound = False
+        curlockfile = None
+        for f in os.listdir(tempfile.gettempdir()):
+            if f.startswith("fimap_") and f.endswith("_lockfile"):
+                lockFound = True
+                curlockfile = f
+                break
+        if (lockFound):
+            if (config["force-run"] == True):
+                print "Another fimap instance is running! But you requested to ignore that..."
+            else:
+                print "Another fimap instance is already running!"
+                print "If you think this is not correct please delete the following file:"
+                print "-> " + os.path.join(tempfile.gettempdir(), curlockfile)
+                print "or start fimap with '--force-run' on your own risk."
+                sys.exit(0)
+        else:
+            lockfile = tempfile.NamedTemporaryFile(prefix="fimap_", suffix="_lockfile")
+        
+        
         
         # Setup possibly changed engine settings.
         if (blind_min != None):
@@ -627,6 +647,11 @@ if __name__ == "__main__":
     if (config["p_monkeymode"] == True):
         print "Blind FI-error checking enabled."
 
+    if (config["force-os"] != None):
+        if (config["force-os"] != "unix" and config["force-os"] != "windows"):
+            print "Invalid parameter for 'force-os'."
+            print "Only 'unix' or 'windows' are allowed!"
+            sys.exit(1)
 
 
     try:

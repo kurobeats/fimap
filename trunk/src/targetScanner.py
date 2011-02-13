@@ -258,10 +258,20 @@ class targetScanner (baseClass.baseClass):
         if (len(ret) == 0 and self.MonkeyTechnique):
             self._log("Sniper failed. Going blind...", self.LOG_INFO)
             files = xml2config.getBlindFiles()
+            
+            os_restriction = self.config["force-os"]
+            
             for fileobj in files:
                 post = fileobj.getPostData()
                 v    = fileobj.getFindStr()
                 f    = fileobj.getFilepath()
+                
+                if (os_restriction != None):
+                    if (fileobj.isWindows() and os_restriction != "windows"):
+                        continue
+                    
+                    if (fileobj.isUnix() and os_restriction != "linux"):
+                        continue
                 
                 backSyms = (fileobj.getBackSymbols(), fileobj.getBackSymbols(False))
                 
