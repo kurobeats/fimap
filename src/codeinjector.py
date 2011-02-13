@@ -125,24 +125,24 @@ class codeinjector(baseClass):
             if settings["dynamic_rfi"]["mode"] == "ftp":
                 self._log("Testing code thru FTP->RFI...", self.LOG_INFO)
                 if (ispost == 0):
-                    url  = url.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
+                    url  = url.replace("%s=%s"%(param, payload), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
                 elif (ispost == 1):
-                    postdata = postdata.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
+                    postdata = postdata.replace("%s=%s"%(param, payload), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
                 elif (ispost == 2):
                     tmp = header_dict[vulnheaderkey]
-                    tmp = tmp.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
+                    tmp = tmp.replace("%s=%s"%(param, payload), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
                     header_dict[vulnheaderkey] = tmp
                 code = self.__doHaxRequest(url, postdata, mode, php_test_code, langClass, appendix, headerDict=header_dict)
                   
             elif settings["dynamic_rfi"]["mode"] == "local":
                 self._log("Testing code thru LocalHTTP->RFI...", self.LOG_INFO)
                 if (ispost == 0):
-                    url  = url.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["local"]["http_map"]))
+                    url  = url.replace("%s=%s"%(param, payload), "%s=%s"%(param, settings["dynamic_rfi"]["local"]["http_map"]))
                 elif (ispost == 1):
-                    postdata = postdata.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["local"]["http_map"]))
+                    postdata = postdata.replace("%s=%s"%(param, payload), "%s=%s"%(param, settings["dynamic_rfi"]["local"]["http_map"]))
                 elif (ispost == 2):
                     tmp = header_dict[vulnheaderkey]
-                    tmp = tmp.replace("%s=%s"%(param, shcode), "%s=%s"%(param, settings["dynamic_rfi"]["local"]["http_map"]))
+                    tmp = tmp.replace("%s=%s"%(param, payload), "%s=%s"%(param, settings["dynamic_rfi"]["local"]["http_map"]))
                     header_dict[vulnheaderkey] = tmp
                 code = self.__doHaxRequest(url, postdata, mode, php_test_code, langClass, appendix, headerDict=header_dict)
             else:
@@ -451,13 +451,13 @@ class codeinjector(baseClass):
             c, r = langObj.generateQuiz()
             if (settings["dynamic_rfi"]["mode"] == "local"):
                 print "Testing Local->RFI configuration..."
-                code = self.executeRFI(settings["dynamic_rfi"]["local"]["http_map"], "", "", c)
+                code = self.executeRFI(settings["dynamic_rfi"]["local"]["http_map"], "", "", c, {})
                 if (code == c):
                     print "Dynamic RFI works!"
                     for ext in langObj.getExtentions():
                         print "Testing %s interpreter..." %(ext)
                         #settings["dynamic_rfi"]["ftp"]["ftp_path"] = settings["dynamic_rfi"]["local"]["local_path"] + ext
-                        code = self.executeRFI(settings["dynamic_rfi"]["local"]["http_map"] + ext, "", ext, c)
+                        code = self.executeRFI(settings["dynamic_rfi"]["local"]["http_map"] + ext, "", ext, c, {})
                         if (code == r):
                             print "WARNING! Files which ends with %s will be interpreted! Fix that!"%(ext)
                         else:
@@ -468,7 +468,7 @@ class codeinjector(baseClass):
     
             elif (settings["dynamic_rfi"]["mode"] == "ftp"):
                 print "Testing FTP->RFI configuration..."
-                code = self.executeRFI(settings["dynamic_rfi"]["ftp"]["http_map"], "", "", c)
+                code = self.executeRFI(settings["dynamic_rfi"]["ftp"]["http_map"], "", "", c, {})
                 if (code != None):
                     code = code.strip()
                     if (code == c):
@@ -476,7 +476,7 @@ class codeinjector(baseClass):
                         for ext in langObj.getExtentions():
                             print "Testing %s interpreter..."%(ext)
                             #settings["dynamic_rfi"]["ftp"]["ftp_path"] = settings["dynamic_rfi"]["ftp"]["ftp_path"] + ext
-                            code = self.executeRFI(settings["dynamic_rfi"]["ftp"]["http_map"] + ext, "", ext, c)
+                            code = self.executeRFI(settings["dynamic_rfi"]["ftp"]["http_map"] + ext, "", ext, c, {})
                             if (code == r):
                                 print "WARNING! Files which ends with %s will be interpreted! Fix that!"%(ext)
                             else:
@@ -640,9 +640,9 @@ class codeinjector(baseClass):
             if (mode.find("x") != -1 or (mode.find("R") != -1 and settings["dynamic_rfi"]["mode"] in ("ftp", "local"))):
                 choose[idx] = n
                 if (ispost == 0):
-                    textarr.append("[%d] URL: '%s' injecting file: '%s' using POST-param: '%s'" %(idx, path, file, param))
-                elif (ispost == 1):
                     textarr.append("[%d] URL: '%s' injecting file: '%s' using GET-param: '%s'" %(idx, path, file, param))
+                elif (ispost == 1):
+                    textarr.append("[%d] URL: '%s' injecting file: '%s' using POST-param: '%s'" %(idx, path, file, param))
                 elif (ispost == 2):
                     textarr.append("[%d] URL: '%s' injecting file: '%s' using HEADER-param: '%s'" %(idx, path, file, param))
                 idx = idx +1
