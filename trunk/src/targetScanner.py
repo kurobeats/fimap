@@ -779,10 +779,14 @@ class targetScanner (baseClass.baseClass):
                 quiz, answer = langClass.generateQuiz()
                 if (rfi_mode == "ftp"):
                     fl = settings["dynamic_rfi"]["ftp"]["ftp_path"] + rep.getAppendix()
-                    up = self.FTPuploadFile(quiz, rep.getAppendix())
+                    
+                    up = self.FTPuploadFile(quiz, rep.getSurfix())
                     # Discard the suffix if there is a forced directory structure.
-                    if (not up["http"].endswith(rep.getAppendix())):
+                    if (up["http"].endswith(rep.getAppendix())):
                         rep.setSurfix("")
+                        up["http"] = up["http"][:len(up["http"]) - len(rep.getAppendix())] 
+                    
+                    
                     
                 elif(rfi_mode == "local"):
                     up = self.putLocalPayload(quiz, rep.getAppendix())
@@ -875,6 +879,10 @@ class targetScanner (baseClass.baseClass):
             filepatha = "/" + filepatha
 
         payload = "%s%s"%(filepatha, surfix)
+        if (payload.endswith(report.getAppendix())):
+            payload = payload[:len(payload) - len(report.getAppendix())]
+        
+                    
         if (haxMode == 0):
             tmpurl = tmpurl.replace("%s=%s" %(vuln, params[vuln]), "%s=%s"%(vuln, payload))
         elif (haxMode == 1):
