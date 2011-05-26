@@ -250,6 +250,7 @@ if __name__ == "__main__":
     config["header"] = {}
     config["force-run"] = False
     config["force-os"]  = None
+    config["p_rfi_encode"] = None
     doPluginsShow = False
     doRFITest = False
     doInternetInfo = False
@@ -284,8 +285,8 @@ if __name__ == "__main__":
                         "plugins"       , "enable-color", "update-def"  , "merge-xml="  , "install-plugins" , "results=",
                         "googlesleep="  , "dot-truncation", "dot-trunc-min=", "dot-trunc-max=", "dot-trunc-step=", "dot-trunc-ratio=",
                         "tab-complete"  , "cookie="     , "bmin="        , "bmax="      , "dot-trunc-also-unix", "multiply-term=",
-                        "autoawesome"   , "force-run"   , "force-os="]
-        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:CIDTM:4", longSwitches)
+                        "autoawesome"   , "force-run"   , "force-os="   , "rfi-encoder=", "header="]
+        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:CIDTM:4R:", longSwitches)
 
         startExploiter = False
 
@@ -373,6 +374,15 @@ if __name__ == "__main__":
                 config["p_multiply_term"] = int(v)
             if (k in ("--cookie",)):
                 config["header"]["Cookie"] = v
+            if (k in ("--header",)):
+                head  = None
+                value = ""
+                if (v.find(":") == -1):
+                    head = v
+                else:
+                    head = v.split(":")[0]
+                    value = ":".join(v.split(":")[1:])
+                config["header"][head] = value
             if (k in ("--bmin",)):
                 blind_min = int(v)
             if (k in ("--bmax",)):
@@ -381,6 +391,8 @@ if __name__ == "__main__":
                 config["force-run"] = True
             if (k in ("--force-os",)):
                 config["force-os"] = v
+            if (k in ("--rfi-encoder")):
+                config["p_rfi_encode"] = v
             #if (k in("-f", "--exploit-filter")):
             #    config["p_exploit_filter"] = v
 
