@@ -327,7 +327,7 @@ class targetScanner (baseClass.baseClass):
                                 for k,val in params.items():
                                     rep, doBreak = self.analyzeURLblindly(i, testfile, k, val, v, backSym, self.config["p_post"], 2, fileobj.isUnix(), deepcopy(self.config["header"]), key)
                                     if (rep != None):
-                                        rep.setVulnKeyVal(self.config["header"][key])
+                                        rep.setVulnKeyVal(val)
                                         rep.setVulnHeaderKey(key)
                                         rep.setPostData(self.config["p_post"])
                                         rep.setPost(2)
