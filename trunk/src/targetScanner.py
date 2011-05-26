@@ -108,8 +108,8 @@ class targetScanner (baseClass.baseClass):
             code = self.doPostRequest(tmpurl, tmppost, additionalHeaders=headDict)
 
         if (len(headDict)>0):
-            for ck,v in headDict.items():
-                self._log("  Header: '%s' -> %s"%(ck, v), self.LOG_DEBUG)
+            for ck,vv in headDict.items():
+                self._log("  Header: '%s' -> %s"%(ck, vv), self.LOG_DEBUG)
 
         xml2config = self.config["XML2CONFIG"]
         READFILE_ERR_MSG = xml2config.getAllReadfileRegex()
@@ -327,7 +327,7 @@ class targetScanner (baseClass.baseClass):
                                 for k,val in params.items():
                                     rep, doBreak = self.analyzeURLblindly(i, testfile, k, val, v, backSym, self.config["p_post"], 2, fileobj.isUnix(), deepcopy(self.config["header"]), key)
                                     if (rep != None):
-                                        rep.setVulnKeyVal(val)
+                                        rep.setVulnKeyVal(self.config["header"][key])
                                         rep.setVulnHeaderKey(key)
                                         rep.setPostData(self.config["p_post"])
                                         rep.setPost(2)
