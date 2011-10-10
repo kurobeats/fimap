@@ -26,6 +26,7 @@ from codeinjector import codeinjector
 from crawler import crawler
 import getopt
 from googleScan import googleScan
+from bingScan import bingScan
 from massScan import massScan
 from singleScan import singleScan
 import language
@@ -55,6 +56,8 @@ def show_help(AndQuit=False):
     print "                                 from a given list (-l) for FI errors."
     print "   -g , --google                 Mode to use Google to aquire URLs."
     print "                                 Needs a query (-q) as google search query."
+    print "   -B , --bing                   Use bing to get URLs."
+    print "                                 Needs a query (-q) as bing search query."
     print "   -H , --harvest                Mode to harvest a URL recursivly for new URLs."
     print "                                 Needs a root url (-u) to start crawling there."
     print "                                 Also needs (-w) to write a URL list for mass mode."
@@ -219,7 +222,7 @@ def show_report():
 
 if __name__ == "__main__":
     config["p_url"] = None
-    config["p_mode"] = 0 # 0=single ; 1=mass ; 2=google ; 3=crawl ; 4=autoawesome
+    config["p_mode"] = 0 # 0=single ; 1=mass ; 2=google ; 3=crawl ; 4=autoawesome ; 5=bing
     config["p_list"] = None
     config["p_verbose"] = 2
     config["p_useragent"] = "fimap.googlecode.com/v%s" %__version__
@@ -251,6 +254,7 @@ if __name__ == "__main__":
     config["force-run"] = False
     config["force-os"]  = None
     config["p_rfi_encode"] = None
+    config["p_skiponerror"] = False
     doPluginsShow = False
     doRFITest = False
     doInternetInfo = False
@@ -285,8 +289,8 @@ if __name__ == "__main__":
                         "plugins"       , "enable-color", "update-def"  , "merge-xml="  , "install-plugins" , "results=",
                         "googlesleep="  , "dot-truncation", "dot-trunc-min=", "dot-trunc-max=", "dot-trunc-step=", "dot-trunc-ratio=",
                         "tab-complete"  , "cookie="     , "bmin="        , "bmax="      , "dot-trunc-also-unix", "multiply-term=",
-                        "autoawesome"   , "force-run"   , "force-os="   , "rfi-encoder=", "header="]
-        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:CIDTM:4R:", longSwitches)
+                        "autoawesome"   , "force-run"   , "force-os="   , "rfi-encoder=", "header=", "bing"]
+        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:CIDTM:4R:B", longSwitches)
 
         startExploiter = False
 
@@ -303,6 +307,8 @@ if __name__ == "__main__":
                 config["p_mode"] = 3
             if (k in ("-4", "--autoawesome")):
                 config["p_mode"] = 4
+            if (k in ("-B", "--bing")):
+                config["p_mode"] = 5
             if (k in ("-l", "--list")):
                 config["p_list"] = v
             if (k in ("-q", "--query")):
@@ -647,6 +653,9 @@ if __name__ == "__main__":
     if (config["p_query"] == None and config["p_mode"] == 2):
         print "Google Query required. (-q)"
         sys.exit(1)
+    if (config["p_query"] == None and config["p_mode"] == 5):
+        print "Bing Query required. (-q)"
+        sys.exit(1)
     if (config["p_url"] == None and config["p_mode"] == 3):
         print "Start URL required for harvesting. (-u)"
         sys.exit(1)
@@ -697,6 +706,12 @@ if __name__ == "__main__":
             awe = autoawesome.autoawesome(config)
             awe.setURL(config["p_url"])
             awe.scan()
+
+        elif(config["p_mode"] == 5):
+            print "BingScanner is searching for Query: '%s'" %config["p_query"]
+            b = bingScan(config)
+            b.startGoogleScan()
+            show_report()
 
     except KeyboardInterrupt:
         print "\n\nYou have terminated me :("
