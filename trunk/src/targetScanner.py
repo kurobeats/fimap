@@ -216,7 +216,11 @@ class targetScanner (baseClass.baseClass):
                 
                 if (code == None):
                     self._log("Code == None. Skipping testing of the URL.", self.LOG_DEBUG)
-                    doBreak = True
+	            if (self.config["p_skiponerror"] == True): # User decided to skip blind check if server returned an error.
+			self._log("You decided to cancel blind checks when the server returned an error.", self.LOG_ALWAYS)
+                	self._log("Code == None. Skipping testing of the URL.", self.LOG_DEBUG)
+
+                    	doBreak = True
                 else:
                     if (code.find(find) != -1):
                         if (haxMode == 0):
@@ -232,7 +236,6 @@ class targetScanner (baseClass.baseClass):
                         
         else:
             # Previous result was none. Assuming that we can break here.
-            self._log("Code == None. Skipping testing of the URL.", self.LOG_DEBUG)
             doBreak = True
         return(rep, doBreak)
 

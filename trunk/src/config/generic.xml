@@ -24,6 +24,7 @@
 	<blind_files mindepth="0" maxdepth="15">
 		<file path="/etc/passwd" find="root:" flags="r" unix="1" windows="0"/>
 		<file path="c:\boot.ini" find="[operating" flags="r" unix="0" windows="1"/>
+		<file path="c:\windows\win.ini" find="[fonts" flags="r" unix="0" windows="1"/>
 	</blind_files>
 	
 	<methods>
