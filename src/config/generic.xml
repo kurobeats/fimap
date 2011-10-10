@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<fimap language="generic" revision="0">
+<fimap language="generic" revision="1">
 	<relative_files>
 		<file path="/etc/passwd" find="root:" flags="r" unix="1" windows="0"/>
 		<file path="c:\boot.ini" find="[operating" flags="r" unix="0" windows="1"/>
