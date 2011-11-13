@@ -4,6 +4,9 @@
 == What does the 'fi' in fimap stand for? ==
 File Inclusion.
 ----
+== How to spell 'fimap' correctly? ==
+All lowercase: fimap.
+----
 == What's a clean\dirty inclusion? ==
 === Clean inclusion ===
 A clean inclusion doesn't have any appendix.
@@ -68,6 +71,15 @@ Basicly there are 2 files.
 First of all download the SVN version and verify that your bug still exists in the SVN snapshot. If it's fixed thanks for your time!
 If not feel free to file a new bug in the issues tracker here!
 I usually fix bugs very quickly so if you are annoyed of a bug it's in your interest to report it :)
+----
+== Does fimap work on an Unix-Like OS? ==
+Sure!
+----
+== Does fimap work on Windows? ==
+Yes it does!
+----
+== Does fimap work on Mac? ==
+Mac? What's that?
 ----
 == Can I join development? ==
 Contact me if you want to join this epic project *now*!
