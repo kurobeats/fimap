@@ -1,0 +1,13 @@
+#summary The goals for the next version.
+
+= Introduction =
+A little brainstorm list so I don't forget the important stuff.
+
+= Pain in the ass =
+  * Clean-up some dirty blocks.
+
+= Low hanging fruits =
+  * HTTP request counter for final scan statistics.
+  * User-friendly EIY (Exploit It Yourself) output for found exploits.
+  * Suggest the netcat commandline for pentestmonkeys shell.
+  * Fix the damn timestamp.
