@@ -1,4 +1,5 @@
 """Friendly Python SSH2 interface."""
+"""By zeth0 from http://commandline.org.uk/"""
 
 import os
 import tempfile
