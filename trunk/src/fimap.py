@@ -2,7 +2,7 @@
 #
 # This file is part of fimap.
 #
-# Copyright(c) 2009-2010 Iman Karim(ikarim2s@smail.inf.fh-brs.de).
+# Copyright(c) 2009-2012 Iman Karim(ikarim2s@smail.inf.fh-brs.de).
 # http://fimap.googlecode.com
 #
 # This file may be licensed under the terms of of the
