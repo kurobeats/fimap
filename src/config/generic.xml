@@ -1,5 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fimap language="generic" revision="1">
+    <!-- WTF is this file?
+            This file describes the basic scan parameters of fimap.
+            You can add much more files but read this facts:
+             * relative_files are files which *can* described in a relative way. So if it *is* possible the file goes here.
+             * absolute_files are files which can *only* described in a absolute way. (Say hello to php://input)
+             * log_files are files which need a special action to inject code into it.
+             * blind_files are files which should be searched in blindmode.
+             * remote_files are files which are used to scan for RFIs if you have disabled dynamic_rfi. You have
+               more success here if you add multiple sites with different suffixes. Like .php .html .htm
+               This is because if the truncation methods fails (NullByte\DotTrunc) then you can still scan for at least some suffixes.
+               fimap actually takes care of the suffix. So if the suffixes match fimap will truncate the injection so the file fits perfectly.
+            
+            As you can see every file has also some parameters. Here are what there are good for:
+             * find: This parameter is used to see if the file actually got included. So define here something you except to see.
+             * unix: Set this to "1" if this file is available on unixoid systems.
+             * windows: Set this to "1" if this file is available on windows systems. 
+             * flags: There are different kind of flags to tell the exploit engine how to hax this file. Here we go:
+               * r = This file is readable. Means we can include it and print it's content somehow.
+               * R = This file is a RFI. Exploit engine will use dynamic_rfi to exploit it.
+               * x = This flag says that this file can be used to inject payloads.
+               * A = This file supports direct injection through the UserAgent. (/proc/self/environ says hello)
+               * L = This file is a logfile. You have to combine it with one of the following options.
+                     * H = The exploit engine should inject the kickstarter through the UserAgent.
+                     * S = The exploit engine should inject the kickstarter through the SSH UserName.
+                     * F = The exploit engine should inject the kickstarter through the FTP UserName.
+             
+             It's up to you to combine the flags so that it hits the nail ;)
+             
+             You will find also the same stuff inside the php.xml and perl.xml. The files you define there are exclusivly for the language.
+             
+             The other values are trivial. If you are smart enough you can see what they are doing.
+             Just for your information. The weird alphanummeric combinations are Base64 encoded strings.
+    -->
+
 	<relative_files>
 		<file path="/etc/passwd" find="root:" flags="r" unix="1" windows="0"/>
 		<file path="c:\boot.ini" find="[operating" flags="r" unix="0" windows="1"/>
@@ -20,6 +54,8 @@
 		<file path="/var/log/apache2/access_log" find='"GET /' flags="LHx" unix="1" windows="0" />
 		<file path="/var/log/apache/access_log" find='"GET /' flags="LHx" unix="1" windows="0" />
 		<file path="/var/log/httpd/access_log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/var/log/auth.log" find=' session ' flags="LSx" unix="1" windows="0" />
+		<file path="/var/log/secure" find=' session ' flags="LSx" unix="1" windows="0" />
 	</log_files>
 	
 	<blind_files mindepth="0" maxdepth="15">

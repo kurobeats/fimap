@@ -36,7 +36,7 @@ import shutil
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$30.08.2009 19:57:21$"
-__version__ = "09_svn (For the Swarm)"
+__version__ = "1.00_svn (Some good stuff!)"
 config = {}
 
 
@@ -173,6 +173,7 @@ def show_credits():
     print "   - Peteris Krumins (peter@catonmat.net) for xgoogle python module."
     print "   - Pentestmonkey from www.pentestmonkey.net for php-reverse-shell."
     print "   - Crummy from www.crummy.com for BeautifulSoup."
+    print "   - zeth0 from commandline.org.uk for ssh.py."
     sys.exit(0)
 
 
@@ -265,7 +266,6 @@ if __name__ == "__main__":
     blind_max = None
 
     print head
-
 
     if (len(sys.argv) == 1):
         #show_help(True)
