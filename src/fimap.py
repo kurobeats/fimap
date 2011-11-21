@@ -113,7 +113,7 @@ def show_help(AndQuit=False):
     print "        --dot-trunc-ratio=0.095  The maximum ratio to detect if dot truncation was successfull."
     print "        --dot-trunc-also-unix    Use this if dot-truncation should also be tested on unix servers."
     print "        --force-os=OS            Forces fimap to test only files for the OS."
-    print "                                 OS can be 'unix' or 'windows'"
+    print "                                 OS can be 'linux' or 'windows'"
     print "## Attack Kit:"
     print "   -x , --exploit                Starts an interactive session where you can"
     print "                                 select a target and do some action."
