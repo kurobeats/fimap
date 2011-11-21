@@ -472,7 +472,7 @@ class codeinjector(baseClass):
                         hostname = url[url.find("//") +2:]
                         if ("/" in hostname):
                             hostname = hostname[:hostname.find("/")]
-                        if (hostname.startsWith("www.")):
+                        if (hostname.startswith("www.")):
                             hostname = hostname[4:]
                         self._log("Trying to connect to ssh://'%s'"%(hostname), self.LOG_DEBUG)
                         self._log("SSH-Username: %s"%(kickstarter), self.LOG_DEVEL)
