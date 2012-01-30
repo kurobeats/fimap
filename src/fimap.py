@@ -117,6 +117,8 @@ def show_help(AndQuit=False):
     print "## Attack Kit:"
     print "   -x , --exploit                Starts an interactive session where you can"
     print "                                 select a target and do some action."
+    print "   -X                            Same as -x but also shows not exploitable which might can be"
+    print "                                  hax0red with plugins."
     print "   -T , --tab-complete           Enables TAB-Completation in exploit mode. Needs readline module."
     print "                                 Use this if you want to be able to tab-complete thru remote"
     print "                                 files\dirs. Eats an extra request for every 'cd' command."
@@ -203,13 +205,13 @@ def show_ip():
     print result.strip()
     sys.exit(0)
 
-def list_results(lst = os.path.join(os.path.expanduser("~"), "fimap_result.xml")):
+def list_results(lst = os.path.join(os.path.expanduser("~"), "fimap_result.xml"), onlyExploitable=True):
     if (not os.path.exists(lst)):
         print "File not found! ~/fimap_result.xml"
         sys.exit(1)
     c = codeinjector(config)
 
-    c.start()
+    c.start(onlyExploitable)
 
     sys.exit(0)
 
@@ -290,9 +292,10 @@ if __name__ == "__main__":
                         "googlesleep="  , "dot-truncation", "dot-trunc-min=", "dot-trunc-max=", "dot-trunc-step=", "dot-trunc-ratio=",
                         "tab-complete"  , "cookie="     , "bmin="        , "bmax="      , "dot-trunc-also-unix", "multiply-term=",
                         "autoawesome"   , "force-run"   , "force-os="   , "rfi-encoder=", "header=", "bing"]
-        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxHw:d:bP:CIDTM:4R:B", longSwitches)
+        optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxXHw:d:bP:CIDTM:4R:B", longSwitches)
 
         startExploiter = False
+        showOnlyExploitable = True
 
         for k,v in optlist:
             if (k in ("-u", "--url")):
@@ -351,6 +354,9 @@ if __name__ == "__main__":
                 doInternetInfo = True
             if (k in("-x", "--exploit")):
                 startExploiter = True
+            if (k in("-X",)):
+                startExploiter = True
+                showOnlyExploitable = False
             if (k in ("-P", "--post")):
                 config["p_post"] = v
             if (k in ("--no-auto-detect", )):
@@ -444,7 +450,7 @@ if __name__ == "__main__":
                       
         if startExploiter:
             try:
-                list_results()
+                list_results(onlyExploitable=showOnlyExploitable)
             except KeyboardInterrupt:
                 print "\n\nYou killed me brutally. Wtf!\n\n"
                 sys.exit(0)
@@ -464,9 +470,9 @@ if __name__ == "__main__":
         # Get generic.xml from SVN repository and parse out its version.
         generic_xml_online = tester.doGetRequest(defupdateurl + "generic.xml")
 
-    	if generic_xml_online == None:
+        if generic_xml_online == None:
             print "Failed to check generic_xml. Are you online?"
-	    sys.exit(1)
+        sys.exit(1)
 
         tmpFile = tempfile.mkstemp()[1] + ".xml"
         f = open(tmpFile, "w")
@@ -514,9 +520,9 @@ if __name__ == "__main__":
         tester = codeinjector(config)
         result = tester.doGetRequest(pluginlist)
 
-    	if result == None:
-        	print "Failed to request plugins! Are you online?"
-	        sys.exit(1)
+        if result == None:
+            print "Failed to request plugins! Are you online?"
+            sys.exit(1)
         
         choice = {}
         idx = 1
