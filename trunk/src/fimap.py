@@ -36,7 +36,7 @@ import shutil
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$30.08.2009 19:57:21$"
-__version__ = "1.00_svn (Some good stuff!)"
+__version__ = "1.00_svn (Your best friend!)"
 config = {}
 
 
@@ -122,6 +122,13 @@ def show_help(AndQuit=False):
     print "   -T , --tab-complete           Enables TAB-Completation in exploit mode. Needs readline module."
     print "                                 Use this if you want to be able to tab-complete thru remote"
     print "                                 files\dirs. Eats an extra request for every 'cd' command."
+    print "        --x-host=HOSTNAME        The host to use exploits on. fimap won't prompt you for the domain"
+    print "                                  in exploit mode if you set this value."
+    print "        --x-vuln=VULNNUMBER      The vulnerability ID you want to use. It's the same number you type"
+    print "                                  into the exploit mode where you choose the vulnerable script."
+    print "        --x-cmd=CMD              The CMD you want to execute on the vulnerable system. Use this parameter"
+    print "                                  more than once to execute commands one after another."
+    print "                                  Remember that each command opens a new shell and closes it after execution."
     print "## Disguise Kit:"
     print "   -A , --user-agent=UA          The User-Agent which should be sent."
     print "        --http-proxy=PROXY       Setup your proxy with this option. But read this facts:"
@@ -258,6 +265,10 @@ if __name__ == "__main__":
     config["force-os"]  = None
     config["p_rfi_encode"] = None
     config["p_skiponerror"] = False
+    config["p_exploit_domain"] = None
+    config["p_exploit_payload"] = None
+    config["p_exploit_script_id"] = None
+    config["p_exploit_cmds"] = None
     doPluginsShow = False
     doRFITest = False
     doInternetInfo = False
@@ -291,7 +302,7 @@ if __name__ == "__main__":
                         "plugins"       , "enable-color", "update-def"  , "merge-xml="  , "install-plugins" , "results=",
                         "googlesleep="  , "dot-truncation", "dot-trunc-min=", "dot-trunc-max=", "dot-trunc-step=", "dot-trunc-ratio=",
                         "tab-complete"  , "cookie="     , "bmin="        , "bmax="      , "dot-trunc-also-unix", "multiply-term=",
-                        "autoawesome"   , "force-run"   , "force-os="   , "rfi-encoder=", "header=", "bing"]
+                        "autoawesome"   , "force-run"   , "force-os="   , "rfi-encoder=", "header=", "bing", "x-host=", "x-cmd=", "x-vuln="]
         optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxXHw:d:bP:CIDTM:4R:B", longSwitches)
 
         startExploiter = False
@@ -405,6 +416,14 @@ if __name__ == "__main__":
                 config["force-os"] = v
             if (k in ("--rfi-encoder")):
                 config["p_rfi_encode"] = v
+            if (k in ("--x-host",)):
+                config["p_exploit_domain"] = v
+            if (k in ("--x-cmd",)):
+                if (config["p_exploit_cmds"] == None):
+                    config["p_exploit_cmds"] = []
+                config["p_exploit_cmds"].append(v)
+            if (k in ("--x-vuln",)):
+                config["p_exploit_script_id"] = int(v)
             #if (k in("-f", "--exploit-filter")):
             #    config["p_exploit_filter"] = v
 
