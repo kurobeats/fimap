@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin 
+		name="PHPInfo"
+		startup="TempFileAbuse" 
+		version="1"
+		autor="Iman Karim"
+		email="fimap.dev@gmail.com"
+		url="http://fimap.googlecode.com"
+/>
