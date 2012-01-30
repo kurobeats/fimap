@@ -66,6 +66,17 @@ class plugininterface(baseClass):
                 ret.append((p.getPluginName(), m))
         return(ret)
     
+    def requestPluginFallbackActions(self, langClass):
+        ret = []
+        for p in self.plugins:
+            try:
+                modes = p.plugin_fallback_modes_requested(langClass)
+                for m in modes:
+                    ret.append((p.getPluginName(), m))
+            except:
+                pass # Compatiblity for old plugins cause I am currently too lazy to fix them.
+        return(ret)
+    
     def broadcast_callback(self, attack, haxhelper):
         for p in self.plugins:
             try:

