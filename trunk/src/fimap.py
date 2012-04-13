@@ -36,7 +36,7 @@ import shutil
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$30.08.2009 19:57:21$"
-__version__ = "1.00_svn (Your best friend!)"
+__version__ = "1.00_svn (Uitmuntende programmatuur alleen voor jij!)"
 config = {}
 
 
@@ -118,17 +118,17 @@ def show_help(AndQuit=False):
     print "   -x , --exploit                Starts an interactive session where you can"
     print "                                 select a target and do some action."
     print "   -X                            Same as -x but also shows not exploitable which might can be"
-    print "                                  hax0red with plugins."
+    print "                                 hax0red with plugins."
     print "   -T , --tab-complete           Enables TAB-Completation in exploit mode. Needs readline module."
     print "                                 Use this if you want to be able to tab-complete thru remote"
     print "                                 files\dirs. Eats an extra request for every 'cd' command."
     print "        --x-host=HOSTNAME        The host to use exploits on. fimap won't prompt you for the domain"
-    print "                                  in exploit mode if you set this value."
+    print "                                 in exploit mode if you set this value."
     print "        --x-vuln=VULNNUMBER      The vulnerability ID you want to use. It's the same number you type"
-    print "                                  into the exploit mode where you choose the vulnerable script."
+    print "                                 into the exploit mode where you choose the vulnerable script."
     print "        --x-cmd=CMD              The CMD you want to execute on the vulnerable system. Use this parameter"
-    print "                                  more than once to execute commands one after another."
-    print "                                  Remember that each command opens a new shell and closes it after execution."
+    print "                                 more than once to execute commands one after another."
+    print "                                 Remember that each command opens a new shell and closes it after execution."
     print "## Disguise Kit:"
     print "   -A , --user-agent=UA          The User-Agent which should be sent."
     print "        --http-proxy=PROXY       Setup your proxy with this option. But read this facts:"
@@ -189,16 +189,19 @@ def show_credits():
 def show_greetings():
     print "## Greetings to the Circle of Awesome People:"
     print "(alphabetically)"
+    print " - Alpina"
+    print " - Chicano"
     print " - Exorzist"
     print " - IngoWer"
     print " - Invisible"
+    print " - Maelius"
     print " - MarcosKhan"
-    print " - Rita"
+    print " - Martinius"
+    print " - MorbiusPrime"
     print " - Ruun"
     print " - Satyros"
-    print " - Sticks"
     print " - Yasmin"
-    print " Special Greetings to the whole Netherlands"
+    print " Special Greetings to the whole Netherlands."
     sys.exit(0)
 
 def show_ip():
