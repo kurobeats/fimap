@@ -65,6 +65,12 @@ _None_
 === Output ===
   * Returns a `pwd` command for the vulnerable server.
 
+== HaxHelper.getPWD() ==
+=== Input ===
+_None_    
+=== Output ===
+  * Returns the actual result of `pwd` on the remote machine.
+
     
 == HaxHelper.getUsernameCommand() ==
 === Input ===
