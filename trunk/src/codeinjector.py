@@ -1000,6 +1000,10 @@ class HaxHelper:
         """ Give this command a array of system-commands and it will concat them for the vulnerable system. """
         return(self.generic_lang.concatCommands(commands, self.isunix))
     
+    def getPWD(self):
+        """ Returns the current directory on the remote server. """
+        return(self.executeSystemCommand(self.getPWDCommand()))
+    
     def getPWDCommand(self):
         """ Returns a `pwd` command for the vulnerable server. """
         return(self.generic_lang.getCurrentDirCode(self.isunix))
