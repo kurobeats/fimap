@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<fimap language="generic" revision="1">
+<fimap language="generic" revision="2">
     <!-- WTF is this file?
             This file describes the basic scan parameters of fimap.
             You can add much more files but read this facts:
@@ -54,6 +54,30 @@
 		<file path="/var/log/apache2/access_log" find='"GET /' flags="LHx" unix="1" windows="0" />
 		<file path="/var/log/apache/access_log" find='"GET /' flags="LHx" unix="1" windows="0" />
 		<file path="/var/log/httpd/access_log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/apache/logs/access.log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/apache/logs/access_log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/apache2/logs/access.log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/apache2/logs/access_log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/etc/httpd/logs/access_log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/etc/httpd/logs/access.log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/var/httpd/logs/access_log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/var/httpd/logs/access.log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/var/www/logs/access_log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/var/www/logs/access.log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/usr/local/apache/logs/access_log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/usr/local/apache/logs/access.log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/usr/local/apache2/logs/access_log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/usr/local/apache2/logs/access.log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/var/log/access_log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/var/log/access.log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/logs/access.log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/logs/access_log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/opt/lampp/logs/access_log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/opt/lampp/logs/access.log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/opt/xampp/logs/access.log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="/opt/xampp/logs/access_log" find='"GET /' flags="LHx" unix="1" windows="0" />
+		<file path="C:\Program Files\Apache Group\Apache\logs\access.log" find='"GET /' flags="LHx" unix="0" windows="1" />
+		<file path="C:\Program Files\Apache Group\Apache\logs\access_log" find='"GET /' flags="LHx" unix="0" windows="1" />
 		<file path="/var/log/auth.log" find=' session ' flags="LSx" unix="1" windows="0" />
 		<file path="/var/log/secure" find=' session ' flags="LSx" unix="1" windows="0" />
 	</log_files>
