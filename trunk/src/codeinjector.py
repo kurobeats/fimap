@@ -77,7 +77,7 @@ class codeinjector(baseClass):
             header_dict             = pickle.loads(header_dict_pickle)
 
         
-        if (not isUnix and shcode[1]==":"):
+        if (not isUnix and shcode[1]==":" and prefix != ""):
             shcode = shcode[3:]
         
         payload = "%s%s%s" %(prefix, shcode, suffix)
@@ -849,30 +849,30 @@ class codeinjector(baseClass):
             if (c == "q"):
                 sys.exit(0)
             elif (c == "?"):
-			    print "------------------------------------------------------------------------------"
-			    print "Why are some domains not visible?"
-			    print "This can have two reasons."
-			    print "* Non executable files:"
-			    print "  It's likly that fimap has found an inclusion bug and was able to read out"
-			    print "  non executable files like '/etc/passwd' or 'c:\\boot.ini'."
-			    print "  In cases like this it's not possible to automaticly attack the machine."
-			    print "  However if you are able to upload a file on the webserver you have high"
-			    print "  chances to spawn a shell."
-			    print "* Remote File Inclusion bugs:"
-			    print "  If you have found RFI only bugs you have to enable Dynamic RFI in order to"
-			    print "  exploit the bug with fimap. The RFI-Only domains will be hidden unless you"
-			    print "  have configured and enabled Dynamic RFI."
-			    print "  However you can always take a look at the ~/fimap_result.xml , get your info"
-			    print "  and do it manually."
-			    print "------------------------------------------------------------------------------"
+                print "------------------------------------------------------------------------------"
+                print "Why are some domains not visible?"
+                print "This can have two reasons."
+                print "* Non executable files:"
+                print "  It's likly that fimap has found an inclusion bug and was able to read out"
+                print "  non executable files like '/etc/passwd' or 'c:\\boot.ini'."
+                print "  In cases like this it's not possible to automaticly attack the machine."
+                print "  However if you are able to upload a file on the webserver you have high"
+                print "  chances to spawn a shell."
+                print "* Remote File Inclusion bugs:"
+                print "  If you have found RFI only bugs you have to enable Dynamic RFI in order to"
+                print "  exploit the bug with fimap. The RFI-Only domains will be hidden unless you"
+                print "  have configured and enabled Dynamic RFI."
+                print "  However you can always take a look at the ~/fimap_result.xml , get your info"
+                print "  and do it manually."
+                print "------------------------------------------------------------------------------"
             else:
-			  try:
-				  c = int(c)
-				  ret = choose[c]
-				  return(ret)
-			  except:
-				  print "Invalid Domain ID."
-				  
+              try:
+                  c = int(c)
+                  ret = choose[c]
+                  return(ret)
+              except:
+                  print "Invalid Domain ID."
+                  
 
 
     def chooseVuln(self, hostname):
