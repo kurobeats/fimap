@@ -154,9 +154,12 @@ class autoawesome(baseClass):
         else:
             print "Harvesting done. %d links found. Analyzing links now..."%(len(crawl.urlpool))
             for url in crawl.urlpool:
-                single = singleScan(self.config)
-                single.setURL(str(url[0]))
-                single.setQuite(True)
-                single.scan()
+                try:
+                    single = singleScan(self.config)
+                    single.setURL(str(url[0]))
+                    single.setQuite(True)
+                    single.scan()
+                except:
+                    print "Cought an exception. Continuing..."
                 
         print "AutoAwesome is done."

@@ -36,7 +36,7 @@ import shutil
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$30.08.2009 19:57:21$"
-__version__ = "1.00_svn (Uitmuntende programmatuur alleen voor jij!)"
+__version__ = "1.00_svn (My life for Aiur)"
 config = {}
 
 
@@ -58,6 +58,7 @@ def show_help(AndQuit=False):
     print "                                 Needs a query (-q) as google search query."
     print "   -B , --bing                   Use bing to get URLs."
     print "                                 Needs a query (-q) as bing search query."
+    print "                                 Also needs a Bing APIKey (--bingkey)"
     print "   -H , --harvest                Mode to harvest a URL recursivly for new URLs."
     print "                                 Needs a root url (-u) to start crawling there."
     print "                                 Also needs (-w) to write a URL list for mass mode."
@@ -83,6 +84,8 @@ def show_help(AndQuit=False):
     print "   -q , --query=QUERY            The Google Search QUERY."
     print "                                 Example: 'inurl:include.php'"
     print "                                 Needed in Google Mode (-g)"
+    print "        --bingkey=APIKEY         This is your the Bing APIKey. You have to set this when you"
+    print "                                 want to use the BingScanner (-B)."
     print "        --skip-pages=X           Skip the first X pages from the Googlescanner."
     print "   -p , --pages=COUNT            Define the COUNT of pages to search (-g)."
     print "                                 Default is 10."
@@ -272,6 +275,7 @@ if __name__ == "__main__":
     config["p_exploit_payload"] = None
     config["p_exploit_script_id"] = None
     config["p_exploit_cmds"] = None
+    config["p_bingkey"] = None
     doPluginsShow = False
     doRFITest = False
     doInternetInfo = False
@@ -305,7 +309,8 @@ if __name__ == "__main__":
                         "plugins"       , "enable-color", "update-def"  , "merge-xml="  , "install-plugins" , "results=",
                         "googlesleep="  , "dot-truncation", "dot-trunc-min=", "dot-trunc-max=", "dot-trunc-step=", "dot-trunc-ratio=",
                         "tab-complete"  , "cookie="     , "bmin="        , "bmax="      , "dot-trunc-also-unix", "multiply-term=",
-                        "autoawesome"   , "force-run"   , "force-os="   , "rfi-encoder=", "header=", "bing", "x-host=", "x-cmd=", "x-vuln="]
+                        "autoawesome"   , "force-run"   , "force-os="   , "rfi-encoder=", "header=", "bing", "x-host=", "x-cmd=", "x-vuln=",
+                        "bingkey="]
         optlist, args = getopt.getopt(sys.argv[1:], "u:msl:v:hA:gq:p:sxXHw:d:bP:CIDTM:4R:B", longSwitches)
 
         startExploiter = False
@@ -427,6 +432,9 @@ if __name__ == "__main__":
                 config["p_exploit_cmds"].append(v)
             if (k in ("--x-vuln",)):
                 config["p_exploit_script_id"] = int(v)
+            
+            if (k in ("--bingkey",)):
+                config["p_bingkey"] = v
             #if (k in("-f", "--exploit-filter")):
             #    config["p_exploit_filter"] = v
 
@@ -672,6 +680,15 @@ if __name__ == "__main__":
     if (doInternetInfo):
         show_ip()
 
+    # BING CURRENTLY BROKEN
+    if (config["p_mode"] == 5):
+        print "\n\n\n"
+        print "I am sorry bro but bing is currently broken."
+        print "Try getting the links yourself and use MassMode(-m) for now."
+        print "Sorry champ :("
+        sys.exit(0)
+    
+        
     if (config["p_url"] == None and config["p_mode"] == 0):
         print "Target URL required. (-u)"
         sys.exit(1)
@@ -683,6 +700,9 @@ if __name__ == "__main__":
         sys.exit(1)
     if (config["p_query"] == None and config["p_mode"] == 5):
         print "Bing Query required. (-q)"
+        sys.exit(1)
+    if (config["p_bingkey"] == None and config["p_mode"] == 5):
+        print "Bing APIKey required. (--bingkey)"
         sys.exit(1)
     if (config["p_url"] == None and config["p_mode"] == 3):
         print "Start URL required for harvesting. (-u)"
