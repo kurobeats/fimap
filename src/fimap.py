@@ -208,10 +208,10 @@ def show_greetings():
     sys.exit(0)
 
 def show_ip():
-    print "Heading to 'http://85.214.27.38/show_my_ip'..."
+    print "Heading to 'http://85.214.72.67/show_my_ip'..."
     print "----------------------------------------------"
     tester = codeinjector(config)
-    result = tester.doGetRequest("http://85.214.27.38/show_my_ip")
+    result = tester.doGetRequest("http://85.214.72.67/show_my_ip")
     if (result == None):
         print "result = None -> Failed! Maybe you have no connection or bad proxy?"
         sys.exit(1)
