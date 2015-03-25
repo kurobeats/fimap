@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<fimap language="php" revision="3" force_inclusion_test="0" autor="Iman Karim (ikarim2s@smail.inf.fh-brs.de)" >
+<fimap language="php" revision="4" force_inclusion_test="0" autor="Iman Karim (imax@tha-imax.de)" >
 	<snipe regex="Failed opening( required)* '(?P&lt;incname&gt;[\d\w/\.\-:\\]*?%s[\d\w/\.\-\\]*?)' (for inclusion)*" />
 	
 	<relative_files>
@@ -10,7 +10,7 @@
 	</absolute_files>
 	
 	<remote_files>
-		<file path="http://www.phpbb.de/index.php" find="Willkommen auf phpBB.de" flags="rR"  unix="1" windows="1"/>
+		<file path="http://www.tha-imax.de/fimap_testfiles/test" find="This is the right thing." flags="rR"  unix="1" windows="1"/>
 	</remote_files>
 	
 	<log_files>

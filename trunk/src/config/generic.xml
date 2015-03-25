@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<fimap language="generic" revision="2">
+<fimap language="generic" revision="3">
     <!-- WTF is this file?
             This file describes the basic scan parameters of fimap.
             You can add much more files but read this facts:
@@ -86,8 +86,11 @@
 		<file path="/etc/passwd" find="root:" flags="r" unix="1" windows="0"/>
 		<file path="c:\boot.ini" find="[operating" flags="r" unix="0" windows="1"/>
 		<file path="c:\windows\win.ini" find="[fonts" flags="r" unix="0" windows="1"/>
-	</blind_files>
-	
+                <file path="http://www.tha-imax.de/fimap_testfiles/test" find="This is the right thing." flags="rR" unix="1" windows="1"/>
+                <file path="http://www.tha-imax.de/fimap_testfiles/test.php" find="This is the right thing." flags="rR" unix="1" windows="1"/>
+                <file path="http://www.tha-imax.de/fimap_testfiles/test.html" find="This is the right thing." flags="rR" unix="1" windows="1"/>
+                <file path="http://www.tha-imax.de/fimap_testfiles/test.inc" find="This is the right thing." flags="rR" unix="1" windows="1"/>
+        </blind_files>
 	<methods>
 		<unix concatcommand=";">
 			<shellquiz source="cm5kMSA9IHJhbmRvbS5yYW5kcmFuZ2UoMTAsIDk5KQpybmQyID0gcmFuZG9tLnJhbmRyYW5nZSgxMCwgOTkpCnJlc3VsdCA9IHN0cihybmQxICogcm5kMikKc2hlbGxjb2RlID0gImVjaG8gJCgoJWQqJWQpKSIlKHJuZDEsIHJuZDIpCnJldCA9IChzaGVsbGNvZGUsIHJlc3VsdCk=" />
