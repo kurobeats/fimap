@@ -340,6 +340,12 @@ class targetScanner (baseClass.baseClass):
 
                         if (doBreak): 
                             return(ret) # <-- Return if we found one blindly readable file.
+                          
+                        # When this is a remote file inclusion test done blindly, we do not want to bruteforce
+                        # subdirectories with ../../http://www.... nonsense.
+                        if ("R" in fileobj.getFlags()):
+                            break
+                            
                     
         return(ret)
 
