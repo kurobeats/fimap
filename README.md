@@ -1,7 +1,7 @@
 Welcome to the fimap project!
 =============================
 
-fimap is a little python tool which can find, prepare, audit, exploit and even google automaticaly for local and remote file inclusion bugs in webapps. fimap should be something like [sqlmap](http://sqlmap.sourceforge.net) just for LFI/RFI bugs instead of sql injection. It's currently under heavy development but it's usable.
+fimap is a little python tool which can find, prepare, audit, exploit and even google automatically for local and remote file inclusion bugs in webapps. fimap should be something like [sqlmap](http://sqlmap.sourceforge.net) just for LFI/RFI bugs instead of sql injection. It's currently under heavy development but it's usable.
 
 
 The goal of fimap is to improve the quality and security of **your** website.
