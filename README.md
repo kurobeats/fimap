@@ -12,9 +12,6 @@ I am dead serious.
 
 * * *
 
-I'm trying twitter right now to announce cool SVN updates.
-
-
 Feel free to follow: [http://twitter.com/fimap](http://twitter.com/fimap)
 
 
