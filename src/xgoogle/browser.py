@@ -13,6 +13,11 @@ import socket
 import urllib
 import urllib2
 import httplib
+import ssl
+
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
 
 BROWSERS = (
     # Top most popular browsers in my access.log on 2009.02.12
@@ -82,7 +87,7 @@ class Browser(object):
 
     def get_page(self, url, data=None):
         handlers = [PoolHTTPHandler]
-        opener = urllib2.build_opener(*handlers)
+        opener = urllib2.build_opener(urllib2.HTTPSHandler(context=ctx), *handlers)
         if data: data = urllib.urlencode(data)
         request = urllib2.Request(url, data, self.headers)
         try:

@@ -41,9 +41,14 @@ __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$30.08.2009 20:02:04$"
 
 import urllib2
+import ssl
 import string,random,os,socket
 
 new_stuff = {}
+
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
 
 class baseClass (object):
     
@@ -612,7 +617,7 @@ class Browser(object):
             proxy_support = urllib2.ProxyHandler({'http': self.proxy, 'https': self.proxy})
         handlers = [proxy_support]
 
-        opener = urllib2.build_opener(*handlers)
+        opener = urllib2.build_opener(urllib2.HTTPSHandler(context=ctx), *handlers)
 
         if additionalheader != None:
             for key, head in additionalheader.items():

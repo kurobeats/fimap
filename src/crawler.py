@@ -20,7 +20,11 @@
 
 import os.path
 from xgoogle.BeautifulSoup import BeautifulSoup
-import os, urllib2, urllib, socket
+import os, urllib2, urllib, socket, ssl
+
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$09.09.2009 21:52:30$"
@@ -122,7 +126,7 @@ class crawler:
     def __simpleGetRequest(self, URL, TimeOut=10):
         try:
             try:
-                opener = urllib2.build_opener()
+                opener = urllib2.build_opener(urllib2.HTTPSHandler(context=ctx))
                 opener.addheaders = [('User-agent', self.config["p_useragent"])]
                 f = opener.open(URL, timeout=TimeOut) # TIMEOUT
                 ret = f.read()
