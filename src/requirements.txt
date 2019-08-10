@@ -1,0 +1,3 @@
+py-ms-cognitive
+bs4
+paramiko

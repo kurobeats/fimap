@@ -5,8 +5,16 @@ fimap is a little python tool which can find, prepare, audit, exploit and even g
 
 Originally, this tool was created by [this very awesome fellow](https://tha-imax.de/git/root/fimap/tree/master) but there hasn't been a lot of movement on the project since porting to github.
 
-* * *
+### Update: 2019
 
+I'm going to try port the project to python3. This might be a wasted effort but I'll give it a crack. Feel free to chip in.
+
+* * *
+## Requirements
+
+`pip3 install --user -r requirements.txt`
+
+* * *
 ## What works currently?
 
 *   Check a Single URL, List of URLs, or Google results fully automaticly.
@@ -54,17 +62,13 @@ Originally, this tool was created by [this very awesome fellow](https://tha-imax
 
 *   Non Interactive Exploiting
 
-## What doesn't work yet?
-
-*   Other languages than PHP (even if engine is ready for others as well.)
-
 ## Is there a How To?
 
 *   Check out [this](http://kaoticcreations.blogspot.com/2011/08/automated-lfirfi-scanning-exploiting.html) post by HR from [Kaotic Creations](http://kaoticcreations.blogspot.com) which explains fimap really good :) It's a tutorial for windows but I think unix heads should understand it as well.
 
-## Credits
+## Original Credits
 
-*   Main Developer: [Iman Karim](mailto:fimap.dev@gmail.com)
+*   Former Main Developer: [Iman Karim](mailto:fimap.dev@gmail.com)
 
 *   Trusted Plugins:
 

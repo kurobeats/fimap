@@ -18,14 +18,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-__author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
-__date__ ="$01.09.2009 13:56:47$"
-
 settings = {}
 
 settings["dynamic_rfi"] = {}
 
-settings["dynamic_rfi"]["mode"] = "off" # Set to "ftp" or "local" to use Dynamic_RFI. Set it to "off" to disable it and rely on settings["filesrmt"] files.
+# Set to "ftp" or "local" to use Dynamic_RFI. Set it to "off" to disable it and rely on settings["filesrmt"] files.
+settings["dynamic_rfi"]["mode"] = "off"
 
 ###############
 #!!!# WARNING #
@@ -40,12 +38,14 @@ settings["dynamic_rfi"]["ftp"] = {}
 settings["dynamic_rfi"]["ftp"]["ftp_host"] = None
 settings["dynamic_rfi"]["ftp"]["ftp_user"] = None
 settings["dynamic_rfi"]["ftp"]["ftp_pass"] = None
-settings["dynamic_rfi"]["ftp"]["ftp_path"] = None # A non existing file without suffix. Example: /home/imax/public_html/payload
-settings["dynamic_rfi"]["ftp"]["http_map"] = None # The mapped HTTP path of the file. Example: http://localhost/~imax/payload
+# A non existing file without suffix. Example: /home/imax/public_html/payload
+settings["dynamic_rfi"]["ftp"]["ftp_path"] = None
+# The mapped HTTP path of the file. Example: http://localhost/~imax/payload
+settings["dynamic_rfi"]["ftp"]["http_map"] = None
 
 # Local Mode
 settings["dynamic_rfi"]["local"] = {}
-settings["dynamic_rfi"]["local"]["local_path"] = None   # A non existing file on your filesystem without prefix which is reachable by http. Example: /var/www/payload
-settings["dynamic_rfi"]["local"]["http_map"]   = None   # The http url of the file without prefix where the file is reachable from the web. Example: http://localhost/payload
-
-
+# A non existing file on your filesystem without prefix which is reachable by http. Example: /var/www/payload
+settings["dynamic_rfi"]["local"]["local_path"] = None
+# The http url of the file without prefix where the file is reachable from the web. Example: http://localhost/payload
+settings["dynamic_rfi"]["local"]["http_map"] = None

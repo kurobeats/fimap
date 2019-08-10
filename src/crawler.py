@@ -19,45 +19,53 @@
 #
 
 import os.path
-from xgoogle.BeautifulSoup import BeautifulSoup
-import os, urllib2, urllib, socket, ssl
+from bs4 import BeautifulSoup
+import os
+import urllib.request
+import urllib.error
+import urllib.parse
+import urllib.request
+import urllib.parse
+import urllib.error
+import socket
+import ssl
 
 ctx = ssl.create_default_context()
 ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
 
-__author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
-__date__ ="$09.09.2009 21:52:30$"
+__author__ = "Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
+__date__ = "$09.09.2009 21:52:30$"
+
 
 class crawler:
 
     def __init__(self, config):
-        self.goodTypes = ("html", "php", "php4", "php5", "jsp", "htm", "py", "pl", "asp", "cgi", "/")
+        self.goodTypes = ("html", "php", "php4", "php5", "jsp",
+                          "htm", "py", "pl", "asp", "cgi", "/")
         self.config = config
         self.urlpool = []
-        
 
     def crawl(self):
         root_url = self.config["p_url"]
         outfile = open(self.config["p_write"], "a")
 
-
         idx = 0
-        print "[%d] Going to root URL: '%s'..." %(idx, root_url)
+        print("[%d] Going to root URL: '%s'..." % (idx, root_url))
         if (self.countChar(root_url, "/") == 2):
             root_url = root_url + "/"
         self.crawl_url(root_url)
 
-        
         while(len(self.urlpool)-idx > 0):
-            url , level = self.urlpool[idx]
+            url, level = self.urlpool[idx]
             url = self.__encodeURL(url)
-            print "[Done: %d | Todo: %d | Depth: %d] Going for next URL: '%s'..." %(idx, len(self.urlpool) - idx, level, url)
+            print("[Done: %d | Todo: %d | Depth: %d] Going for next URL: '%s'..." % (
+                idx, len(self.urlpool) - idx, level, url))
             outfile.write(url + "\n")
             self.crawl_url(url, level)
-            idx = idx +1
+            idx = idx + 1
 
-        print "Harvesting done."
+        print("Harvesting done.")
         outfile.close()
 
     def countChar(self, word, c):
@@ -68,15 +76,16 @@ class crawler:
         return(cnt)
 
     def crawl_url(self, url, level=0):
-        if (url.count("/") == 2): # If the user provides 'http://www.google.com' append an / to it.
-            url += "/" 
-        
+        # If the user provides 'http://www.google.com' append an / to it.
+        if (url.count("/") == 2):
+            url += "/"
+
         code = self.__simpleGetRequest(url)
         domain = self.getDomain(url, True)
 
         if (code != None):
             soup = None
-            
+
             try:
                 soup = BeautifulSoup(code)
             except:
@@ -88,7 +97,7 @@ class crawler:
                     new_url = None
                     try:
                         new_url = tag['href']
-                    except KeyError, err:
+                    except KeyError as err:
                         pass
 
                     if new_url != None and not new_url.startswith("#") and not new_url.startswith("javascript:"):
@@ -99,7 +108,8 @@ class crawler:
                             if (new_url.startswith("/")):
                                 new_url = os.path.join(domain, new_url[1:])
                             else:
-                                new_url = os.path.join(os.path.dirname(url), new_url)
+                                new_url = os.path.join(
+                                    os.path.dirname(url), new_url)
                             isCool = True
 
                         if (isCool and self.isURLinPool(new_url)):
@@ -116,7 +126,6 @@ class crawler:
                                         self.urlpool.append((new_url, level+1))
                                         break
 
-
     def isURLinPool(self, url):
         for u, l in self.urlpool:
             if u.lower() == url.lower():
@@ -126,13 +135,15 @@ class crawler:
     def __simpleGetRequest(self, URL, TimeOut=10):
         try:
             try:
-                opener = urllib2.build_opener(urllib2.HTTPSHandler(context=ctx))
-                opener.addheaders = [('User-agent', self.config["p_useragent"])]
-                f = opener.open(URL, timeout=TimeOut) # TIMEOUT
+                opener = urllib.request.build_opener(
+                    urllib.request.HTTPSHandler(context=ctx))
+                opener.addheaders = [
+                    ('User-agent', self.config["p_useragent"])]
+                f = opener.open(URL, timeout=TimeOut)  # TIMEOUT
                 ret = f.read()
                 f.close()
                 return(ret)
-            except TypeError, err:
+            except TypeError as err:
                 try:
                     # Python 2.5 compatiblity
                     socket.setdefaulttimeout(TimeOut)
@@ -140,18 +151,18 @@ class crawler:
                     ret = f.read()
                     f.close()
                     return(ret)
-                except Exception, err:
+                except Exception as err:
                     raise
             except:
                 raise
 
-        except Exception, err:
-            print "Failed to to request to '%s'" %(Exception)
-            print err
+        except Exception as err:
+            print("Failed to to request to '%s'" % (Exception))
+            print(err)
             return(None)
 
     def getDomain(self, url=None, keepPrefix=False, keepPort=False):
-        if url==None:
+        if url == None:
             url = self.URL
 
         domain = url[url.find("//")+2:]
@@ -161,7 +172,7 @@ class crawler:
         domain = domain[:domain.find("/")]
         if (not keepPort and domain.find(":") != -1):
             domain = domain[:domain.find(":")]
-                
+
         if (keepPrefix):
             domain = prefix + domain
         return(domain)

@@ -19,10 +19,6 @@
 #
 
 
-
-__author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
-__date__ ="$01.09.2009 09:56:24$"
-
 class report:
     def __init__(self, URL, Params, VulnKey):
         self.URL = URL
@@ -44,20 +40,19 @@ class report:
         self.language = None
         self.VulnHeaderKey = None
         self.HeaderDict = None
-        
 
     def setVulnHeaderKey(self, headerkey):
         self.VulnHeaderKey = headerkey
-        
+
     def setHeader(self, header):
         self.HeaderDict = header
 
     def setLanguage(self, lang):
         self.language = lang
-        
+
     def getLanguage(self):
         return(self.language)
-    
+
     def isLanguageSet(self):
         return(self.language != None)
 
@@ -66,18 +61,18 @@ class report:
 
     def setPost(self, b):
         self.isPost = b
-        
+
     def getPostData(self):
         return(self.PostData)
-    
+
     def getVulnHeader(self):
         if (self.VulnHeaderKey == None):
             return("")
         return(self.VulnHeaderKey)
-    
+
     def getHeader(self):
         return(self.HeaderDict)
-    
+
     def isPost(self):
         return(self.isPost)
 
@@ -92,7 +87,7 @@ class report:
 
     def isLinux(self):
         return(self.isLinux)
-    
+
     def isUnix(self):
         return(self.isLinux)
 
@@ -124,7 +119,7 @@ class report:
 
     def setServerPath(self, sP):
         self.ServerPath = sP
-        
+
     def getServerPath(self):
         return(self.ServerPath)
 
@@ -166,11 +161,10 @@ class report:
 
     def setSuffixBreakTechName(self, name):
         self.SuffixBreakTechName = name
-        
+
     def getSuffixBreakTechName(self):
         return(self.SuffixBreakTechName)
-    
-    
+
     def getType(self):
         ret = ""
 
@@ -183,14 +177,14 @@ class report:
             if (self.getAppendix() == ""):
                 ret = "Absolute Clean"
             else:
-                ret = "Absolute with appendix '%s'" %(self.getAppendix())
+                ret = "Absolute with appendix '%s'" % (self.getAppendix())
         elif (self.isRelativeInjection()):
             if (self.getAppendix() == ""):
                 ret = "Relative Clean"
             else:
-                ret = "Relative with appendix '%s'" %(self.getAppendix())
+                ret = "Relative with appendix '%s'" % (self.getAppendix())
         else:
-            return("Unknown (%s | %s | %s)" %(self.getPrefix(), self.isRelativeInjection(), self.isAbsoluteInjection()))
+            return("Unknown (%s | %s | %s)" % (self.getPrefix(), self.isRelativeInjection(), self.isAbsoluteInjection()))
 
         if (self.isRemoteInjectable()):
             ret = ret + " + Remote injection"
@@ -198,7 +192,7 @@ class report:
         return(ret)
 
     def getDomain(self, url=None):
-        if url==None:
+        if url == None:
             url = self.URL
 
         domain = url[url.find("//")+2:]
@@ -212,7 +206,7 @@ class report:
         return(url)
 
     def autoDetectLanguageByExtention(self, languageSets):
-        for Name, langClass in languageSets.items():
+        for Name, langClass in list(languageSets.items()):
             exts = langClass.getExtentions()
             for ext in exts:
                 if (self.URL.find(ext) != -1):

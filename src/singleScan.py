@@ -20,10 +20,9 @@
 
 from baseClass import baseClass
 from targetScanner import targetScanner
-import sys, time
+import sys
+import time
 
-__author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
-__date__ ="$03.09.2009 01:29:37$"
 
 class singleScan(baseClass):
 
@@ -39,7 +38,7 @@ class singleScan(baseClass):
 
     def scan(self):
         try:
-            self.localLog("SingleScan is testing URL: '%s'" %self.URL)
+            self.localLog("SingleScan is testing URL: '%s'" % self.URL)
             t = targetScanner(self.config)
             t.MonkeyTechnique = self.config["p_monkeymode"]
 
@@ -47,50 +46,63 @@ class singleScan(baseClass):
             if (t.prepareTarget(self.URL)):
                 res = t.testTargetVuln()
                 if (len(res) == 0):
-                    self.localLog("Target URL isn't affected by any file inclusion bug :(")
+                    self.localLog(
+                        "Target URL isn't affected by any file inclusion bug :(")
                 else:
                     for i in res:
                         report = i[0]
                         files = i[1]
-                        idx = idx +1
+                        idx = idx + 1
                         boxarr = []
-                        header = "[%d] Possible File Inclusion"%(idx)
+                        header = "[%d] Possible File Inclusion" % (idx)
                         if (report.getLanguage() != None):
-                            header = "[%d] Possible %s-File Inclusion"%(idx, report.getLanguage())
+                            header = "[%d] Possible %s-File Inclusion" % (
+                                idx, report.getLanguage())
                         boxarr.append("::REQUEST")
-                        boxarr.append("  [URL]        %s"%report.getURL())
-                        if (report.getPostData() != None and report.getPostData() != ""): boxarr.append("  [POST]       %s"%report.getPostData())
-                        if (report.getHeader() != None and report.getHeader().keys() > 0):
-                            modkeys = ",".join(report.getHeader().keys())
-                            boxarr.append("  [HEAD SENT]  %s"%(modkeys))
-                        
+                        boxarr.append("  [URL]        %s" % report.getURL())
+                        if (report.getPostData() != None and report.getPostData() != ""):
+                            boxarr.append("  [POST]       %s" %
+                                          report.getPostData())
+                        if (report.getHeader() != None and list(report.getHeader().keys()) > 0):
+                            modkeys = ",".join(list(report.getHeader().keys()))
+                            boxarr.append("  [HEAD SENT]  %s" % (modkeys))
+
                         boxarr.append("::VULN INFO")
                         if (report.isPost == 0):
-                            boxarr.append("  [GET PARAM]  %s"%report.getVulnKey())
+                            boxarr.append("  [GET PARAM]  %s" %
+                                          report.getVulnKey())
                         elif (report.isPost == 1):
-                            boxarr.append("  [POSTPARM]   %s"%report.getVulnKey())
+                            boxarr.append("  [POSTPARM]   %s" %
+                                          report.getVulnKey())
                         elif (report.isPost == 2):
-                            boxarr.append("  [VULN HEAD]  %s"%report.getVulnHeader())
-                            boxarr.append("  [VULN PARA]  %s"%report.getVulnKey())
+                            boxarr.append("  [VULN HEAD]  %s" %
+                                          report.getVulnHeader())
+                            boxarr.append("  [VULN PARA]  %s" %
+                                          report.getVulnKey())
 
                         if (report.isBlindDiscovered()):
-                            boxarr.append("  [PATH]       Not received (Blindmode)")
+                            boxarr.append(
+                                "  [PATH]       Not received (Blindmode)")
                         else:
-                            boxarr.append("  [PATH]       %s"%report.getServerPath())
+                            boxarr.append("  [PATH]       %s" %
+                                          report.getServerPath())
                         if (report.isUnix()):
                             boxarr.append("  [OS]         Unix")
                         else:
                             boxarr.append("  [OS]         Windows")
-                            
-                        boxarr.append("  [TYPE]       %s"%report.getType())
+
+                        boxarr.append("  [TYPE]       %s" % report.getType())
                         if (not report.isBlindDiscovered()):
                             if (report.isSuffixBreakable() == None):
-                                boxarr.append("  [TRUNCATION] No Need. It's clean.")
+                                boxarr.append(
+                                    "  [TRUNCATION] No Need. It's clean.")
                             else:
                                 if (report.isSuffixBreakable()):
-                                    boxarr.append("  [TRUNCATION] Works with '%s'. :)" %(report.getSuffixBreakTechName()))
+                                    boxarr.append("  [TRUNCATION] Works with '%s'. :)" % (
+                                        report.getSuffixBreakTechName()))
                                 else:
-                                    boxarr.append("  [TRUNCATION] Doesn't work. :(")
+                                    boxarr.append(
+                                        "  [TRUNCATION] Doesn't work. :(")
                         else:
                             if (report.isSuffixBreakable()):
                                 boxarr.append("  [TRUNCATION] Is needed.")
@@ -98,33 +110,38 @@ class singleScan(baseClass):
                                 boxarr.append("  [TRUNCATION] Not tested.")
                         boxarr.append("  [READABLE FILES]")
                         if (len(files) == 0):
-                            boxarr.append("                     No Readable files found :(")
+                            boxarr.append(
+                                "                     No Readable files found :(")
                         else:
                             fidx = 0
                             for file in files:
-                                payload = "%s%s%s"%(report.getPrefix(), file, report.getSurfix())
+                                payload = "%s%s%s" % (
+                                    report.getPrefix(), file, report.getSurfix())
                                 if (file != payload):
-                                    if report.isWindows() and file[1]==":":
+                                    if report.isWindows() and file[1] == ":":
                                         file = file[3:]
-                                    txt = "                   [%d] %s -> %s"%(fidx, file, payload)
+                                    txt = "                   [%d] %s -> %s" % (
+                                        fidx, file, payload)
                                     #if (fidx == 0): txt = txt.strip()
                                     boxarr.append(txt)
                                 else:
-                                    txt = "                   [%d] %s"%(fidx, file)
+                                    txt = "                   [%d] %s" % (
+                                        fidx, file)
                                     #if (fidx == 0): txt = txt.strip()
                                     boxarr.append(txt)
-                                fidx = fidx +1
+                                fidx = fidx + 1
                         self.drawBox(header, boxarr)
         except KeyboardInterrupt:
-            if (self.quite): # We are in google mode.
-                print "\nCancelled current target..."
-                print "Press CTRL+C again in the next second to terminate fimap."
+            if (self.quite):  # We are in google mode.
+                print("\nCancelled current target...")
+                print("Press CTRL+C again in the next second to terminate fimap.")
                 try:
                     time.sleep(1)
                 except KeyboardInterrupt:
                     raise
-            else: # We are in single mode. Simply raise the exception.
+            else:  # We are in single mode. Simply raise the exception.
                 raise
+
     def localLog(self, txt):
         if (not self.quite):
-            print txt
+            print(txt)
