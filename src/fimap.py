@@ -48,179 +48,179 @@ pluginlist = "http://fimap.googlecode.com/svn/wiki/PluginList.wiki"
 defupdateurl = "http://fimap.googlecode.com/svn/trunk/src/config/"
 
 def show_help(AndQuit=False):
-    print "Usage: ./fimap.py [options]"
-    print "## Operating Modes:"
-    print "   -s , --single                 Mode to scan a single URL for FI errors."
-    print "                                 Needs URL (-u). This mode is the default."
-    print "   -m , --mass                   Mode for mass scanning. Will check every URL"
-    print "                                 from a given list (-l) for FI errors."
-    print "   -g , --google                 Mode to use Google to aquire URLs."
-    print "                                 Needs a query (-q) as google search query."
-    print "   -B , --bing                   Use bing to get URLs."
-    print "                                 Needs a query (-q) as bing search query."
-    print "                                 Also needs a Bing APIKey (--bingkey)"
-    print "   -H , --harvest                Mode to harvest a URL recursivly for new URLs."
-    print "                                 Needs a root url (-u) to start crawling there."
-    print "                                 Also needs (-w) to write a URL list for mass mode."
-    print "   -4 , --autoawesome            With the AutoAwesome mode fimap will fetch all"
-    print "                                 forms and headers found on the site you defined"
-    print "                                 and tries to find file inclusion bugs thru them. Needs an"
-    print "                                 URL (-u)."
-    print "## Techniques:"
-    print "   -b , --enable-blind           Enables blind FI-Bug testing when no error messages are printed."
-    print "                                 Note that this mode will cause lots of requests compared to the"
-    print "                                 default method. Can be used with -s, -m or -g."
-    print "   -D , --dot-truncation         Enables dot truncation technique to get rid of the suffix if"
-    print "                                 the default mode (nullbyte poison) failed. This mode can cause"
-    print "                                 tons of requests depending how you configure it."
-    print "                                 By default this mode only tests windows servers."
-    print "                                 Can be used with -s, -m or -g. Experimental."
-    print "   -M , --multiply-term=X        Multiply terminal symbols like '.' and '/' in the path by X."
-    print "## Variables:"
-    print "   -u , --url=URL                The URL you want to test."
-    print "                                 Needed in single mode (-s)."
-    print "   -l , --list=LIST              The URL-LIST you want to test."
-    print "                                 Needed in mass mode (-m)."
-    print "   -q , --query=QUERY            The Google Search QUERY."
-    print "                                 Example: 'inurl:include.php'"
-    print "                                 Needed in Google Mode (-g)"
-    print "        --bingkey=APIKEY         This is your the Bing APIKey. You have to set this when you"
-    print "                                 want to use the BingScanner (-B)."
-    print "        --skip-pages=X           Skip the first X pages from the Googlescanner."
-    print "   -p , --pages=COUNT            Define the COUNT of pages to search (-g)."
-    print "                                 Default is 10."
-    print "        --results=COUNT          The count of results the Googlescanner should get per page."
-    print "                                 Possible values: 10, 25, 50 or 100(default)."
-    print "        --googlesleep=TIME       The time in seconds the Googlescanner should wait befor each"
-    print "                                 request to google. fimap will count the time between two requests"
-    print "                                 and will sleep if it's needed to reach your cooldown. Default is 5."
-    print "   -w , --write=LIST             The LIST which will be written if you have choosen"
-    print "                                 harvest mode (-H). This file will be opened in APPEND mode."
-    print "   -d , --depth=CRAWLDEPTH       The CRAWLDEPTH (recurse level) you want to crawl your target site"
-    print "                                 in harvest mode (-H). Default is 1."
-    print "   -P , --post=POSTDATA          The POSTDATA you want to send. All variables inside"
-    print "                                 will also be scanned for file inclusion bugs."
-    print "        --cookie=COOKIES         Define the cookie which should be send with each request."
-    print "                                 Also the cookies will be scanned for file inclusion bugs." 
-    print "                                 Concatenate multiple cookies with the ';' character."
-    print "        --ttl=SECONDS            Define the TTL (in seconds) for requests. Default is 30 seconds."
-    print "        --no-auto-detect         Use this switch if you don't want to let fimap automaticly detect"
-    print "                                 the target language in blind-mode. In that case you will get some"
-    print "                                 options you can choose if fimap isn't sure which lang it is."
-    print "        --bmin=BLIND_MIN         Define here the minimum count of directories fimap should walk thru"
-    print "                                 in blind mode. The default number is defined in the generic.xml"
-    print "        --bmax=BLIND_MAX         Define here the maximum count of directories fimap should walk thru."
-    print "        --dot-trunc-min=700      The count of dots to begin with in dot-truncation mode."
-    print "        --dot-trunc-max=2000     The count of dots to end with in dot-truncation mode."
-    print "        --dot-trunc-step=50      The step size for each round in dot-truncation mode."
-    print "        --dot-trunc-ratio=0.095  The maximum ratio to detect if dot truncation was successfull."
-    print "        --dot-trunc-also-unix    Use this if dot-truncation should also be tested on unix servers."
-    print "        --force-os=OS            Forces fimap to test only files for the OS."
-    print "                                 OS can be 'linux' or 'windows'"
-    print "## Attack Kit:"
-    print "   -x , --exploit                Starts an interactive session where you can"
-    print "                                 select a target and do some action."
-    print "   -X                            Same as -x but also shows not exploitable which might can be"
-    print "                                 hax0red with plugins."
-    print "   -T , --tab-complete           Enables TAB-Completation in exploit mode. Needs readline module."
-    print "                                 Use this if you want to be able to tab-complete thru remote"
-    print "                                 files\dirs. Eats an extra request for every 'cd' command."
-    print "        --x-host=HOSTNAME        The host to use exploits on. fimap won't prompt you for the domain"
-    print "                                 in exploit mode if you set this value."
-    print "        --x-vuln=VULNNUMBER      The vulnerability ID you want to use. It's the same number you type"
-    print "                                 into the exploit mode where you choose the vulnerable script."
-    print "        --x-cmd=CMD              The CMD you want to execute on the vulnerable system. Use this parameter"
-    print "                                 more than once to execute commands one after another."
-    print "                                 Remember that each command opens a new shell and closes it after execution."
-    print "## Disguise Kit:"
-    print "   -A , --user-agent=UA          The User-Agent which should be sent."
-    print "        --http-proxy=PROXY       Setup your proxy with this option. But read this facts:"
-    print "                                   * The googlescanner will ignore the proxy to get the URLs,"
-    print "                                     but the pentest\\attack itself will go thru proxy."
-    print "                                   * PROXY should be in format like this: 127.0.0.1:8080"
-    print "                                   * It's experimental"
-    print "        --show-my-ip             Shows your internet IP, current country and user-agent."
-    print "                                 Useful if you want to test your vpn\\proxy config."
-    print "## Plugins:"
-    print "        --plugins                List all loaded plugins and quit after that."
-    print "   -I , --install-plugins        Shows some official exploit-mode plugins you can install "
-    print "                                 and\\or upgrade."
-    print "## Other:"
-    print "        --update-def             Checks and updates your definition files found in the"
-    print "                                 config directory."
-    print "        --test-rfi               A quick test to see if you have configured RFI nicely."
-    print "        --merge-xml=XMLFILE      Use this if you have another fimap XMLFILE you want to"
-    print "                                 include to your own fimap_result.xml."
-    print "   -C , --enable-color           Enables a colorful output. Works only in linux!"
-    print "        --force-run              Ignore the instance check and just run fimap even if a lockfile"
-    print "                                 exists. WARNING: This may erase your fimap_results.xml file!"
-    print "   -v , --verbose=LEVEL          Verbose level you want to receive."
-    print "                                 LEVEL=3 -> Debug"
-    print "                                 LEVEL=2 -> Info(Default)"
-    print "                                 LEVEL=1 -> Messages"
-    print "                                 LEVEL=0 -> High-Level"
-    print "        --credits                Shows some credits."
-    print "        --greetings              Some greetings ;)"
-    print "   -h , --help                   Shows this cruft."
-    print "## Examples:"
-    print "  1. Scan a single URL for FI errors:"
-    print "        ./fimap.py -u 'http://localhost/test.php?file=bang&id=23'"
-    print "  2. Scan a list of URLS for FI errors:"
-    print "        ./fimap.py -m -l '/tmp/urllist.txt'"
-    print "  3. Scan Google search results for FI errors:"
-    print "        ./fimap.py -g -q 'inurl:include.php'"
-    print "  4. Harvest all links of a webpage with recurse level of 3 and"
-    print "     write the URLs to /tmp/urllist"
-    print "        ./fimap.py -H -u 'http://localhost' -d 3 -w /tmp/urllist"
+    print("Usage: ./fimap.py [options]")
+    print("## Operating Modes:")
+    print("   -s , --single                 Mode to scan a single URL for FI errors.")
+    print("                                 Needs URL (-u). This mode is the default.")
+    print("   -m , --mass                   Mode for mass scanning. Will check every URL")
+    print("                                 from a given list (-l) for FI errors.")
+    print("   -g , --google                 Mode to use Google to aquire URLs.")
+    print("                                 Needs a query (-q) as google search query.")
+    print("   -B , --bing                   Use bing to get URLs.")
+    print("                                 Needs a query (-q) as bing search query.")
+    print("                                 Also needs a Bing APIKey (--bingkey)")
+    print("   -H , --harvest                Mode to harvest a URL recursivly for new URLs.")
+    print("                                 Needs a root url (-u) to start crawling there.")
+    print("                                 Also needs (-w) to write a URL list for mass mode.")
+    print("   -4 , --autoawesome            With the AutoAwesome mode fimap will fetch all")
+    print("                                 forms and headers found on the site you defined")
+    print("                                 and tries to find file inclusion bugs thru them. Needs an")
+    print("                                 URL (-u).")
+    print("## Techniques:")
+    print("   -b , --enable-blind           Enables blind FI-Bug testing when no error messages are printed.")
+    print("                                 Note that this mode will cause lots of requests compared to the")
+    print("                                 default method. Can be used with -s, -m or -g.")
+    print("   -D , --dot-truncation         Enables dot truncation technique to get rid of the suffix if")
+    print("                                 the default mode (nullbyte poison) failed. This mode can cause")
+    print("                                 tons of requests depending how you configure it.")
+    print("                                 By default this mode only tests windows servers.")
+    print("                                 Can be used with -s, -m or -g. Experimental.")
+    print("   -M , --multiply-term=X        Multiply terminal symbols like '.' and '/' in the path by X.")
+    print("## Variables:")
+    print("   -u , --url=URL                The URL you want to test.")
+    print("                                 Needed in single mode (-s).")
+    print("   -l , --list=LIST              The URL-LIST you want to test.")
+    print("                                 Needed in mass mode (-m).")
+    print("   -q , --query=QUERY            The Google Search QUERY.")
+    print("                                 Example: 'inurl:include.php'")
+    print("                                 Needed in Google Mode (-g)")
+    print("        --bingkey=APIKEY         This is your the Bing APIKey. You have to set this when you")
+    print("                                 want to use the BingScanner (-B).")
+    print("        --skip-pages=X           Skip the first X pages from the Googlescanner.")
+    print("   -p , --pages=COUNT            Define the COUNT of pages to search (-g).")
+    print("                                 Default is 10.")
+    print("        --results=COUNT          The count of results the Googlescanner should get per page.")
+    print("                                 Possible values: 10, 25, 50 or 100(default).")
+    print("        --googlesleep=TIME       The time in seconds the Googlescanner should wait befor each")
+    print("                                 request to google. fimap will count the time between two requests")
+    print("                                 and will sleep if it's needed to reach your cooldown. Default is 5.")
+    print("   -w , --write=LIST             The LIST which will be written if you have choosen")
+    print("                                 harvest mode (-H). This file will be opened in APPEND mode.")
+    print("   -d , --depth=CRAWLDEPTH       The CRAWLDEPTH (recurse level) you want to crawl your target site")
+    print("                                 in harvest mode (-H). Default is 1.")
+    print("   -P , --post=POSTDATA          The POSTDATA you want to send. All variables inside")
+    print("                                 will also be scanned for file inclusion bugs.")
+    print("        --cookie=COOKIES         Define the cookie which should be send with each request.")
+    print("                                 Also the cookies will be scanned for file inclusion bugs." )
+    print("                                 Concatenate multiple cookies with the ';' character.")
+    print("        --ttl=SECONDS            Define the TTL (in seconds) for requests. Default is 30 seconds.")
+    print("        --no-auto-detect         Use this switch if you don't want to let fimap automaticly detect")
+    print("                                 the target language in blind-mode. In that case you will get some")
+    print("                                 options you can choose if fimap isn't sure which lang it is.")
+    print("        --bmin=BLIND_MIN         Define here the minimum count of directories fimap should walk thru")
+    print("                                 in blind mode. The default number is defined in the generic.xml")
+    print("        --bmax=BLIND_MAX         Define here the maximum count of directories fimap should walk thru.")
+    print("        --dot-trunc-min=700      The count of dots to begin with in dot-truncation mode.")
+    print("        --dot-trunc-max=2000     The count of dots to end with in dot-truncation mode.")
+    print("        --dot-trunc-step=50      The step size for each round in dot-truncation mode.")
+    print("        --dot-trunc-ratio=0.095  The maximum ratio to detect if dot truncation was successfull.")
+    print("        --dot-trunc-also-unix    Use this if dot-truncation should also be tested on unix servers.")
+    print("        --force-os=OS            Forces fimap to test only files for the OS.")
+    print("                                 OS can be 'linux' or 'windows'")
+    print("## Attack Kit:")
+    print("   -x , --exploit                Starts an interactive session where you can")
+    print("                                 select a target and do some action.")
+    print("   -X                            Same as -x but also shows not exploitable which might can be")
+    print("                                 hax0red with plugins.")
+    print("   -T , --tab-complete           Enables TAB-Completation in exploit mode. Needs readline module.")
+    print("                                 Use this if you want to be able to tab-complete thru remote")
+    print("                                 files\dirs. Eats an extra request for every 'cd' command.")
+    print("        --x-host=HOSTNAME        The host to use exploits on. fimap won't prompt you for the domain")
+    print("                                 in exploit mode if you set this value.")
+    print("        --x-vuln=VULNNUMBER      The vulnerability ID you want to use. It's the same number you type")
+    print("                                 into the exploit mode where you choose the vulnerable script.")
+    print("        --x-cmd=CMD              The CMD you want to execute on the vulnerable system. Use this parameter")
+    print("                                 more than once to execute commands one after another.")
+    print("                                 Remember that each command opens a new shell and closes it after execution.")
+    print("## Disguise Kit:")
+    print("   -A , --user-agent=UA          The User-Agent which should be sent.")
+    print("        --http-proxy=PROXY       Setup your proxy with this option. But read this facts:")
+    print("                                   * The googlescanner will ignore the proxy to get the URLs,")
+    print("                                     but the pentest\\attack itself will go thru proxy.")
+    print("                                   * PROXY should be in format like this: 127.0.0.1:8080")
+    print("                                   * It's experimental")
+    print("        --show-my-ip             Shows your internet IP, current country and user-agent.")
+    print("                                 Useful if you want to test your vpn\\proxy config.")
+    print("## Plugins:")
+    print("        --plugins                List all loaded plugins and quit after that.")
+    print("   -I , --install-plugins        Shows some official exploit-mode plugins you can install ")
+    print("                                 and\\or upgrade.")
+    print("## Other:")
+    print("        --update-def             Checks and updates your definition files found in the")
+    print("                                 config directory.")
+    print("        --test-rfi               A quick test to see if you have configured RFI nicely.")
+    print("        --merge-xml=XMLFILE      Use this if you have another fimap XMLFILE you want to")
+    print("                                 include to your own fimap_result.xml.")
+    print("   -C , --enable-color           Enables a colorful output. Works only in linux!")
+    print("        --force-run              Ignore the instance check and just run fimap even if a lockfile")
+    print("                                 exists. WARNING: This may erase your fimap_results.xml file!")
+    print("   -v , --verbose=LEVEL          Verbose level you want to receive.")
+    print("                                 LEVEL=3 -> Debug")
+    print("                                 LEVEL=2 -> Info(Default)")
+    print("                                 LEVEL=1 -> Messages")
+    print("                                 LEVEL=0 -> High-Level")
+    print("        --credits                Shows some credits.")
+    print("        --greetings              Some greetings ;)")
+    print("   -h , --help                   Shows this cruft.")
+    print("## Examples:")
+    print("  1. Scan a single URL for FI errors:")
+    print("        ./fimap.py -u 'http://localhost/test.php?file=bang&id=23'")
+    print("  2. Scan a list of URLS for FI errors:")
+    print("        ./fimap.py -m -l '/tmp/urllist.txt'")
+    print("  3. Scan Google search results for FI errors:")
+    print("        ./fimap.py -g -q 'inurl:include.php'")
+    print("  4. Harvest all links of a webpage with recurse level of 3 and")
+    print("     write the URLs to /tmp/urllist")
+    print("        ./fimap.py -H -u 'http://localhost' -d 3 -w /tmp/urllist")
     if (AndQuit):
         sys.exit(0)
 
 def show_credits():
-    print "## Credits:"
-    print "## Developer: Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
-    print "#"
-    print "## Project Home: http://fimap.googlecode.com"
-    print "#"
-    print "## Additional Thanks to:"
-    print "   - Peteris Krumins (peter@catonmat.net) for xgoogle python module."
-    print "   - Pentestmonkey from www.pentestmonkey.net for php-reverse-shell."
-    print "   - Crummy from www.crummy.com for BeautifulSoup."
-    print "   - zeth0 from commandline.org.uk for ssh.py."
+    print("## Credits:")
+    print("## Developer: Iman Karim(ikarim2s@smail.inf.fh-brs.de)")
+    print("#")
+    print("## Project Home: http://fimap.googlecode.com")
+    print("#")
+    print("## Additional Thanks to:")
+    print("   - Peteris Krumins (peter@catonmat.net) for xgoogle python module.")
+    print("   - Pentestmonkey from www.pentestmonkey.net for php-reverse-shell.")
+    print("   - Crummy from www.crummy.com for BeautifulSoup.")
+    print("   - zeth0 from commandline.org.uk for ssh.py.")
     sys.exit(0)
 
 
 def show_greetings():
-    print "## Greetings to the Circle of Awesome People:"
-    print "(alphabetically)"
-    print " - Alpina"
-    print " - Chicano"
-    print " - Exorzist"
-    print " - IngoWer"
-    print " - Invisible"
-    print " - Maelius"
-    print " - MarcosKhan"
-    print " - Martinius"
-    print " - MorbiusPrime"
-    print " - Ruun"
-    print " - Satyros"
-    print " - Yasmin"
-    print " Special Greetings to the whole Netherlands."
+    print("## Greetings to the Circle of Awesome People:")
+    print("(alphabetically)")
+    print(" - Alpina")
+    print(" - Chicano")
+    print(" - Exorzist")
+    print(" - IngoWer")
+    print(" - Invisible")
+    print(" - Maelius")
+    print(" - MarcosKhan")
+    print(" - Martinius")
+    print(" - MorbiusPrime")
+    print(" - Ruun")
+    print(" - Satyros")
+    print(" - Yasmin")
+    print(" Special Greetings to the whole Netherlands.")
     sys.exit(0)
 
 def show_ip():
-    print "Heading to 'http://85.214.72.67/show_my_ip'..."
-    print "----------------------------------------------"
+    print("Heading to 'http://85.214.72.67/show_my_ip'...")
+    print("----------------------------------------------")
     tester = codeinjector(config)
     result = tester.doGetRequest("http://85.214.72.67/show_my_ip")
     if (result == None):
-        print "result = None -> Failed! Maybe you have no connection or bad proxy?"
+        print("result = None -> Failed! Maybe you have no connection or bad proxy?")
         sys.exit(1)
-    print result.strip()
+    print(result.strip())
     sys.exit(0)
 
 def list_results(lst = os.path.join(os.path.expanduser("~"), "fimap_result.xml"), onlyExploitable=True):
     if (not os.path.exists(lst)):
-        print "File not found! ~/fimap_result.xml"
+        print("File not found! ~/fimap_result.xml")
         sys.exit(1)
     c = codeinjector(config)
 
@@ -231,9 +231,9 @@ def list_results(lst = os.path.join(os.path.expanduser("~"), "fimap_result.xml")
 
 def show_report():
     if (len(baseClass.new_stuff.items()) > 0):
-        print "New FI Bugs found in this session:"
+        print("New FI Bugs found in this session:")
         for k,v in baseClass.new_stuff.items():
-            print "\t- %d (probably) usable FI-Bugs on '%s'."%(v, k)
+            print("\t- %d (probably) usable FI-Bugs on '%s'.".format(v, k))
 
 
 if __name__ == "__main__":
@@ -241,7 +241,7 @@ if __name__ == "__main__":
     config["p_mode"] = 0 # 0=single ; 1=mass ; 2=google ; 3=crawl ; 4=autoawesome ; 5=bing
     config["p_list"] = None
     config["p_verbose"] = 2
-    config["p_useragent"] = "fimap.googlecode.com/v%s" %__version__
+    config["p_useragent"] = "fimap.googlecode.com/v%s".format(__version__
     config["p_pages"] = 10
     config["p_query"] = None
     config["p_exploit_filter"] = ""
@@ -285,11 +285,11 @@ if __name__ == "__main__":
     blind_min = None
     blind_max = None
 
-    print head
+    print(head)
 
     if (len(sys.argv) == 1):
         #show_help(True)
-        print "Use -h for some help."
+        print("Use -h for some help."
         sys.exit(0)
 
     try:
@@ -451,12 +451,12 @@ if __name__ == "__main__":
                 break
         if (lockFound):
             if (config["force-run"] == True):
-                print "Another fimap instance is running! But you requested to ignore that..."
+                print("Another fimap instance is running! But you requested to ignore that...")
             else:
-                print "Another fimap instance is already running!"
-                print "If you think this is not correct please delete the following file:"
-                print "-> " + os.path.join(tempfile.gettempdir(), curlockfile)
-                print "or start fimap with '--force-run' on your own risk."
+                print("Another fimap instance is already running!")
+                print("If you think this is not correct please delete the following file:")
+                print("-> " + os.path.join(tempfile.gettempdir(), curlockfile))
+                print("or start fimap with '--force-run' on your own risk.")
                 sys.exit(0)
         else:
             lockfile = tempfile.NamedTemporaryFile(prefix="fimap_", suffix="_lockfile")
@@ -466,10 +466,10 @@ if __name__ == "__main__":
         # Setup possibly changed engine settings.
         if (blind_min != None):
             xmlsettings.blind_min = blind_min
-            print "Overwriting 'blind_min' setting to %s..." %(blind_min)
+            print("Overwriting 'blind_min' setting to %s...".format(blind_min))
         if (blind_max != None):
             xmlsettings.blind_max = blind_max
-            print "Overwriting 'blind_max' setting to %s..." %(blind_max)
+            print("Overwriting 'blind_max' setting to %s...".format(blind_max))
         
         config["XML2CONFIG"] = xmlsettings  
         
@@ -482,26 +482,26 @@ if __name__ == "__main__":
             try:
                 list_results(onlyExploitable=showOnlyExploitable)
             except KeyboardInterrupt:
-                print "\n\nYou killed me brutally. Wtf!\n\n"
+                print("\n\nYou killed me brutally. Wtf!\n\n")
                 sys.exit(0)
 
     except getopt.GetoptError, err:
-        print (err)
+        print(err)
         sys.exit(1)
 
     if (doUpdateDef):
         xmlconfig = config["XML2CONFIG"]
         tools = baseTools.baseTools()
         tester = codeinjector(config)
-        print "Checking for definition file updates..."
-        #print "Testing 'generic.xml'..."
+        print("Checking for definition file updates...")
+
         generic_xml_ver = xmlconfig.getVersion()
         
         # Get generic.xml from SVN repository and parse out its version.
         generic_xml_online = tester.doGetRequest(defupdateurl + "generic.xml")
 
         if generic_xml_online == None:
-            print "Failed to check generic_xml. Are you online?"
+            print("Failed to check generic_xml. Are you online?")
         sys.exit(1)
 
         tmpFile = tempfile.mkstemp()[1] + ".xml"
@@ -511,16 +511,16 @@ if __name__ == "__main__":
         generic_xml_ver_online = tools.getAttributeFromFirstNode(tmpFile, "revision")
 
         if (generic_xml_ver < generic_xml_ver_online):
-            print "'generic.xml' (v.%s) is older than the online version (v.%s)!" %(generic_xml_ver, generic_xml_ver_online)
+            print("'generic.xml' (v.%s) is older than the online version (v.%s)!".format(generic_xml_ver, generic_xml_ver_online))
             tools.suggest_update(xmlconfig.getRealFile(), tmpFile)
         else:
-            print "'generic.xml' is up-to-date." 
+            print("'generic.xml' is up-to-date." )
         
-        print "Testing language sets defined in 'generic.xml'..."
+        print("Testing language sets defined in 'generic.xml'...")
         langsets = xmlconfig.getAllLangSets()
         for name, langclass in langsets.items():
             fname = os.path.basename(langclass.getLangFile())
-            #print "Testing language '%s' for updates..." %(fname)
+
             langurl = defupdateurl + fname
             # Download and save XML from SVN repository.
             xml_content = tester.doGetRequest(langurl)
@@ -534,24 +534,24 @@ if __name__ == "__main__":
                 # Get installed version.
                 version = langclass.getVersion()
                 if (version < version_online):
-                    print "'%s' (v.%s) is older than the online version (v.%s)!" %(fname, version, version_online)
+                    print("'%s' (v.%s) is older than the online version (v.%s)!".format(fname, version, version_online))
                     tools.suggest_update(langclass.getLangFile(), tmpFile)
                 else:
-                    print "'%s' is up-to-date." %(fname)
+                    print("'%s' is up-to-date.".format(fname))
             else:
-                print "Failed to check '%s'!" %(fname)
+                print("Failed to check '%s'!".format(fname))
             
         
         sys.exit(1)
         
 
     if (doInstallPlugins):
-        print "Requesting list of plugins..."
+        print("Requesting list of plugins...")
         tester = codeinjector(config)
         result = tester.doGetRequest(pluginlist)
 
         if result == None:
-            print "Failed to request plugins! Are you online?"
+            print("Failed to request plugins! Are you online?")
             sys.exit(1)
         
         choice = {}
@@ -572,11 +572,11 @@ if __name__ == "__main__":
         for k,(l,n,v,u) in choice.items():
             instver = pluginman.getPluginVersion(n)
             if (instver == None):
-                boxarr.append("[%d] %s - At version %d not installed." %(k, l, v))
+                boxarr.append("[%d] %s - At version %d not installed.".format(k, l, v))
             elif (instver < v):
-                boxarr.append("[%d] %s - At version %d has an UPDATE." %(k, l, v))
+                boxarr.append("[%d] %s - At version %d has an UPDATE.".format(k, l, v))
             else:    
-                boxarr.append("[%d] %s - At version %d is up-to-date and installed." %(k, l, v))
+                boxarr.append("[%d] %s - At version %d is up-to-date and installed.".format(k, l, v))
         boxarr.append("[q] Cancel and Quit.")
         tools.drawBox(header, boxarr, False)
         nr = None    
@@ -584,7 +584,7 @@ if __name__ == "__main__":
         nr = raw_input("Choose a plugin to install: ")
         if (nr != "q"):
             (l,n,v,u) = choice[int(nr)]
-            print "Downloading plugin '%s' (%s)..." %(n, u)
+            print("Downloading plugin '%s' (%s)...".format(n, u))
             plugin = tester.doGetRequest(u)
             if (plugin != None):
                 tmpFile = tempfile.mkstemp()[1] + ".tar.gz"
@@ -592,7 +592,7 @@ if __name__ == "__main__":
                 f.write(plugin)
                 f.close()
                 
-                print "Unpacking plugin..."
+                print("Unpacking plugin..."
                 try:
                     tar = tarfile.open(tmpFile, 'r:gz')
                     tmpdir = tempfile.mkdtemp()
@@ -614,22 +614,22 @@ if __name__ == "__main__":
                             if (inp == "Y" or inp == "y"):
                                 dir = info.getStartupClass()
                                 deldir = os.path.join(pluginsdir, dir)
-                                print "Deleting old plugin directory..."
+                                print("Deleting old plugin directory..."
                                 shutil.rmtree(deldir)
                             else:
-                                print "OK aborting..." 
+                                print("OK aborting..." 
                                 sys.exit(0)
                         tar.extractall(os.path.join(pluginsdir))
-                        print "Plugin '%s' installed successfully!" %(info.getName())
+                        print("Plugin '%s' installed successfully!".format(info.getName()))
                     else:
-                        print "Plugin doesn't have a plugin.xml! (%s)" %pluginxml
+                        print("Plugin doesn't have a plugin.xml! (%s)".format(pluginxml)
                         sys.exit(1)
                     
                 except:
-                    print "Unpacking failed!"
+                    print("Unpacking failed!")
                     #sys.exit(0)
             else:
-                print "Failed to download plugin package!"
+                print("Failed to download plugin package!")
         
         sys.exit(0)
 
@@ -638,15 +638,15 @@ if __name__ == "__main__":
         plugins = config["PLUGINMANAGER"].getAllPluginObjects()
         if (len(plugins) > 0):
             for plug in plugins:
-                print "[Plugin: %s] by %s (%s)" %(plug.getPluginName(), plug.getPluginAutor(), plug.getPluginEmail())
+                print("[Plugin: %s] by %s (%s)".format(plug.getPluginName(), plug.getPluginAutor(), plug.getPluginEmail()))
         else:
-            print "No plugins :T"
+            print("No plugins :T")
         sys.exit(0)
     
     if (doMergeXML):
         tester = codeinjector(config)
         newVulns, newDomains = tester.mergeXML(config["p_mergexml"])
-        print "%d new vulnerabilitys added from %d new domains." %(newVulns, newDomains)
+        print("%d new vulnerabilitys added from %d new domains.".format(newVulns, newDomains))
         sys.exit(0)
         
     # Upgrade XML if needed...
@@ -662,64 +662,64 @@ if __name__ == "__main__":
         from config import settings
         if settings["dynamic_rfi"]["mode"] == "local":
             if settings["dynamic_rfi"]["local"]["local_path"] == None or settings["dynamic_rfi"]["local"]["http_map"] == None:
-                print "Invalid Dynamic_RFI config!"
-                print "local_path and\\or http_map is not defined for local mode!"
-                print "Fix that in config.py"
+                print("Invalid Dynamic_RFI config!")
+                print("local_path and\\or http_map is not defined for local mode!")
+                print("Fix that in config.py")
                 sys.exit(1)
         elif settings["dynamic_rfi"]["mode"] == "ftp":
             if settings["dynamic_rfi"]["ftp"]["ftp_host"] == None or settings["dynamic_rfi"]["ftp"]["ftp_user"] == None or settings["dynamic_rfi"]["ftp"]["ftp_pass"] == None or settings["dynamic_rfi"]["ftp"]["ftp_path"] == None or settings["dynamic_rfi"]["ftp"]["http_map"] == None:
-                print "Invalid Dynamic_RFI config!"
-                print "One of your FTP config values is missing!"
-                print "Fix that in config.py"
+                print("Invalid Dynamic_RFI config!")
+                print("One of your FTP config values is missing!")
+                print("Fix that in config.py")
                 sys.exit(1)
             
 
     if (config["p_proxy"] != None):
-        print "Using HTTP-Proxy '%s'." %(config["p_proxy"])
+        print("Using HTTP-Proxy '%s'.".format(config["p_proxy"])
 
     if (doInternetInfo):
         show_ip()
 
     # BING CURRENTLY BROKEN
     if (config["p_mode"] == 5):
-        print "\n\n\n"
-        print "I am sorry bro but bing is currently broken."
-        print "Try getting the links yourself and use MassMode(-m) for now."
-        print "Sorry champ :("
+        print("\n\n\n")
+        print("I am sorry bro but bing is currently broken.")
+        print("Try getting the links yourself and use MassMode(-m) for now.")
+        print("Sorry champ :(")
         sys.exit(0)
     
         
     if (config["p_url"] == None and config["p_mode"] == 0):
-        print "Target URL required. (-u)"
+        print("Target URL required. (-u)")
         sys.exit(1)
     if (config["p_list"] == None and config["p_mode"] == 1):
-        print "URLList required. (-l)"
+        print("URLList required. (-l)")
         sys.exit(1)
     if (config["p_query"] == None and config["p_mode"] == 2):
-        print "Google Query required. (-q)"
+        print("Google Query required. (-q)")
         sys.exit(1)
     if (config["p_query"] == None and config["p_mode"] == 5):
-        print "Bing Query required. (-q)"
+        print("Bing Query required. (-q)")
         sys.exit(1)
     if (config["p_bingkey"] == None and config["p_mode"] == 5):
-        print "Bing APIKey required. (--bingkey)"
+        print("Bing APIKey required. (--bingkey)")
         sys.exit(1)
     if (config["p_url"] == None and config["p_mode"] == 3):
-        print "Start URL required for harvesting. (-u)"
+        print("Start URL required for harvesting. (-u)")
         sys.exit(1)
     if (config["p_write"] == None and config["p_mode"] == 3):
-        print "Output file to write the URLs to is needed in Harvest Mode. (-w)"
+        print("Output file to write the URLs to is needed in Harvest Mode. (-w)")
         sys.exit(1)
     if (config["p_url"] == None and config["p_mode"] == 4):
-        print "Root URL required for AutoAwesome. (-u)"
+        print("Root URL required for AutoAwesome. (-u)")
         sys.exit(1)
     if (config["p_monkeymode"] == True):
-        print "Blind FI-error checking enabled."
+        print("Blind FI-error checking enabled.")
 
     if (config["force-os"] != None):
         if (config["force-os"] != "unix" and config["force-os"] != "windows"):
-            print "Invalid parameter for 'force-os'."
-            print "Only 'unix' or 'windows' are allowed!"
+            print("Invalid parameter for 'force-os'.")
+            print("Only 'unix' or 'windows' are allowed!")
             sys.exit(1)
 
 
@@ -731,45 +731,45 @@ if __name__ == "__main__":
 
         elif(config["p_mode"] == 1):
             if (not os.path.exists(config["p_list"])):
-                print "Your defined URL-List doesn't exist: '%s'" %config["p_list"]
+                print("Your defined URL-List doesn't exist: '%s'".format(config["p_list"]))
                 sys.exit(0)
-            print "MassScanner is loading URLs from file: '%s'" %config["p_list"]
+            print("MassScanner is loading URLs from file: '%s'".format(config["p_list"]))
             m = massScan(config)
             m.startMassScan()
             show_report()
 
         elif(config["p_mode"] == 2):
-            print "GoogleScanner is searching for Query: '%s'" %config["p_query"]
+            print("GoogleScanner is searching for Query: '%s'".format(config["p_query"])
             g = googleScan(config)
             g.startGoogleScan()
             show_report()
 
         elif(config["p_mode"] == 3):
-            print "Crawler is harvesting URLs from start URL: '%s' with depth: %d and writing results to: '%s'" %(config["p_url"], config["p_depth"], config["p_write"])
+            print("Crawler is harvesting URLs from start URL: '%s' with depth: %d and writing results to: '%s'".format(config["p_url"], config["p_depth"], config["p_write"]))
             c = crawler(config)
             c.crawl()
             
         elif(config["p_mode"] == 4):
-            print "AutoAwesome mode engaging URL '%s'..." %(config["p_url"])
+            print("AutoAwesome mode engaging URL '%s'...".format(config["p_url"])))
             awe = autoawesome.autoawesome(config)
             awe.setURL(config["p_url"])
             awe.scan()
 
         elif(config["p_mode"] == 5):
-            print "BingScanner is searching for Query: '%s'" %config["p_query"]
+            print("BingScanner is searching for Query: '%s'".format(config["p_query"]))
             b = bingScan(config)
             b.startGoogleScan()
             show_report()
 
     except KeyboardInterrupt:
-        print "\n\nYou have terminated me :("
+        print("\n\nYou have terminated me :(")
         
     except Exception, err:
-        print "\n\n========= CONGRATULATIONS! ========="
-        print "You have just found a bug!"
-        print "If you are cool, send the following stacktrace to the bugtracker on http://fimap.googlecode.com/"
-        print "Please also provide the URL where fimap crashed."
-        raw_input("Push enter to see the stacktrace...")
-        print "cut here %<--------------------------------------------------------------"
-        print "Exception: %s" %err
+        print("\n\n========= CONGRATULATIONS! =========")
+        print("You have just found a bug!")
+        print("If you are cool, send the following stacktrace to the bugtracker on http://fimap.googlecode.com/")
+        print("Please also provide the URL where fimap crashed.")
+        raw_input("Push enter to see the stacktrace..."))
+        print("cut here %<--------------------------------------------------------------")
+        print("Exception: %s".format(err))
         raise

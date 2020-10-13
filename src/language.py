@@ -126,19 +126,19 @@ class XML2Config(baseClass):
                 mindepth = int(mindepth)
                 maxdepth = int(maxdepth)
             except:
-                print "Mindepth and Maxdepth for blindmode have non-integer values!"
-                print "Fix it in the generic.xml!"
-                print "Committing suicide..."
+                print("Mindepth and Maxdepth for blindmode have non-integer values!")
+                print("Fix it in the generic.xml!")
+                print("Committing suicide...")
                 sys.exit(1)
                 
             if (mindepth > maxdepth):
-                print "Logic isn't your best friend eh?"
-                print "The mindepth value is greater than the maxdepth value!"
-                print "Fix that in the generic.xml!"
-                print "Committing suicide..."
+                print("Logic isn't your best friend eh?")
+                print("The mindepth value is greater than the maxdepth value!")
+                print("Fix that in the generic.xml!")
+                print("Committing suicide...")
                 sys.exit(1)
                 
-            self._log("Mindepth (%d) and Maxdepth (%d) loaded from generic.xml."%(mindepth, maxdepth), self.LOG_DEBUG)
+            self._log("Mindepth (%d) and Maxdepth (%d) loaded from generic.xml.".format(mindepth, maxdepth), self.LOG_DEBUG)
             self.blind_min = mindepth
             self.blind_max = maxdepth
             
@@ -181,7 +181,7 @@ class XML2Config(baseClass):
             
             self.__loadLanguageSets()
         else:
-            print "generic.xml file not found! This file is very important!"
+            print("generic.xml file not found! This file is very important!")
             sys.exit(1)
     
     def getRealFile(self):
@@ -195,7 +195,7 @@ class XML2Config(baseClass):
                 langfile = str(c.getAttribute("langfile"))
                 langClass = baseLanguage(langname, langfile, self.config)
                 self.langsets[langname] = langClass
-                self._log("Loaded XML-LD for '%s' at revision %d by %s" %(langname, langClass.getRevision(), langClass.getAutor()), self.LOG_DEBUG)
+                self._log("Loaded XML-LD for '%s' at revision %d by %s".format(langname, langClass.getRevision(), langClass.getAutor()), self.LOG_DEBUG)
     
     def getVersion(self):
         return(self.version)
@@ -309,7 +309,7 @@ class XML2Config(baseClass):
             return(self.commandConcat_win)
     
     def concatCommands(self, commands, isUnix=True):
-        symbol = " %s " %(self.getConcatSymbol(isUnix))
+        symbol = ".format(s ".format(self.getConcatSymbol(isUnix))
         return(symbol.join(commands))
     
     def generateChangeDirectoryCommand(self, Directory, isUnix=True):
@@ -334,7 +334,7 @@ class baseLanguage(baseTools):
             self.XML_Langfile = xml.dom.minidom.parse(langfile)
             self.XML_Rootitem = self.XML_Langfile.firstChild
         else:
-            print "%s file not found!" %(langfile)
+            print("%s file not found!".format(langfile))
             sys.exit(1)
         
         self.LanguageName = langname
@@ -491,7 +491,7 @@ class baseLanguage(baseTools):
         methods_node = getXMLNode(self.XML_Rootitem, "methods")
         quiz_node = getXMLNode(methods_node, "quiz")
         if (quiz_node == None):
-            self._log("FATAL! XML-Language-Definition (%s) has no quiz function defined!"%(self.getName()), self.LOG_ERROR)
+            self._log("FATAL! XML-Language-Definition (%s) has no quiz function defined!".format(self.getName()), self.LOG_ERROR)
             self._log("Please fix that in order to run fimap without problems!", self.LOG_ERROR)
             self._log("Committing suicide :-O", self.LOG_ERROR)
             sys.exit(1)
@@ -501,7 +501,7 @@ class baseLanguage(baseTools):
             quiz_code = convertString(quiz_code, isbase64)
                 
             if (quiz_code == None or quiz_code.strip() == ""):
-                self._log("FATAL! XML-Language-Definition (%s) has no quiz function defined!"%(self.getName()), self.LOG_ERROR)
+                self._log("FATAL! XML-Language-Definition (%s) has no quiz function defined!".format(self.getName()), self.LOG_ERROR)
                 self._log("Please fix that in order to run fimap without problems!", self.LOG_ERROR)
                 self._log("Committing suicide :-O", self.LOG_ERROR)
                 sys.exit(1)
@@ -509,7 +509,7 @@ class baseLanguage(baseTools):
         
         print_node = getXMLNode(methods_node, "print")
         if (print_node == None):
-            self._log("FATAL! XML-Language-Definition (%s) has no print function defined!"%(self.getName()), self.LOG_ERROR)
+            self._log("FATAL! XML-Language-Definition (%s) has no print function defined!".format(self.getName()), self.LOG_ERROR)
             self._log("Please fix that in order to run fimap without problems!", self.LOG_ERROR)
             self._log("Committing suicide :-O", self.LOG_ERROR)
             sys.exit(1)
@@ -519,7 +519,7 @@ class baseLanguage(baseTools):
             print_code = convertString(print_code, isbase64)
             
             if (print_code == None or print_code.strip() == ""):
-                self._log("FATAL! XML-Language-Definition (%s) has no print function defined!"%(self.getName()), self.LOG_ERROR)
+                self._log("FATAL! XML-Language-Definition (%s) has no print function defined!".format(self.getName()), self.LOG_ERROR)
                 self._log("Please fix that in order to run fimap without problems!", self.LOG_ERROR)
                 self._log("Committing suicide :-O", self.LOG_ERROR)
                 sys.exit(1)
@@ -527,7 +527,7 @@ class baseLanguage(baseTools):
         
         eval_node = getXMLNode(methods_node, "eval_kickstarter")
         if (eval_node == None):
-            self._log("XML-LD (%s) has no eval_kickstarter method defined."%(self.getName()), self.LOG_DEBUG)
+            self._log("XML-LD (%s) has no eval_kickstarter method defined.".format(self.getName()), self.LOG_DEBUG)
             self._log("Language will not be able to use logfile-injection.", self.LOG_DEBUG)
         else:
             isbase64  = eval_node.getAttribute("isbase64")=="1"
@@ -535,13 +535,13 @@ class baseLanguage(baseTools):
             eval_code = convertString(eval_code, isbase64)
             
             if (eval_code == None or eval_code.strip() == ""):
-                self._log("XML-LD (%s) has no eval_kickstarter method defined."%(self.getName()), self.LOG_DEBUG)
-                self._log("Language will not be able to use logfile-injection."%(self.getName()), self.LOG_DEBUG)
+                self._log("XML-LD (%s) has no eval_kickstarter method defined.".format(self.getName()), self.LOG_DEBUG)
+                self._log("Language will not be able to use logfile-injection.".format(self.getName()), self.LOG_DEBUG)
             self.eval_kickstarter = str(eval_code)
         
         write_node = getXMLNode(methods_node, "write_file")
         if (write_node == None):
-            self._log("XML-LD (%s) has no write_file method defined."%(self.getName()), self.LOG_DEBUG)
+            self._log("XML-LD (%s) has no write_file method defined.".format(self.getName()), self.LOG_DEBUG)
             self._log("Language will not be able to write files.", self.LOG_DEBUG)
         else:
             isbase64  = write_node.getAttribute("isbase64")=="1"
@@ -549,8 +549,8 @@ class baseLanguage(baseTools):
             write_code = convertString(write_code, isbase64)
             
             if (write_code == None or write_code.strip() == ""):
-                self._log("XML-LD (%s) has no eval_kickstarter method defined."%(self.getName()), self.LOG_DEBUG)
-                self._log("Language will not be able to use logfile-injection."%(self.getName()), self.LOG_DEBUG)
+                self._log("XML-LD (%s) has no eval_kickstarter method defined.".format(self.getName()), self.LOG_DEBUG)
+                self._log("Language will not be able to use logfile-injection.".format(self.getName()), self.LOG_DEBUG)
             self.write_file = str(write_code)
         
         
@@ -590,7 +590,7 @@ class fiPayload(baseTools):
         self.inputlist = getXMLNodes(xmlPayload, "input")
         self.source = str(getXMLNode(xmlPayload, "code").getAttribute("source"))
         self.ParentName = ParentName
-        self._log("fimap PayloadObject loaded: %s" %(self.name), self.LOG_DEVEL)
+        self._log("fimap PayloadObject loaded: %s".format(self.name), self.LOG_DEVEL)
 
     def isForWindows(self):
         return(self.win)
@@ -623,7 +623,7 @@ class fiPayload(baseTools):
                 ret = ret.replace(placeholder, inp)
             elif (type_ == "info"):
                 info = q.getAttribute("text")
-                print info
+                print(info)
             elif (type_ == "wait"):
                 info = q.getAttribute("text")
                 raw_input(info)
@@ -638,7 +638,7 @@ class fiExecMethod(baseTools):
         self.dobase64   = xmlExecMethod.getAttribute("dobase64")=="1"
         self.isunix     = xmlExecMethod.getAttribute("unix")=="1"
         self.iswin      = xmlExecMethod.getAttribute("win")=="1"
-        self._log("fimap ExecObject loaded: %s" %(self.execname), self.LOG_DEVEL)
+        self._log("fimap ExecObject loaded: %s".format(self.execname), self.LOG_DEVEL)
         
     def getSource(self):
         return(self.execsource)
@@ -667,7 +667,7 @@ class fiFile(baseTools):
         self.flags    = str(xmlFile.getAttribute("flags"))
         self.isunix   = str(xmlFile.getAttribute("unix")) == "1"
         self.iswin    = str(xmlFile.getAttribute("windows")) == "1"
-        self._log("fimap FileObject loaded: %s" %(self.filepath), self.LOG_DEVEL)
+        self._log("fimap FileObject loaded: %s".format(self.filepath), self.LOG_DEVEL)
         
     def getFilepath(self):
         return(self.filepath)

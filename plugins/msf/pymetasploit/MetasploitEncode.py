@@ -118,7 +118,7 @@ class MsfEncode(object):
 			fileopen,writefile = open(tmpPayload,'rb'),open(temp_path, 'w')
 
 		except:
-			print "Something went wrong...."
+			print("Something went wrong....")
 
 		FOOTER  = ''.join(map(lambda x:"echo "+x+">>T\n",
 		["RCX","%X ","N T.BIN","WDS:0","Q"])) 

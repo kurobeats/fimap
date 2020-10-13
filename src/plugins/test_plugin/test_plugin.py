@@ -20,7 +20,7 @@ class test_plugin(basePlugin):
         # We should return a array which contains tuples with a label and a unique callback string.
         ret = []
 
-        #print "Language: " + langClass.getName()
+        #print("Language: " + langClass.getName())
         
         if (isSystem):
             attack = ("Show some info", "example.sysinfo")
@@ -35,18 +35,18 @@ class test_plugin(basePlugin):
         #    * haxhelper - A little class which makes it very easy to send an injected command.
         
         if (callbackstring == "example.sysinfo"):
-            print haxhelper.isUnix()
-            print haxhelper.isWindows()
-            print haxhelper.getLangName()
-            print haxhelper.canExecuteSystemCommands()
-            print haxhelper.concatCommands(("ver", "echo %USERNAME%"))
+            print(haxhelper.isUnix())
+            print(haxhelper.isWindows())
+            print(haxhelper.getLangName())
+            print(haxhelper.canExecuteSystemCommands())
+            print(haxhelper.concatCommands(("ver", "echo %USERNAME%")))
             
             if (haxhelper.isUnix()):
                 # We are in unix
                 
-                print haxhelper.executeSystemCommand("cat /proc/cpuinfo")
-                print haxhelper.executeSystemCommand("uname -a")
+                print(haxhelper.executeSystemCommand("cat /proc/cpuinfo"))
+                print(haxhelper.executeSystemCommand("uname -a"))
             else:
                 # We are in Windows
-                print haxhelper.executeSystemCommand("ver")
+                print(haxhelper.executeSystemCommand("ver"))
             

@@ -43,7 +43,7 @@ class crawler:
 
 
         idx = 0
-        print "[%d] Going to root URL: '%s'..." %(idx, root_url)
+        print("[%d] Going to root URL: '%s'...".format(idx, root_url))
         if (self.countChar(root_url, "/") == 2):
             root_url = root_url + "/"
         self.crawl_url(root_url)
@@ -52,12 +52,12 @@ class crawler:
         while(len(self.urlpool)-idx > 0):
             url , level = self.urlpool[idx]
             url = self.__encodeURL(url)
-            print "[Done: %d | Todo: %d | Depth: %d] Going for next URL: '%s'..." %(idx, len(self.urlpool) - idx, level, url)
+            print("[Done: %d | Todo: %d | Depth: %d] Going for next URL: '%s'...".format(idx, len(self.urlpool) - idx, level, url))
             outfile.write(url + "\n")
             self.crawl_url(url, level)
             idx = idx +1
 
-        print "Harvesting done."
+        print("Harvesting done.")
         outfile.close()
 
     def countChar(self, word, c):
@@ -146,8 +146,8 @@ class crawler:
                 raise
 
         except Exception, err:
-            print "Failed to to request to '%s'" %(Exception)
-            print err
+            print("Failed to to request to '%s'".format(Exception))
+            print(err)
             return(None)
 
     def getDomain(self, url=None, keepPrefix=False, keepPort=False):

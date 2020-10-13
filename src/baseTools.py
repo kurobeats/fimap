@@ -83,12 +83,12 @@ class baseTools(object):
         
     def _log(self, txt, LVL):
         if (4-self.config["p_verbose"] < LVL):
-            logline = "[%s] %s" %(self.log_lvl[LVL][0], txt)
+            logline = "[%s] %s".format(self.log_lvl[LVL][0], txt)
             t = strftime("%H:%M:%S", gmtime())
             if (self.use_color):
-                print "[%s] %s" %(t, self.__getColorLine(logline, self.log_lvl[LVL][1]))
+                print("[%s] %s".format(t, self.__getColorLine(logline, self.log_lvl[LVL][1])))
             else:
-                print "[%s] %s" %(t, logline)
+                print("[%s] %s".format(t, logline))
     
     def __setColor(self, txt, style):
         ret = self.CONST_COL + txt
@@ -107,18 +107,18 @@ class baseTools(object):
             self.use_color = usecolor
         maxLen = self.__getLongestLine(textarray, header) + 5
         headspacelen = (maxLen/2 - len(header)/2)
-        print self.boxsymbol* (maxLen+1)
+        print(self.boxsymbol* (maxLen+1))
         if (self.use_color):
             cheader = self.__getColorLine(header, self.BOX_HEADER_STYLE)
             self.__printBoxLine(cheader, maxLen, len(header))
         else:
             self.__printBoxLine(header, maxLen)
-        print self.boxsymbol* (maxLen+1)
+        print(self.boxsymbol* (maxLen+1))
         
         for ln in textarray:
             self.__printBoxLine(ln, maxLen)
 
-        print self.boxsymbol* (maxLen+1)
+        print(self.boxsymbol* (maxLen+1))
 
     def __printBoxLine(self, txt, maxlen, realsize=-1):
         size = len(txt)
@@ -129,9 +129,9 @@ class baseTools(object):
             if (txt.startswith("::")): # Informative Inline Message
                 coloredtxt = self.__getColorLine(txt, self.BOX_SPLITTER_STYLE)
             
-            print self.boxsymbol + coloredtxt + suffix + self.boxsymbol
+            prin(self.boxsymbol + coloredtxt + suffix + self.boxsymbol)
         else:
-            print self.boxsymbol + txt + suffix + self.boxsymbol
+            print(self.boxsymbol + txt + suffix + self.boxsymbol)
 
     def __getLongestLine(self, textarray, header):
         maxLen = len(header)
@@ -154,7 +154,7 @@ class baseTools(object):
         #print replacement_file
         inp = raw_input("Do you want to update? [y/N]")
         if (inp == "Y" or inp == "y"):
-            print "Updating..."
+            print("Updating...")
             os.unlink(orginal_file)
             shutil.copy(replacement_file, orginal_file)
             

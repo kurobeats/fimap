@@ -122,7 +122,7 @@ class baseClass (object):
         self.__logfile = open(self.logFilePath, "a")
 
     def _writeToLog(self, txt):
-        self.__logfile.write("%s\n" %(txt))
+        self.__logfile.write("%s\n".format(txt))
 
     def drawBox(self, boxheader, boxarr):
         self.tools.drawBox(boxheader, boxarr)
@@ -177,7 +177,7 @@ class baseClass (object):
                     new_stuff[rep.getDomain()] = 1
 
     def updateKernel(self, domainnode, kernel):
-        self._log("Updating kernel version in XML to '%s'"%(kernel), self.LOG_DEVEL)
+        self._log("Updating kernel version in XML to '%s'".format(kernel), self.LOG_DEVEL)
         self._setAttrib(domainnode, "kernel", kernel)
 
     def getKernelVersion(self, domainnode):
@@ -247,15 +247,15 @@ class baseClass (object):
             # XML has changed
             backupfile = os.path.join(self.homeDir, "fimap_result.backup")
             if (os.path.exists(backupfile)):
-                self._log("WARNING: I wanted to backup your old fimap_result to: %s" %(backupfile), self.LOG_WARN)
+                self._log("WARNING: I wanted to backup your old fimap_result to: %s".format(backupfile), self.LOG_WARN)
                 self._log("But this file already exists! Please define a backup path:", self.LOG_WARN)
                 backupfile = raw_input("Backup path: ")
-            print "Creating backup of your original XML to '%s'..." %(backupfile)
+            print("Creating backup of your original XML to '%s'...".format(backupfile))
             shutil.copy(self.xmlfile, backupfile)
-            print "Committing changes to orginal XML..."
+            print("Committing changes to orginal XML...")
             self.saveXML()
-            print "All done."
-            print "Please rerun fimap."
+            print("All done.")
+            print("Please rerun fimap.")
             sys.exit(0)
         
     def mergeXML(self, newXML):
@@ -274,7 +274,7 @@ class baseClass (object):
 
                         if (not self.existsXMLEntry(hostname, new_file, new_path)):
                             doSave = True
-                            print "Adding new informations from domain '%s'..." %(hostname)
+                            print("Adding new informations from domain '%s'...".format(hostname))
                             domainNode = self.findDomainNode(hostname)
                             self._appendXMLChild(domainNode, cc)
                             newVulns += 1
@@ -283,9 +283,9 @@ class baseClass (object):
                                 newDomains += 1
                              
         if (doSave):
-            print "Saving XML...",
+            print("Saving XML...")
             self.saveXML()
-            print "All done."
+            print("All done.")
         return(newVulns, newDomains)
                     
 
@@ -354,18 +354,18 @@ class baseClass (object):
         f = open(temp, "r")
 
         # Now toss it to your ftp server
-        self._log("Uploading payload (%s) to FTP server '%s'..."%(temp, host), self.LOG_DEBUG)
+        self._log("Uploading payload (%s) to FTP server '%s'...".format(temp, host), self.LOG_DEBUG)
         ftp = FTP(host, user, pw)
         ftp.cwd(path)
         
         # If the path is in a extra directory, we will take care of it now
         if (directory != None):
-            self._log("Creating directory structure '%s'..."%(directory), self.LOG_DEBUG)
+            self._log("Creating directory structure '%s'...".format(directory), self.LOG_DEBUG)
             for dir_ in directory.split("/"):
                 try:
                     ftp.cwd(dir_)
                 except error_perm:
-                    self._log("mkdir '%s'..."%(dir_), self.LOG_DEVEL)
+                    self._log("mkdir '%s'...".format(dir_), self.LOG_DEVEL)
                     ftp.mkd(dir_)
                     ftp.cwd(dir_)
                 
@@ -383,7 +383,7 @@ class baseClass (object):
         host = settings["dynamic_rfi"]["ftp"]["ftp_host"]
         user = settings["dynamic_rfi"]["ftp"]["ftp_user"]
         pw   = settings["dynamic_rfi"]["ftp"]["ftp_pass"]
-        self._log("Deleting payload (%s) from FTP server '%s'..."%(file, host), self.LOG_DEBUG)
+        self._log("Deleting payload (%s) from FTP server '%s'...".format(file, host), self.LOG_DEBUG)
         ftp = FTP(host, user, pw)
         ftp.delete(file)
         ftp.quit()
@@ -393,7 +393,7 @@ class baseClass (object):
         user = settings["dynamic_rfi"]["ftp"]["ftp_user"]
         pw   = settings["dynamic_rfi"]["ftp"]["ftp_pass"]
         if ftp == None: 
-            self._log("Deleting directory recursivly from FTP server '%s'..."%(host), self.LOG_DEBUG)
+            self._log("Deleting directory recursivly from FTP server '%s'...".format(host), self.LOG_DEBUG)
             ftp = FTP(host, user, pw)
         
         ftp.cwd(directory)
@@ -500,7 +500,7 @@ class baseClass (object):
         rnd = self.getRandomStr()
         phpcode = "echo "
         for c in rnd:
-            phpcode += "chr(%d)."%(ord(c))
+            phpcode += "chr(%d).".format(ord(c))
 
         phpcode = phpcode[:-1] + ";"
         return(phpcode, rnd)
@@ -509,7 +509,7 @@ class baseClass (object):
         rnd1 = random.randrange(10, 99)
         rnd2 = random.randrange(10, 99)
         result = str(rnd1 * rnd2)
-        shellcode = "echo $((%d*%d))"%(rnd1, rnd2)
+        shellcode = "echo $((%d*%d))".format(rnd1, rnd2)
         return(shellcode, result)
 
     def getUserAgent(self):
@@ -517,7 +517,7 @@ class baseClass (object):
 
     def setUserAgent(self, ua):
         if (ua != self.config["p_useragent"]):
-            self._log("Useragent changed to: %s" %(ua), self.LOG_DEBUG)
+            self._log("Useragent changed to: %s".format(ua), self.LOG_DEBUG)
             self.config["p_useragent"] = ua
 
     def doGetRequest(self, URL, additionalHeaders=None):

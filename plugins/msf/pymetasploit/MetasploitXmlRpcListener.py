@@ -96,7 +96,7 @@ class MsfXmlRpcListener:
 		opts = { "LHOST" : self.lhost,"LPORT" : self.lport, "PAYLOAD": self.payload}
 		ret = self.connection.module.execute(self.token,"exploit","exploit/multi/handler",opts)
 		if ret['result']!='success': raise MsfXmlRpcListenerErr("Unexpected error while creating the listener")
-		print "Sleeping before returning the created payload..."
+		print("Sleeping before returning the created payload...")
 		time.sleep(5)
 		
 

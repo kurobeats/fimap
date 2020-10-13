@@ -8,7 +8,7 @@ paramikoInstalled = True
 try:
     import paramiko
 except:
-    print "SSH functionallity disabled because paramiko is not installed!"
+    print("SSH functionallity disabled because paramiko is not installed!")
     paramikoInstalled = False
 
 class Connection(object):

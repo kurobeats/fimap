@@ -78,7 +78,7 @@ class GoogleSets(object):
         try:
             page = self.browser.get_page(safe_url)
         except BrowserError, e:
-            raise GSError, "Failed getting %s: %s" % (e.url, e.error)
+            raise GSError, "Failed getting %s: %s".format( (e.url, e.error)
 
         return BeautifulSoup(page)
 

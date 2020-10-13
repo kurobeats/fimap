@@ -39,7 +39,7 @@ class singleScan(baseClass):
 
     def scan(self):
         try:
-            self.localLog("SingleScan is testing URL: '%s'" %self.URL)
+            self.localLog("SingleScan is testing URL: '%s'".format(self.URL)
             t = targetScanner(self.config)
             t.MonkeyTechnique = self.config["p_monkeymode"]
 
@@ -54,15 +54,15 @@ class singleScan(baseClass):
                         files = i[1]
                         idx = idx +1
                         boxarr = []
-                        header = "[%d] Possible File Inclusion"%(idx)
+                        header = "[%d] Possible File Inclusion".format(idx)
                         if (report.getLanguage() != None):
-                            header = "[%d] Possible %s-File Inclusion"%(idx, report.getLanguage())
+                            header = "[%d] Possible %s-File Inclusion".format(idx, report.getLanguage())
                         boxarr.append("::REQUEST")
                         boxarr.append("  [URL]        %s"%report.getURL())
                         if (report.getPostData() != None and report.getPostData() != ""): boxarr.append("  [POST]       %s"%report.getPostData())
                         if (report.getHeader() != None and report.getHeader().keys() > 0):
                             modkeys = ",".join(report.getHeader().keys())
-                            boxarr.append("  [HEAD SENT]  %s"%(modkeys))
+                            boxarr.append("  [HEAD SENT]  %s".format(modkeys))
                         
                         boxarr.append("::VULN INFO")
                         if (report.isPost == 0):
@@ -88,7 +88,7 @@ class singleScan(baseClass):
                                 boxarr.append("  [TRUNCATION] No Need. It's clean.")
                             else:
                                 if (report.isSuffixBreakable()):
-                                    boxarr.append("  [TRUNCATION] Works with '%s'. :)" %(report.getSuffixBreakTechName()))
+                                    boxarr.append("  [TRUNCATION] Works with '%s'. :)".format(report.getSuffixBreakTechName()))
                                 else:
                                     boxarr.append("  [TRUNCATION] Doesn't work. :(")
                         else:
@@ -102,23 +102,23 @@ class singleScan(baseClass):
                         else:
                             fidx = 0
                             for file in files:
-                                payload = "%s%s%s"%(report.getPrefix(), file, report.getSurfix())
+                                payload = "%s%s%s".format(report.getPrefix(), file, report.getSurfix())
                                 if (file != payload):
                                     if report.isWindows() and file[1]==":":
                                         file = file[3:]
-                                    txt = "                   [%d] %s -> %s"%(fidx, file, payload)
+                                    txt = "                   [%d] %s -> %s".format(fidx, file, payload)
                                     #if (fidx == 0): txt = txt.strip()
                                     boxarr.append(txt)
                                 else:
-                                    txt = "                   [%d] %s"%(fidx, file)
+                                    txt = "                   [%d] %s".format(fidx, file)
                                     #if (fidx == 0): txt = txt.strip()
                                     boxarr.append(txt)
                                 fidx = fidx +1
                         self.drawBox(header, boxarr)
         except KeyboardInterrupt:
             if (self.quite): # We are in google mode.
-                print "\nCancelled current target..."
-                print "Press CTRL+C again in the next second to terminate fimap."
+                print("\nCancelled current target...")
+                print("Press CTRL+C again in the next second to terminate fimap.")
                 try:
                     time.sleep(1)
                 except KeyboardInterrupt:
@@ -127,4 +127,4 @@ class singleScan(baseClass):
                 raise
     def localLog(self, txt):
         if (not self.quite):
-            print txt
+            print(txt)

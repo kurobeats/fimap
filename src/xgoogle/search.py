@@ -144,7 +144,7 @@ class GoogleSearch(object):
         try:
             page = self.browser.get_page(safe_url)
         except BrowserError, e:
-            raise SearchError, "Failed getting %s: %s" % (e.url, e.error)
+            raise SearchError, "Failed getting %s: %s".format( (e.url, e.error)
 
         return BeautifulSoup(page)
 

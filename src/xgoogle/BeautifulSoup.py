@@ -401,7 +401,7 @@ class NavigableString(unicode, PageElement):
         if attr == 'string':
             return self
         else:
-            raise AttributeError, "'%s' object has no attribute '%s'" % (self.__class__.__name__, attr)
+            raise AttributeError, "'%s' object has no attribute '%s'".format( (self.__class__.__name__, attr)
 
     def __unicode__(self):
         return str(self).decode(DEFAULT_OUTPUT_ENCODING)
@@ -415,22 +415,22 @@ class NavigableString(unicode, PageElement):
 class CData(NavigableString):
 
     def __str__(self, encoding=DEFAULT_OUTPUT_ENCODING):
-        return "<![CDATA[%s]]>" % NavigableString.__str__(self, encoding)
+        return "<![CDATA[%s]]>".format( NavigableString.__str__(self, encoding)
 
 class ProcessingInstruction(NavigableString):
     def __str__(self, encoding=DEFAULT_OUTPUT_ENCODING):
         output = self
         if "%SOUP-ENCODING%" in output:
             output = self.substituteEncoding(output, encoding)
-        return "<?%s?>" % self.toEncoding(output, encoding)
+        return "<?%s?>".format( self.toEncoding(output, encoding)
 
 class Comment(NavigableString):
     def __str__(self, encoding=DEFAULT_OUTPUT_ENCODING):
-        return "<!--%s-->" % NavigableString.__str__(self, encoding)
+        return "<!--%s-->".format( NavigableString.__str__(self, encoding)
 
 class Declaration(NavigableString):
     def __str__(self, encoding=DEFAULT_OUTPUT_ENCODING):
-        return "<!%s>" % NavigableString.__str__(self, encoding)
+        return "<!%s>".format( NavigableString.__str__(self, encoding)
 
 class Tag(PageElement):
 
@@ -564,12 +564,12 @@ class Tag(PageElement):
         return apply(self.findAll, args, kwargs)
 
     def __getattr__(self, tag):
-        #print "Getattr %s.%s" % (self.__class__, tag)
+        #print("Getattr %s.%s".format( (self.__class__, tag)
         if len(tag) > 3 and tag.rfind('Tag') == len(tag)-3:
             return self.find(tag[:-3])
         elif tag.find('__') != 0:
             return self.find(tag)
-        raise AttributeError, "'%s' object has no attribute '%s'" % (self.__class__, tag)
+        raise AttributeError, "'%s' object has no attribute '%s'".format( (self.__class__, tag)
 
     def __eq__(self, other):
         """Returns true iff this tag has the same name, the same attributes,
@@ -819,7 +819,7 @@ class SoupStrainer:
         if self.text:
             return self.text
         else:
-            return "%s|%s" % (self.name, self.attrs)
+            return "%s|%s".format( (self.name, self.attrs)
 
     def searchTag(self, markupName=None, markupAttrs={}):
         found = None
@@ -885,7 +885,7 @@ class SoupStrainer:
         return found
 
     def _matches(self, markup, matchAgainst):
-        #print "Matching %s against %s" % (markup, matchAgainst)
+        #print("Matching %s against %s".format( (markup, matchAgainst)
         result = False
         if matchAgainst == True and type(matchAgainst) == types.BooleanType:
             result = markup != None
@@ -1117,7 +1117,7 @@ class BeautifulStoneSoup(Tag, SGMLParser):
     def __getattr__(self, methodName):
         """This method routes method call requests to either the SGMLParser
         superclass or the Tag superclass, depending on the method name."""
-        #print "__getattr__ called on %s.%s" % (self.__class__, methodName)
+        #print("__getattr__ called on %s.%s".format( (self.__class__, methodName)
 
         if methodName.find('start_') == 0 or methodName.find('end_') == 0 \
                or methodName.find('do_') == 0:
@@ -1152,13 +1152,13 @@ class BeautifulStoneSoup(Tag, SGMLParser):
            isinstance(self.currentTag.contents[0], NavigableString):
             self.currentTag.string = self.currentTag.contents[0]
 
-        #print "Pop", tag.name
+        #print("Pop", tag.name
         if self.tagStack:
             self.currentTag = self.tagStack[-1]
         return self.currentTag
 
     def pushTag(self, tag):
-        #print "Push", tag.name
+        #print("Push", tag.name
         if self.currentTag:
             self.currentTag.contents.append(tag)
         self.tagStack.append(tag)
@@ -1190,7 +1190,7 @@ class BeautifulStoneSoup(Tag, SGMLParser):
         instance of the given tag. If inclusivePop is false, pops the tag
         stack up to but *not* including the most recent instqance of
         the given tag."""
-        #print "Popping to %s" % name
+        #print("Popping to %s".format( name
         if name == self.ROOT_TAG_NAME:
             return
 
@@ -1254,10 +1254,10 @@ class BeautifulStoneSoup(Tag, SGMLParser):
             self._popToTag(popTo, inclusive)
 
     def unknown_starttag(self, name, attrs, selfClosing=0):
-        #print "Start tag %s: %s" % (name, attrs)
+        #print("Start tag %s: %s".format( (name, attrs)
         if self.quoteStack:
             #This is not a real tag.
-            #print "<%s> is not real!" % name
+            #print("<%s> is not real!".format( name
             attrs = ''.join(map(lambda(x, y): ' %s="%s"' % (x, y), attrs))
             self.handle_data('<%s%s>' % (name, attrs))
             return
@@ -1278,16 +1278,16 @@ class BeautifulStoneSoup(Tag, SGMLParser):
         if selfClosing or self.isSelfClosingTag(name):
             self.popTag()
         if name in self.QUOTE_TAGS:
-            #print "Beginning quote (%s)" % name
+            #print("Beginning quote (%s)".format( name
             self.quoteStack.append(name)
             self.literal = 1
         return tag
 
     def unknown_endtag(self, name):
-        #print "End tag %s" % name
+        #print("End tag %s".format( name
         if self.quoteStack and self.quoteStack[-1] != name:
             #This is not a real end tag.
-            #print "</%s> is not real!" % name
+            #print("</%s> is not real!".format( name
             self.handle_data('</%s>' % name)
             return
         self.endData()
@@ -1358,7 +1358,7 @@ class BeautifulStoneSoup(Tag, SGMLParser):
                 #
                 # The more common case is a misplaced ampersand, so I
                 # escape the ampersand and omit the trailing semicolon.
-                data = "&amp;%s" % ref
+                data = "&amp;%s".format( ref
         if not data:
             # This case is different from the one above, because we
             # haven't already gone through a supposedly comprehensive
@@ -1366,7 +1366,7 @@ class BeautifulStoneSoup(Tag, SGMLParser):
             # have gone through any mapping at all. So the chances are
             # very high that this is a real entity, and not a
             # misplaced ampersand.
-            data = "&%s;" % ref
+            data = "&%s;".format( ref
         self.handle_data(data)
 
     def handle_decl(self, data):
@@ -1746,15 +1746,15 @@ class UnicodeDammit:
                       markup)
 
         try:
-            # print "Trying to convert document to %s" % proposed
+            # print("Trying to convert document to %s".format( proposed
             u = self._toUnicode(markup, proposed)
             self.markup = u
             self.originalEncoding = proposed
         except Exception, e:
-            # print "That didn't work!"
+            # print("That didn't work!"
             # print e
             return None
-        #print "Correct encoding: %s" % proposed
+        #print("Correct encoding: %s".format( proposed
         return self.markup
 
     def _toUnicode(self, data, encoding):

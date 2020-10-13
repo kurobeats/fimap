@@ -39,7 +39,7 @@ class autoawesome(baseClass):
         self.URL = URL
 
     def scan(self):
-        print "Requesting '%s'..." %(self.URL)
+        print("Requesting '%s'...".format(self.URL))
         
         extHeader = ""
         code, headers = self.doRequest(self.URL, self.config["p_useragent"], self.config["p_post"], self.config["header"], self.config["p_ttl"])
@@ -51,25 +51,25 @@ class autoawesome(baseClass):
                     c = Cookie.SimpleCookie()
                     c.load(cookie)
                     for k,v in c.items():
-                        extHeader += "%s=%s; " %(k, c[k].value)
+                        extHeader += "%s=%s; ".format(k, c[k].value)
         
         if (code == None):
-            print "Code == None!"
-            print "Does the target exist?!"
-            print "AutoAwesome mode failed. -> Aborting."
+            print("Code == None!")
+            print("Does the target exist?!")
+            print("AutoAwesome mode failed. -> Aborting.")
             sys.exit(1)
         
         if (extHeader != ""):
-            print "Cookies retrieved. Using them for further requests."
+            print("Cookies retrieved. Using them for further requests.")
             extHeader = extHeader.strip()[:-1]
             
         if (self.config["header"].has_key("Cookie") and extHeader != ""):
-            print "WARNING: AutoAwesome mode got some cookies from the server."
-            print "Your defined cookies will be overwritten!"
+            print("WARNING: AutoAwesome mode got some cookies from the server.")
+            print("Your defined cookies will be overwritten!")
 
 
         if (extHeader != ""):
-            print "Testing file inclusion against given cookies..."
+            print("Testing file inclusion against given cookies...")
             self.config["header"]["Cookie"] = extHeader
             single = singleScan(self.config)
             single.setURL(self.URL)
@@ -92,7 +92,7 @@ class autoawesome(baseClass):
             if (form.has_key("name")):
                 caption = form["name"]
             else:
-                caption = "Unnamed Form #%d" %(idx)
+                caption = "Unnamed Form #%d".format(idx)
                 
             if (form.has_key("method")):
                 if (form["method"].lower() == "get"):
@@ -112,25 +112,25 @@ class autoawesome(baseClass):
                         input_val  = input["value"]
                     
                     if (input_val == None):
-                        params += "%s=&" %(input_name)
+                        params += "%s=&".format(input_name)
                     else:
-                        params += "%s=%s&" %(input_name, input_val)
+                        params += "%s=%s&".format(input_name, input_val)
                 else:
-                    print "An input field doesn't have an 'name' attribute! Skipping it."
+                    print("An input field doesn't have an 'name' attribute! Skipping it.")
             
             if ("&" in params):
                 params = params[:-1]
                 
-            print "Analyzing form '%s' for file inclusion bugs." %(caption) 
+            print("Analyzing form '%s' for file inclusion bugs.".format(caption))
             modConfig = deepcopy(self.config)
             if (method == 0):
                 # Append the current get params to the current URL.
                 if ("?" in desturl):
                     # There are already params in the URL.
-                    desturl = "%s&%s" %(desturl, params)
+                    desturl = "%s&%s".format(desturl, params)
                 else:
                     # There are no other params.
-                    desturl = "%s&?%s" %(desturl, params)
+                    desturl = "%s&?%s".format(desturl, params)
             
             else:
                 currentPost = modConfig["p_post"]
@@ -146,13 +146,13 @@ class autoawesome(baseClass):
             single.setQuite(True)
             single.scan()
             
-        print "Starting harvester engine to get links (Depth: 0)..."
+        print("Starting harvester engine to get links (Depth: 0)...")
         crawl = crawler(self.config)
         crawl.crawl_url(self.URL, 0)
         if (len(crawl.urlpool) == 0):
-            print "No links found."
+            print("No links found.")
         else:
-            print "Harvesting done. %d links found. Analyzing links now..."%(len(crawl.urlpool))
+            print("Harvesting done. %d links found. Analyzing links now...".format(len(crawl.urlpool)))
             for url in crawl.urlpool:
                 try:
                     single = singleScan(self.config)
@@ -160,6 +160,6 @@ class autoawesome(baseClass):
                     single.setQuite(True)
                     single.scan()
                 except:
-                    print "Cought an exception. Continuing..."
+                    print("Cought an exception. Continuing...")
                 
-        print "AutoAwesome is done."
+        print("AutoAwesome is done.")
