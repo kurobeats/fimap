@@ -101,7 +101,7 @@ def show_help(AndQuit=False):
     print("   -P , --post=POSTDATA          The POSTDATA you want to send. All variables inside")
     print("                                 will also be scanned for file inclusion bugs.")
     print("        --cookie=COOKIES         Define the cookie which should be send with each request.")
-    print("                                 Also the cookies will be scanned for file inclusion bugs." )
+    print("                                 Also the cookies will be scanned for file inclusion bugs.") 
     print("                                 Concatenate multiple cookies with the ';' character.")
     print("        --ttl=SECONDS            Define the TTL (in seconds) for requests. Default is 30 seconds.")
     print("        --no-auto-detect         Use this switch if you don't want to let fimap automaticly detect")
@@ -230,10 +230,10 @@ def list_results(lst = os.path.join(os.path.expanduser("~"), "fimap_result.xml")
 
 
 def show_report():
-    if (len(baseClass.new_stuff.items()) > 0):
+    if (len(list(baseClass.new_stuff.items())) > 0):
         print("New FI Bugs found in this session:")
-        for k,v in baseClass.new_stuff.items():
-            print("\t- %d (probably) usable FI-Bugs on '%s'.".format(v, k))
+        for k,v in list(baseClass.new_stuff.items()):
+            print("\t- %d (probably) usable FI-Bugs on '%s'."%(v, k))
 
 
 if __name__ == "__main__":
@@ -241,7 +241,7 @@ if __name__ == "__main__":
     config["p_mode"] = 0 # 0=single ; 1=mass ; 2=google ; 3=crawl ; 4=autoawesome ; 5=bing
     config["p_list"] = None
     config["p_verbose"] = 2
-    config["p_useragent"] = "fimap.googlecode.com/v%s".format(__version__
+    config["p_useragent"] = "fimap.googlecode.com/v%s" %__version__
     config["p_pages"] = 10
     config["p_query"] = None
     config["p_exploit_filter"] = ""
@@ -289,7 +289,7 @@ if __name__ == "__main__":
 
     if (len(sys.argv) == 1):
         #show_help(True)
-        print("Use -h for some help."
+        print("Use -h for some help.")
         sys.exit(0)
 
     try:
@@ -466,10 +466,10 @@ if __name__ == "__main__":
         # Setup possibly changed engine settings.
         if (blind_min != None):
             xmlsettings.blind_min = blind_min
-            print("Overwriting 'blind_min' setting to %s...".format(blind_min))
+            print("Overwriting 'blind_min' setting to %s..." %(blind_min))
         if (blind_max != None):
             xmlsettings.blind_max = blind_max
-            print("Overwriting 'blind_max' setting to %s...".format(blind_max))
+            print("Overwriting 'blind_max' setting to %s..." %(blind_max))
         
         config["XML2CONFIG"] = xmlsettings  
         
@@ -485,8 +485,8 @@ if __name__ == "__main__":
                 print("\n\nYou killed me brutally. Wtf!\n\n")
                 sys.exit(0)
 
-    except getopt.GetoptError, err:
-        print(err)
+    except getopt.GetoptError as err:
+        print (err)
         sys.exit(1)
 
     if (doUpdateDef):
@@ -494,7 +494,7 @@ if __name__ == "__main__":
         tools = baseTools.baseTools()
         tester = codeinjector(config)
         print("Checking for definition file updates...")
-
+        #print "Testing 'generic.xml'..."
         generic_xml_ver = xmlconfig.getVersion()
         
         # Get generic.xml from SVN repository and parse out its version.
@@ -511,16 +511,16 @@ if __name__ == "__main__":
         generic_xml_ver_online = tools.getAttributeFromFirstNode(tmpFile, "revision")
 
         if (generic_xml_ver < generic_xml_ver_online):
-            print("'generic.xml' (v.%s) is older than the online version (v.%s)!".format(generic_xml_ver, generic_xml_ver_online))
+            print("'generic.xml' (v.%s) is older than the online version (v.%s)!" %(generic_xml_ver, generic_xml_ver_online))
             tools.suggest_update(xmlconfig.getRealFile(), tmpFile)
         else:
-            print("'generic.xml' is up-to-date." )
+            print("'generic.xml' is up-to-date.") 
         
         print("Testing language sets defined in 'generic.xml'...")
         langsets = xmlconfig.getAllLangSets()
-        for name, langclass in langsets.items():
+        for name, langclass in list(langsets.items()):
             fname = os.path.basename(langclass.getLangFile())
-
+            #print "Testing language '%s' for updates..." %(fname)
             langurl = defupdateurl + fname
             # Download and save XML from SVN repository.
             xml_content = tester.doGetRequest(langurl)
@@ -534,12 +534,12 @@ if __name__ == "__main__":
                 # Get installed version.
                 version = langclass.getVersion()
                 if (version < version_online):
-                    print("'%s' (v.%s) is older than the online version (v.%s)!".format(fname, version, version_online))
+                    print("'%s' (v.%s) is older than the online version (v.%s)!" %(fname, version, version_online))
                     tools.suggest_update(langclass.getLangFile(), tmpFile)
                 else:
-                    print("'%s' is up-to-date.".format(fname))
+                    print("'%s' is up-to-date." %(fname))
             else:
-                print("Failed to check '%s'!".format(fname))
+                print("Failed to check '%s'!" %(fname))
             
         
         sys.exit(1)
@@ -569,22 +569,22 @@ if __name__ == "__main__":
         tools = baseTools.baseTools()
         header = "LIST OF TRUSTED PLUGINS"
         boxarr = []
-        for k,(l,n,v,u) in choice.items():
+        for k,(l,n,v,u) in list(choice.items()):
             instver = pluginman.getPluginVersion(n)
             if (instver == None):
-                boxarr.append("[%d] %s - At version %d not installed.".format(k, l, v))
+                boxarr.append("[%d] %s - At version %d not installed." %(k, l, v))
             elif (instver < v):
-                boxarr.append("[%d] %s - At version %d has an UPDATE.".format(k, l, v))
+                boxarr.append("[%d] %s - At version %d has an UPDATE." %(k, l, v))
             else:    
-                boxarr.append("[%d] %s - At version %d is up-to-date and installed.".format(k, l, v))
+                boxarr.append("[%d] %s - At version %d is up-to-date and installed." %(k, l, v))
         boxarr.append("[q] Cancel and Quit.")
         tools.drawBox(header, boxarr, False)
         nr = None    
     
-        nr = raw_input("Choose a plugin to install: ")
+        nr = input("Choose a plugin to install: ")
         if (nr != "q"):
             (l,n,v,u) = choice[int(nr)]
-            print("Downloading plugin '%s' (%s)...".format(n, u))
+            print("Downloading plugin '%s' (%s)..." %(n, u))
             plugin = tester.doGetRequest(u)
             if (plugin != None):
                 tmpFile = tempfile.mkstemp()[1] + ".tar.gz"
@@ -592,7 +592,7 @@ if __name__ == "__main__":
                 f.write(plugin)
                 f.close()
                 
-                print("Unpacking plugin..."
+                print("Unpacking plugin...")
                 try:
                     tar = tarfile.open(tmpFile, 'r:gz')
                     tmpdir = tempfile.mkdtemp()
@@ -607,22 +607,22 @@ if __name__ == "__main__":
                         if (ver != None):
                             inp = ""
                             if (ver > info.getVersion()):
-                                inp = raw_input("Do you really want to downgrade this plugin? [y/N]")
+                                inp = input("Do you really want to downgrade this plugin? [y/N]")
                             elif (ver == info.getVersion()):
-                                inp = raw_input("Do you really want to reinstall this plugin? [y/N]")
+                                inp = input("Do you really want to reinstall this plugin? [y/N]")
 
                             if (inp == "Y" or inp == "y"):
                                 dir = info.getStartupClass()
                                 deldir = os.path.join(pluginsdir, dir)
-                                print("Deleting old plugin directory..."
+                                print("Deleting old plugin directory...")
                                 shutil.rmtree(deldir)
                             else:
-                                print("OK aborting..." 
+                                print("OK aborting...") 
                                 sys.exit(0)
                         tar.extractall(os.path.join(pluginsdir))
-                        print("Plugin '%s' installed successfully!".format(info.getName()))
+                        print("Plugin '%s' installed successfully!" %(info.getName()))
                     else:
-                        print("Plugin doesn't have a plugin.xml! (%s)".format(pluginxml)
+                        print("Plugin doesn't have a plugin.xml! (%s)" %pluginxml)
                         sys.exit(1)
                     
                 except:
@@ -638,7 +638,7 @@ if __name__ == "__main__":
         plugins = config["PLUGINMANAGER"].getAllPluginObjects()
         if (len(plugins) > 0):
             for plug in plugins:
-                print("[Plugin: %s] by %s (%s)".format(plug.getPluginName(), plug.getPluginAutor(), plug.getPluginEmail()))
+                print("[Plugin: %s] by %s (%s)" %(plug.getPluginName(), plug.getPluginAutor(), plug.getPluginEmail()))
         else:
             print("No plugins :T")
         sys.exit(0)
@@ -646,7 +646,7 @@ if __name__ == "__main__":
     if (doMergeXML):
         tester = codeinjector(config)
         newVulns, newDomains = tester.mergeXML(config["p_mergexml"])
-        print("%d new vulnerabilitys added from %d new domains.".format(newVulns, newDomains))
+        print("%d new vulnerabilitys added from %d new domains." %(newVulns, newDomains))
         sys.exit(0)
         
     # Upgrade XML if needed...
@@ -675,7 +675,7 @@ if __name__ == "__main__":
             
 
     if (config["p_proxy"] != None):
-        print("Using HTTP-Proxy '%s'.".format(config["p_proxy"])
+        print("Using HTTP-Proxy '%s'." %(config["p_proxy"]))
 
     if (doInternetInfo):
         show_ip()
@@ -731,32 +731,32 @@ if __name__ == "__main__":
 
         elif(config["p_mode"] == 1):
             if (not os.path.exists(config["p_list"])):
-                print("Your defined URL-List doesn't exist: '%s'".format(config["p_list"]))
+                print("Your defined URL-List doesn't exist: '%s'" %config["p_list"])
                 sys.exit(0)
-            print("MassScanner is loading URLs from file: '%s'".format(config["p_list"]))
+            print("MassScanner is loading URLs from file: '%s'" %config["p_list"])
             m = massScan(config)
             m.startMassScan()
             show_report()
 
         elif(config["p_mode"] == 2):
-            print("GoogleScanner is searching for Query: '%s'".format(config["p_query"])
+            print("GoogleScanner is searching for Query: '%s'" %config["p_query"])
             g = googleScan(config)
             g.startGoogleScan()
             show_report()
 
         elif(config["p_mode"] == 3):
-            print("Crawler is harvesting URLs from start URL: '%s' with depth: %d and writing results to: '%s'".format(config["p_url"], config["p_depth"], config["p_write"]))
+            print("Crawler is harvesting URLs from start URL: '%s' with depth: %d and writing results to: '%s'" %(config["p_url"], config["p_depth"], config["p_write"]))
             c = crawler(config)
             c.crawl()
             
         elif(config["p_mode"] == 4):
-            print("AutoAwesome mode engaging URL '%s'...".format(config["p_url"])))
+            print("AutoAwesome mode engaging URL '%s'..." %(config["p_url"]))
             awe = autoawesome.autoawesome(config)
             awe.setURL(config["p_url"])
             awe.scan()
 
         elif(config["p_mode"] == 5):
-            print("BingScanner is searching for Query: '%s'".format(config["p_query"]))
+            print("BingScanner is searching for Query: '%s'" %config["p_query"])
             b = bingScan(config)
             b.startGoogleScan()
             show_report()
@@ -764,12 +764,12 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\n\nYou have terminated me :(")
         
-    except Exception, err:
+    except Exception as err:
         print("\n\n========= CONGRATULATIONS! =========")
         print("You have just found a bug!")
         print("If you are cool, send the following stacktrace to the bugtracker on http://fimap.googlecode.com/")
         print("Please also provide the URL where fimap crashed.")
-        raw_input("Push enter to see the stacktrace..."))
+        input("Push enter to see the stacktrace...")
         print("cut here %<--------------------------------------------------------------")
-        print("Exception: %s".format(err))
+        print("Exception: %s" %err)
         raise

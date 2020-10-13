@@ -47,7 +47,7 @@ class Connection(object):
                 elif os.path.exists(os.path.expanduser('~/.ssh/id_dsa')):
                     private_key = '~/.ssh/id_dsa'
                 else:
-                    raise TypeError, "You have not specified a password or key."
+                    raise TypeError("You have not specified a password or key.")
 
             private_key_file = os.path.expanduser(private_key)
             rsa_key = paramiko.RSAKey.from_private_key_file(private_key_file)

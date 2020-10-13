@@ -183,14 +183,14 @@ class report:
             if (self.getAppendix() == ""):
                 ret = "Absolute Clean"
             else:
-                ret = "Absolute with appendix '%s'".format(self.getAppendix())
+                ret = "Absolute with appendix '%s'" %(self.getAppendix())
         elif (self.isRelativeInjection()):
             if (self.getAppendix() == ""):
                 ret = "Relative Clean"
             else:
-                ret = "Relative with appendix '%s'".format(self.getAppendix())
+                ret = "Relative with appendix '%s'" %(self.getAppendix())
         else:
-            return("Unknown (%s | %s | %s)".format(self.getPrefix(), self.isRelativeInjection(), self.isAbsoluteInjection()))
+            return("Unknown (%s | %s | %s)" %(self.getPrefix(), self.isRelativeInjection(), self.isAbsoluteInjection()))
 
         if (self.isRemoteInjectable()):
             ret = ret + " + Remote injection"
@@ -212,7 +212,7 @@ class report:
         return(url)
 
     def autoDetectLanguageByExtention(self, languageSets):
-        for Name, langClass in languageSets.items():
+        for Name, langClass in list(languageSets.items()):
             exts = langClass.getExtentions()
             for ext in exts:
                 if (self.URL.find(ext) != -1):

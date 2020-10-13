@@ -20,7 +20,7 @@
 
 import os.path
 from xgoogle.BeautifulSoup import BeautifulSoup
-import os, urllib2, urllib, socket, ssl
+import os, urllib.request, urllib.error, urllib.parse, urllib.request, urllib.parse, urllib.error, socket, ssl
 
 ctx = ssl.create_default_context()
 ctx.check_hostname = False
@@ -43,7 +43,7 @@ class crawler:
 
 
         idx = 0
-        print("[%d] Going to root URL: '%s'...".format(idx, root_url))
+        print("[%d] Going to root URL: '%s'..." %(idx, root_url))
         if (self.countChar(root_url, "/") == 2):
             root_url = root_url + "/"
         self.crawl_url(root_url)
@@ -52,7 +52,7 @@ class crawler:
         while(len(self.urlpool)-idx > 0):
             url , level = self.urlpool[idx]
             url = self.__encodeURL(url)
-            print("[Done: %d | Todo: %d | Depth: %d] Going for next URL: '%s'...".format(idx, len(self.urlpool) - idx, level, url))
+            print("[Done: %d | Todo: %d | Depth: %d] Going for next URL: '%s'..." %(idx, len(self.urlpool) - idx, level, url))
             outfile.write(url + "\n")
             self.crawl_url(url, level)
             idx = idx +1
@@ -88,7 +88,7 @@ class crawler:
                     new_url = None
                     try:
                         new_url = tag['href']
-                    except KeyError, err:
+                    except KeyError as err:
                         pass
 
                     if new_url != None and not new_url.startswith("#") and not new_url.startswith("javascript:"):
@@ -126,13 +126,13 @@ class crawler:
     def __simpleGetRequest(self, URL, TimeOut=10):
         try:
             try:
-                opener = urllib2.build_opener(urllib2.HTTPSHandler(context=ctx))
+                opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=ctx))
                 opener.addheaders = [('User-agent', self.config["p_useragent"])]
                 f = opener.open(URL, timeout=TimeOut) # TIMEOUT
                 ret = f.read()
                 f.close()
                 return(ret)
-            except TypeError, err:
+            except TypeError as err:
                 try:
                     # Python 2.5 compatiblity
                     socket.setdefaulttimeout(TimeOut)
@@ -140,13 +140,13 @@ class crawler:
                     ret = f.read()
                     f.close()
                     return(ret)
-                except Exception, err:
+                except Exception as err:
                     raise
             except:
                 raise
 
-        except Exception, err:
-            print("Failed to to request to '%s'".format(Exception))
+        except Exception as err:
+            print("Failed to to request to '%s'" %(Exception))
             print(err)
             return(None)
 

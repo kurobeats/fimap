@@ -24,7 +24,7 @@ from singleScan import singleScan
 from xgoogle import BeautifulSoup
 from copy import deepcopy
 from crawler import crawler
-import sys, time, Cookie
+import sys, time, http.cookies
 
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
@@ -39,7 +39,7 @@ class autoawesome(baseClass):
         self.URL = URL
 
     def scan(self):
-        print("Requesting '%s'...".format(self.URL))
+        print("Requesting '%s'..." %(self.URL))
         
         extHeader = ""
         code, headers = self.doRequest(self.URL, self.config["p_useragent"], self.config["p_post"], self.config["header"], self.config["p_ttl"])
@@ -48,10 +48,10 @@ class autoawesome(baseClass):
             for head in headers:
                 if head[0] in ("set-cookie", "set-cookie2"):
                     cookie = head[1]
-                    c = Cookie.SimpleCookie()
+                    c = http.cookies.SimpleCookie()
                     c.load(cookie)
-                    for k,v in c.items():
-                        extHeader += "%s=%s; ".format(k, c[k].value)
+                    for k,v in list(c.items()):
+                        extHeader += "%s=%s; " %(k, c[k].value)
         
         if (code == None):
             print("Code == None!")
@@ -63,7 +63,7 @@ class autoawesome(baseClass):
             print("Cookies retrieved. Using them for further requests.")
             extHeader = extHeader.strip()[:-1]
             
-        if (self.config["header"].has_key("Cookie") and extHeader != ""):
+        if ("Cookie" in self.config["header"] and extHeader != ""):
             print("WARNING: AutoAwesome mode got some cookies from the server.")
             print("Your defined cookies will be overwritten!")
 
@@ -84,17 +84,17 @@ class autoawesome(baseClass):
             desturl = None
             method  = None
             
-            if (soup.has_key("action")):
+            if ("action" in soup):
                 desturl = soup["action"]
             else:
                 desturl = self.URL
             
-            if (form.has_key("name")):
+            if ("name" in form):
                 caption = form["name"]
             else:
-                caption = "Unnamed Form #%d".format(idx)
+                caption = "Unnamed Form #%d" %(idx)
                 
-            if (form.has_key("method")):
+            if ("method" in form):
                 if (form["method"].lower() == "get"):
                     method = 0
                 else:
@@ -105,32 +105,32 @@ class autoawesome(baseClass):
             
             params = ""
             for input in form.findAll("input"):
-                if (input.has_key("name")):
+                if ("name" in input):
                     input_name = input["name"]
                     input_val  = None
-                    if (input.has_key("value")):
+                    if ("value" in input):
                         input_val  = input["value"]
                     
                     if (input_val == None):
-                        params += "%s=&".format(input_name)
+                        params += "%s=&" %(input_name)
                     else:
-                        params += "%s=%s&".format(input_name, input_val)
+                        params += "%s=%s&" %(input_name, input_val)
                 else:
                     print("An input field doesn't have an 'name' attribute! Skipping it.")
             
             if ("&" in params):
                 params = params[:-1]
                 
-            print("Analyzing form '%s' for file inclusion bugs.".format(caption))
+            print("Analyzing form '%s' for file inclusion bugs." %(caption)) 
             modConfig = deepcopy(self.config)
             if (method == 0):
                 # Append the current get params to the current URL.
                 if ("?" in desturl):
                     # There are already params in the URL.
-                    desturl = "%s&%s".format(desturl, params)
+                    desturl = "%s&%s" %(desturl, params)
                 else:
                     # There are no other params.
-                    desturl = "%s&?%s".format(desturl, params)
+                    desturl = "%s&?%s" %(desturl, params)
             
             else:
                 currentPost = modConfig["p_post"]
@@ -152,7 +152,7 @@ class autoawesome(baseClass):
         if (len(crawl.urlpool) == 0):
             print("No links found.")
         else:
-            print("Harvesting done. %d links found. Analyzing links now...".format(len(crawl.urlpool)))
+            print("Harvesting done. %d links found. Analyzing links now..."%(len(crawl.urlpool)))
             for url in crawl.urlpool:
                 try:
                     single = singleScan(self.config)

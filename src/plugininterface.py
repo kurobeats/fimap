@@ -38,10 +38,10 @@ class plugininterface(baseClass):
                 if (os.path.exists(pluginxml)):
                     info = pluginXMLInfo(pluginxml)
                     plugin = info.getStartupClass()
-                    self._log("Trying to load plugin '%s'...".format(dir, self.LOG_DEBUG)
+                    self._log("Trying to load plugin '%s'..." %dir, self.LOG_DEBUG)
                     loadedClass = None
-                    loader  = "from plugins.%s import %s\n".format(plugin, plugin)
-                    loader += "loadedClass = %s.%s(self.config)".format(plugin, plugin)
+                    loader  = "from plugins.%s import %s\n" %(plugin, plugin)
+                    loader += "loadedClass = %s.%s(self.config)"%(plugin, plugin)
                     try:
                         exec(loader)
                         loadedClass.addXMLInfo(info)
@@ -52,11 +52,11 @@ class plugininterface(baseClass):
                     except:
                         raise
                 else:
-                    self._log("Plugin doesn't have a plugin.xml file! -> '%s'...".format(dir, self.LOG_WARN)
+                    self._log("Plugin doesn't have a plugin.xml file! -> '%s'..." %dir, self.LOG_WARN)
         for p in self.plugins:
             p.plugin_loaded()
 
-        self._log("%d plugins loaded.".format(x), self.LOG_DEBUG)
+        self._log("%d plugins loaded." %(x), self.LOG_DEBUG)
         
     def requestPluginActions(self, langClass, isSystem, isUnix):
         ret = []
@@ -84,10 +84,10 @@ class plugininterface(baseClass):
             except KeyboardInterrupt:
                 print("\nReceived unhandled KeyboardInterrupt by plugin!")
             except:
-                self._log("\nPlugin '%s' just crashed!".format(p.getPluginName()), self.LOG_ERROR)
-                self._log("Please send a bugreport to the Plugin Developer: %s <%s>".format(p.getPluginAutor(), p.getPluginEmail()), self.LOG_ERROR)
+                self._log("\nPlugin '%s' just crashed!"%(p.getPluginName()), self.LOG_ERROR)
+                self._log("Please send a bugreport to the Plugin Developer: %s <%s>"%(p.getPluginAutor(), p.getPluginEmail()), self.LOG_ERROR)
                 self._log("Push enter to see the stacktrace.", self.LOG_WARN)
-                raw_input()
+                input()
                 print("%<--------------------------------------------")
                 raise
             
@@ -160,10 +160,10 @@ class basePlugin(baseClass):
         return(self.xmlInfo.getStartupClass())
 
     def printInfo(self):
-        self._log("[%s version %d]".format(self.getPluginName(), self.getPluginVersion()), self.LOG_DEBUG)
-        self._log("    Autor: %s".format(self.getPluginAutor()), self.LOG_DEBUG)
-        self._log("    Email: %s".format(self.getPluginEmail()), self.LOG_DEBUG)
-        self._log("    URL  : %s".format(self.getPluginURL()), self.LOG_DEBUG)
+        self._log("[%s version %d]"%(self.getPluginName(), self.getPluginVersion()), self.LOG_DEBUG)
+        self._log("    Autor: %s"%(self.getPluginAutor()), self.LOG_DEBUG)
+        self._log("    Email: %s"%(self.getPluginEmail()), self.LOG_DEBUG)
+        self._log("    URL  : %s"%(self.getPluginURL()), self.LOG_DEBUG)
 
     # EVENTS
     

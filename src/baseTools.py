@@ -17,7 +17,7 @@
 # or write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
-import urllib, httplib, copy, urllib2
+import urllib.request, urllib.parse, urllib.error, http.client, copy, urllib.request, urllib.error, urllib.parse
 import string,random,os,socket, os.path
 import xml.dom.minidom
 import shutil
@@ -83,12 +83,12 @@ class baseTools(object):
         
     def _log(self, txt, LVL):
         if (4-self.config["p_verbose"] < LVL):
-            logline = "[%s] %s".format(self.log_lvl[LVL][0], txt)
+            logline = "[%s] %s" %(self.log_lvl[LVL][0], txt)
             t = strftime("%H:%M:%S", gmtime())
             if (self.use_color):
-                print("[%s] %s".format(t, self.__getColorLine(logline, self.log_lvl[LVL][1])))
+                print("[%s] %s" %(t, self.__getColorLine(logline, self.log_lvl[LVL][1])))
             else:
-                print("[%s] %s".format(t, logline))
+                print("[%s] %s" %(t, logline))
     
     def __setColor(self, txt, style):
         ret = self.CONST_COL + txt
@@ -129,7 +129,7 @@ class baseTools(object):
             if (txt.startswith("::")): # Informative Inline Message
                 coloredtxt = self.__getColorLine(txt, self.BOX_SPLITTER_STYLE)
             
-            prin(self.boxsymbol + coloredtxt + suffix + self.boxsymbol)
+            print(self.boxsymbol + coloredtxt + suffix + self.boxsymbol)
         else:
             print(self.boxsymbol + txt + suffix + self.boxsymbol)
 
@@ -152,7 +152,7 @@ class baseTools(object):
     def suggest_update(self, orginal_file, replacement_file):
         #print orginal_file
         #print replacement_file
-        inp = raw_input("Do you want to update? [y/N]")
+        inp = input("Do you want to update? [y/N]")
         if (inp == "Y" or inp == "y"):
             print("Updating...")
             os.unlink(orginal_file)
