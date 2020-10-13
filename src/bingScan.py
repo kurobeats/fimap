@@ -20,7 +20,7 @@
 
 from singleScan import singleScan
 from targetScanner import targetScanner
-from pybing import Bing
+from py_bing_search import PyBingWebSearch
 import datetime
 import sys,time
 
@@ -31,7 +31,7 @@ class bingScan:
 
     def __init__(self, config):
         self.config = config
-        self.bs = Bing("YOUR ID")
+        self.bs = PyBingWebSearch("YOUR ID")
         self.cooldown = self.config["p_googlesleep"];
         self.results_per_page = int(self.config["p_results_per_query"]);
         if (self.config["p_skippages"] > 0):

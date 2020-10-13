@@ -20,7 +20,7 @@
 
 from singleScan import singleScan
 from targetScanner import targetScanner
-from xgoogle.search import GoogleSearch
+from googlesearch import search
 import datetime
 import sys,time
 

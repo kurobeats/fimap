@@ -19,7 +19,7 @@
 #
 
 import os.path
-from xgoogle.BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 import os, urllib.request, urllib.error, urllib.parse, urllib.request, urllib.parse, urllib.error, socket, ssl
 
 ctx = ssl.create_default_context()
