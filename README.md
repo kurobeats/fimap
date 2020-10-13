@@ -62,6 +62,8 @@ Originally, this tool was created by [this very awesome fellow](https://tha-imax
 
 *   Check out [this](http://kaoticcreations.blogspot.com/2011/08/automated-lfirfi-scanning-exploiting.html) post by HR from [Kaotic Creations](http://kaoticcreations.blogspot.com) which explains fimap really good :) It's a tutorial for windows but I think unix heads should understand it as well.
 
+* For Bing search, you need to set an API KEY in src/bingScan.py (line34). Check [Microsoft website](https://docs.microsoft.com/en-us/azure/cognitive-services/bing-web-search/quickstarts/python) to get the API KEY
+
 ## Credits
 
 *   Main Developer: [Iman Karim](mailto:fimap.dev@gmail.com)
