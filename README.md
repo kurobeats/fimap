@@ -9,11 +9,11 @@ Originally, this tool was created by [this very awesome fellow](https://tha-imax
 
 ## What works currently?
 
-*   Check a Single URL, List of URLs, or Google results fully automaticly.
+*   Check a Single URL, List of URLs, or Google results fully automatically.
 *   Can identify and exploit file inclusion bugs.
 
 *   Relative\Absolute Path Handling.
-*   Tries automaticly to eleminate suffixes with Nullbyte and other methods like Dot-Truncation.
+*   Tries automatically to eliminate suffixes with Nullbyte and other methods like Dot-Truncation.
 *   Remotefile Injection.
 *   Logfile Injection.
 
@@ -24,7 +24,7 @@ Originally, this tool was created by [this very awesome fellow](https://tha-imax
 *   require()
 *   require_once()
 
-*   You always define absolute pathnames in the configs. No monkey like redundant pathes like:
+*   You always define absolute pathnames in the configs. No monkey like redundant paths like:
 
 *   ../etc/passwd
 *   ../../etc/passwd
@@ -37,7 +37,7 @@ Originally, this tool was created by [this very awesome fellow](https://tha-imax
 *   ...can spawn a reverse shell on vulnerable systems.
 *   ...can do everything you have added in your_payload-dict_ inside the_config.py_
 
-*   Add your own payloads and pathes to the config.py file.
+*   Add your own payloads and paths to the config.py file.
 *   Has a Harvest mode which can collect URLs from a given domain for later pentesting.
 *   Works also on windows.
 *   Can handle directories in RFI mode like:
@@ -46,9 +46,9 @@ Originally, this tool was created by [this very awesome fellow](https://tha-imax
 *   <tt><? include ($_GET["inc"] . "_lang/index.html"); ?></tt>
 *   where Null-Byte is not possible.
 
-*   Can use proxys.
+*   Can use proxies.
 *   Scans and exploits GET, POST and Cookies.
-*   Has a very small footprint. (No senseless bruteforcing of pathes - unless you need it.)
+*   Has a very small footprint. (No senseless paths bruteforces - unless you need it.)
 *   Can attack also windows servers! 
 *   Has a tiny plugin interface for writing exploitmode plugins 
 
